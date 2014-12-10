@@ -1,0 +1,5 @@
+.settings/
+target/
+.classpath
+src/main/resources
+src/main/java/com/ciheul/iso/Legacy.java
