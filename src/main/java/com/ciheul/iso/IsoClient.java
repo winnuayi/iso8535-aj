@@ -12,7 +12,6 @@ import java.util.TimeZone;
 import org.jpos.iso.ISOChannel;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
-import org.jpos.iso.channel.VAPChannel;
 import org.jpos.iso.packager.ISO87APackager;
 
 public class IsoClient {
@@ -93,7 +92,7 @@ public class IsoClient {
 
 			msg.setMTI("0800");
 			msg.set(7, date.get("bit7"));
-			msg.set(11, "820475");
+			msg.set(11, "820476");
 			msg.set(70, "001");
 			msg.setPackager(new ISO87APackager());
 
@@ -132,7 +131,7 @@ public class IsoClient {
 			System.out.println();
 
 			sendInquiryPostpaid(channel);
-
+			// sendInquiryPrepaid(channel);
 		} catch (ISOException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -161,21 +160,19 @@ public class IsoClient {
 			msg.set(3, "380000");
 			msg.set(4, "000000000000");
 			msg.set(7, date.get("bit7"));
-			msg.set(11, "820475"); // postpaid
-//			msg.set(11, "890931"); // prepaid
+			msg.set(11, "820475"); // trx_id?
 			msg.set(12, date.get("bit12"));
 			msg.set(13, date.get("bit13"));
 			msg.set(15, date.get("bit15"));
 			msg.set(18, "6021");
 			msg.set(32, "000735");
-//			msg.set(35, "454633334444=;=0909");
-			msg.set(37, "000000890931");
-//			msg.set(37, "160664820475");
-			msg.set(42, "AXS9999        ");
+			msg.set(35, "454633334444=;=0909");
+			msg.set(37, "160664820475"); // trx_id?
+			msg.set(42, "9999            ");
+//			msg.set(42, "AXS9999        ");
 			msg.set(43, "AXES                                    ");
-			msg.set(48, "21111234567890 "); // prepaid
-//			msg.set(48, "2111340200897500 "); // prepaid
-			// msg.set(48, "2112131234561111 "); // postpaid
+			msg.set(48, "2112131234561111 "); // postpaid
+			// msg.set(48, "21144567891230123000"); // nontaglis
 			msg.set(49, "360");
 			msg.set(63, "214");
 			msg.setPackager(new ISO87APackager());
@@ -188,12 +185,112 @@ public class IsoClient {
 			if (reply == null) {
 				return;
 			}
+
+			byte[] replyByte = reply.pack();
+			System.out.println("response: " + new String(replyByte));
+			logISOMsg(reply);
+
+			sendPaymentPostpaid(channel, reply);
+
+		} catch (ISOException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendPaymentPostpaid(ISOChannel channel, ISOMsg responseInquiry) {
+		Map<String, String> date = getDate();
+
+		// ISOChannel channel = new AJChannel(host, port, new ISO87APackager());
+//		String bit48 = responseInquiry.getString(48);
+//		String resBit48 = bit48.substring(0, 18) + bit48.charAt(18) + bit48.substring(18, bit48.length());
+//		System.out.println("new bit48: " + resBit48);
+		ISOMsg reply = null;
+		try {
+			// channel.connect();
+			ISOMsg msg = new ISOMsg();
+			msg.setMTI("0200");
+			// msg.set(1, "723A400128618002");
+			msg.set(2, "454633334444");
+			msg.set(3, "180000");
+			msg.set(4, "000000200000");
+			msg.set(7, date.get("bit7"));
+			msg.set(11, "820476"); // trx_id?
+			msg.set(12, date.get("bit12"));
+			msg.set(13, date.get("bit13"));
+			msg.set(15, date.get("bit15"));
+			msg.set(18, "6021");
+			msg.set(32, "000735");
+			msg.set(35, "454633334444=;=0909");
+			msg.set(37, "160664820476"); // trx_id?
+			msg.set(42, "9999            ");
+			msg.set(43, "AXES                                    ");
+//			msg.set(48, bit48.substring(0, 18) + bit48); // postpaid
+//			msg.set(48, "2112131234561111 " + responseInquiry.getString(48));
+			
+			// msg.set(48, "21144567891230123000"); // nontaglis
+			msg.set(49, "360");
+			msg.set(63, "214");
+			msg.setPackager(new ISO87APackager());
+
+			byte[] msgByte = createMessageAJ(msg);
+
 			channel.send(msgByte);
 
 			reply = channel.receive();
 			if (reply == null) {
 				return;
 			}
+
+			byte[] replyByte = reply.pack();
+			System.out.println("response: " + new String(replyByte));
+			logISOMsg(reply);
+		} catch (ISOException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendInquiryPrepaid(ISOChannel channel) {
+		Map<String, String> date = getDate();
+
+		// ISOChannel channel = new AJChannel(host, port, new ISO87APackager());
+
+		ISOMsg reply = null;
+		try {
+			// channel.connect();
+			ISOMsg msg = new ISOMsg();
+			msg.setMTI("0200");
+			// msg.set(1, "723A400128618002");
+			msg.set(2, "454633334444");
+			msg.set(3, "380000");
+			msg.set(4, "000000000000");
+			msg.set(7, date.get("bit7"));
+			msg.set(11, "820476");
+			msg.set(12, date.get("bit12"));
+			msg.set(13, date.get("bit13"));
+			msg.set(15, date.get("bit15"));
+			msg.set(18, "6021");
+			msg.set(32, "000735");
+			msg.set(37, "160664820475");
+			msg.set(42, "AXS9999        ");
+			msg.set(43, "AXES                                    ");
+			msg.set(48, "211112345673221             0");
+			msg.set(49, "360");
+			msg.set(63, "214");
+			msg.setPackager(new ISO87APackager());
+
+			byte[] msgByte = createMessageAJ(msg);
+
+			channel.send(msgByte);
+
+			reply = channel.receive();
+			if (reply == null) {
+				return;
+			}
+
 			byte[] replyByte = reply.pack();
 			System.out.println("response: " + new String(replyByte));
 			logISOMsg(reply);
