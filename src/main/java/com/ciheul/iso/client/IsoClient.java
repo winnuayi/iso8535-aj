@@ -1,4 +1,4 @@
-package com.ciheul.iso;
+package com.ciheul.iso.client;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,7 +14,10 @@ import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.packager.ISO87APackager;
 
+import com.ciheul.iso.AJChannel;
+
 public class IsoClient {
+//	private static String host = "localhost";
 	private static String host = "118.97.191.109";
 	private static int port = 2231;
 
@@ -92,8 +95,8 @@ public class IsoClient {
 
 			msg.setMTI("0800");
 			msg.set(7, date.get("bit7"));
-			msg.set(11, "820476");
-			msg.set(70, "001");
+			msg.set(11, "820479");
+			msg.set(70, "002");
 			msg.setPackager(new ISO87APackager());
 
 			byte[] msgByte = createMessageAJ(msg);
@@ -112,10 +115,10 @@ public class IsoClient {
 
 			msg2.setMTI("0810");
 			msg2.set(7, date.get("bit7"));
-			msg2.set(11, "820475");
+			msg2.set(11, "820480");
 
 			msg2.set(39, "00");
-			msg2.set(70, "001");
+			msg2.set(70, "002");
 			msg2.setPackager(new ISO87APackager());
 
 			byte[] msgByte2 = createMessageAJ(msg2);
@@ -130,7 +133,7 @@ public class IsoClient {
 			logISOMsg(reply);
 			System.out.println();
 
-			sendInquiryPostpaid(channel);
+//			sendInquiryPostpaid(channel);
 			// sendInquiryPrepaid(channel);
 		} catch (ISOException e) {
 			e.printStackTrace();
@@ -168,7 +171,7 @@ public class IsoClient {
 			msg.set(32, "000735");
 			msg.set(35, "454633334444=;=0909");
 			msg.set(37, "160664820475"); // trx_id?
-			msg.set(42, "9999            ");
+			msg.set(42, "9999           ");
 //			msg.set(42, "AXS9999        ");
 			msg.set(43, "AXES                                    ");
 			msg.set(48, "2112131234561111 "); // postpaid
@@ -203,9 +206,9 @@ public class IsoClient {
 		Map<String, String> date = getDate();
 
 		// ISOChannel channel = new AJChannel(host, port, new ISO87APackager());
-//		String bit48 = responseInquiry.getString(48);
-//		String resBit48 = bit48.substring(0, 18) + bit48.charAt(18) + bit48.substring(18, bit48.length());
-//		System.out.println("new bit48: " + resBit48);
+		String bit48 = responseInquiry.getString(48);
+		String resBit48 = bit48.substring(0, 18) + bit48.charAt(18) + bit48.substring(18, bit48.length());
+		System.out.println("new bit48: " + resBit48);
 		ISOMsg reply = null;
 		try {
 			// channel.connect();
@@ -214,7 +217,7 @@ public class IsoClient {
 			// msg.set(1, "723A400128618002");
 			msg.set(2, "454633334444");
 			msg.set(3, "180000");
-			msg.set(4, "000000200000");
+			msg.set(4, "000000050000");
 			msg.set(7, date.get("bit7"));
 			msg.set(11, "820476"); // trx_id?
 			msg.set(12, date.get("bit12"));
@@ -224,11 +227,11 @@ public class IsoClient {
 			msg.set(32, "000735");
 			msg.set(35, "454633334444=;=0909");
 			msg.set(37, "160664820476"); // trx_id?
-			msg.set(42, "9999            ");
+			msg.set(42, "9999           ");
 			msg.set(43, "AXES                                    ");
 //			msg.set(48, bit48.substring(0, 18) + bit48); // postpaid
 //			msg.set(48, "2112131234561111 " + responseInquiry.getString(48));
-			
+			msg.set(48, resBit48);
 			// msg.set(48, "21144567891230123000"); // nontaglis
 			msg.set(49, "360");
 			msg.set(63, "214");
