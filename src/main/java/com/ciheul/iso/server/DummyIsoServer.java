@@ -8,12 +8,12 @@ import org.jpos.iso.ISORequestListener;
 import org.jpos.iso.ISOServer;
 import org.jpos.iso.ISOSource;
 import org.jpos.iso.ServerChannel;
+import org.jpos.iso.channel.XMLChannel;
 import org.jpos.iso.packager.ISO87APackager;
+import org.jpos.iso.packager.XMLPackager;
 import org.jpos.util.LogSource;
 import org.jpos.util.Logger;
 import org.jpos.util.SimpleLogListener;
-
-import com.ciheul.iso.AJChannel;
 
 public class DummyIsoServer implements ISORequestListener {
 	public static String ECHO_REQ = "0800";
@@ -34,7 +34,7 @@ public class DummyIsoServer implements ISORequestListener {
 		try {
 			m.setResponseMTI();
 			m.set(39, "00");
-			m.set(70, "301");
+			m.set(70, "001");
 			m.setPackager(new ISO87APackager());
 			source.send(m);
 		} catch (ISOException e) {
@@ -71,6 +71,7 @@ public class DummyIsoServer implements ISORequestListener {
 	 * @param m		 message from client
 	 */
 	public boolean process(ISOSource source, ISOMsg m) {	
+		System.out.println("ROUTING MESSAGE");
 		try {
 			if (m.getMTI().equals(ECHO_REQ)) {
 				sendEchoTestResponse(source, m);
@@ -89,10 +90,12 @@ public class DummyIsoServer implements ISORequestListener {
 	}
 
 	public static void main(String[] args) throws Exception {
+		System.out.println("main start");
 		Logger logger = new Logger();
 		logger.addListener(new SimpleLogListener(System.out));
 
-		ServerChannel channel = new AJChannel(new ISO87APackager());
+//		ServerChannel channel = new AJChannel(new ISO87APackager());
+		ServerChannel channel = new XMLChannel(new XMLPackager());
 		((LogSource) channel).setLogger(logger, "channel");
 
 		ISOServer server = new ISOServer(2231, channel, null);
@@ -100,5 +103,7 @@ public class DummyIsoServer implements ISORequestListener {
 		server.addISORequestListener(new DummyIsoServer());
 
 		new Thread(server).start();
+		
+		System.out.println("main end");
 	}
 }

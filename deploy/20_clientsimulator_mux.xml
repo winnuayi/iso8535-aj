@@ -15,5 +15,8 @@
 	<in>jpos-client-receive</in>
 	<out>jpos-client-send</out>
 	<unhandled>jpos-client-unhandled</unhandled>
+	<request-listener class="com.ciheul.iso.client.ClientRequestListener" logger="Q2"
+		realm="jpos-client-simulator">
+	</request-listener>
 </mux>
 

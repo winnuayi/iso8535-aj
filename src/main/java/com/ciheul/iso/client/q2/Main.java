@@ -27,7 +27,7 @@ public class Main {
 
     public static void main(String[] args) throws ISOException {
         start();
-        ISOUtil.sleep(5000);
+        ISOUtil.sleep(1000);
         new Thread(new Exec()).start();
     }
  
@@ -37,7 +37,6 @@ public class Main {
  
         Exec() throws ISOException {
             try {
- 
                 channelManager = ((ChannelManager) NameRegistrar.get("manager"));
             } catch (NameRegistrar.NotFoundException e) {
                 LogEvent evt = channelManager.getLog().createError();
@@ -70,19 +69,26 @@ public class Main {
             } catch (Exception e) {
                 channelManager.getLog().error("Exception :" + e.getMessage());
             }
- 
         }
  
         @Override
         public void run() {
-            while (true) {
-                ISOUtil.sleep(10000);
-                try {
-                    sendHandShake();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        	try {
+                sendHandShake();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        	
+        	System.out.println("finish.");
+        	
+//            while (true) {
+//                ISOUtil.sleep(10000);
+//                try {
+//                    sendHandShake();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
     }
 }
