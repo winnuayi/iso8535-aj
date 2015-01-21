@@ -27,6 +27,11 @@ public class DummyIsoServer implements ISORequestListener {
 	private void sendEchoTestResponse(ISOSource source, ISOMsg m) {
 		System.out.println("sendEchoResponse");
 		try {
+		    Thread.sleep(10000);                 //1000 milliseconds is one second.
+		} catch(InterruptedException ex) {
+		    Thread.currentThread().interrupt();
+		}
+		try {
 			m.setResponseMTI();
 			m.set(39, "00");
 			m.set(70, "301");

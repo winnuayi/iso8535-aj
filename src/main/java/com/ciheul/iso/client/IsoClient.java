@@ -79,6 +79,7 @@ public class IsoClient {
 	}
 
 	private void sendNetworkMessage() {
+		System.out.println("send network message");
 		// if (mti.length() == 0) {
 		// return;
 		// }
@@ -91,14 +92,16 @@ public class IsoClient {
 		try {
 			// ((LogSource) channel).setLogger(logger, "test-channel");
 
+			System.out.println("trying to connect...");
 			channel.connect();
+			System.out.println("connected...");
 
 			ISOMsg msg = new ISOMsg();
 
 			msg.setMTI("0800");
 			msg.set(7, date.get("bit7"));
 			msg.set(11, "820479");
-			msg.set(70, "002");
+			msg.set(70, "001");
 			msg.setPackager(new ISO87APackager());
 
 			byte[] msgByte = createMessageAJ(msg);
@@ -120,7 +123,7 @@ public class IsoClient {
 			msg2.set(11, "820480");
 
 			msg2.set(39, "00");
-			msg2.set(70, "002");
+			msg2.set(70, "001");
 			msg2.setPackager(new ISO87APackager());
 
 			byte[] msgByte2 = createMessageAJ(msg2);
@@ -178,8 +181,8 @@ public class IsoClient {
 			msg.set(42, "9999           ");
 //			msg.set(42, "AXS9999        ");
 			msg.set(43, "AXES                                    ");
-			msg.set(48, "2112131234561111 "); // postpaid
-			// msg.set(48, "21144567891230123000"); // nontaglis
+//			msg.set(48, "2112131234561111 "); // postpaid
+			 msg.set(48, "21144567891230123000"); // nontaglis
 			msg.set(49, "360");
 			msg.set(63, "214");
 			msg.setPackager(new ISO87APackager());
@@ -409,6 +412,7 @@ public class IsoClient {
 	public static void main(String[] args) {
 
 		IsoClient client = new IsoClient();
+		
 
 		client.sendNetworkMessage();
 		client.sendInquiryPostpaid(channel);
