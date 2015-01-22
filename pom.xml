@@ -5,8 +5,9 @@
 	<artifactId>Iso8583Client</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<properties>
-		<jettyVersion>8.1.9.v20130131</jettyVersion>
+	<properties>		
+		<jettyVersion>9.2.7.v20150116</jettyVersion>
+		<!-- jettyVersion>8.1.9.v20130131</jettyVersion-->
 	</properties>
 
 	<dependencies>
@@ -15,11 +16,58 @@
 			<artifactId>jpos</artifactId>
 			<version>1.9.8</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.jpos.ee</groupId>
+			<artifactId>jposee-core</artifactId>
+			<version>2.0.6-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
 			<version>${jettyVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-xml</artifactId>
+			<version>${jettyVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-deploy</artifactId>
+			<version>${jettyVersion}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-annotations</artifactId>
+			<version>${jettyVersion}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-xml</artifactId>
+			<version>${jettyVersion}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-jmx</artifactId>
+			<version>${jettyVersion}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-webapp</artifactId>
+			<version>${jettyVersion}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -42,7 +90,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.6</version>
+				<version>1.7</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -57,8 +105,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -78,9 +126,8 @@
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<mainClass>com.ciheul.iso.server.HelloWorld</mainClass>
-				</configuration>
+				<!-- configuration> <mainClass>com.ciheul.iso.server.HelloWorld</mainClass> 
+					</configuration -->
 			</plugin>
 		</plugins>
 	</build>

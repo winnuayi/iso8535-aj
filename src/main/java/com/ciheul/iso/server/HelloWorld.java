@@ -10,6 +10,9 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import com.ciheul.iso.Context;
+
+
 public class HelloWorld extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
@@ -20,7 +23,7 @@ public class HelloWorld extends AbstractHandler {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Server server = new Server(8080);
+		Server server = new Server(Context.Q2_SERVER_PORT);
 		server.setHandler(new HelloWorld());
 
 		server.start();
