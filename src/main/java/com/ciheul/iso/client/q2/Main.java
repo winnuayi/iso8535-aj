@@ -6,6 +6,7 @@ import org.jpos.iso.ISODate;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISOUtil;
+import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.q2.Q2;
 import org.jpos.util.LogEvent;
 import org.jpos.util.Logger;
@@ -46,7 +47,6 @@ public class Main {
             } catch (Throwable t) {
                 channelManager.getLog().error(t);
             }
- 
         }
  
         private ISOMsg createHandshakeISOMsg() throws ISOException {
@@ -57,6 +57,8 @@ public class Main {
             m.set(32, "00001603307");
             m.set(41, "T1603307");
             m.set(70, "301");
+            m.setPackager(new ISO87APackager());
+            ChannelManager.logISOMsg(m);
             return m;
         }
  

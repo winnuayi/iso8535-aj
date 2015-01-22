@@ -13,12 +13,13 @@
 
 <channel-adaptor name='jpos-client-adaptor' class="org.jpos.q2.iso.ChannelAdaptor"
 	logger="Q2">
-	<channel class="org.jpos.iso.channel.XMLChannel" logger="Q2"
-		packager="org.jpos.iso.packager.XMLPackager">
+	<channel class="com.ciheul.iso.AJChannel" logger="Q2"
+		packager="org.jpos.iso.packager.ISO87APackager">
 
 		<property name="host" value="127.0.0.1" />
 		<property name="port" value="2231" />
-		<property name="timeout" value="30000" />
+		<property name="timeout" value="330000" />
+		<property name="keep-alive" value="true" />
 	</channel>
 	<in>jpos-client-send</in>
 	<out>jpos-client-receive</out>

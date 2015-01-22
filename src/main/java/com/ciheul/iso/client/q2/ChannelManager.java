@@ -7,8 +7,6 @@ import org.jpos.q2.QBeanSupport;
 import org.jpos.q2.iso.QMUX;
 import org.jpos.util.NameRegistrar;
 
-import com.ciheul.iso.client.ClientRequestListener;
-
 public class ChannelManager extends QBeanSupport {
 
 	private long MAX_TIME_OUT;
@@ -29,7 +27,7 @@ public class ChannelManager extends QBeanSupport {
 //	}
 
 	
-	private static void logISOMsg(ISOMsg msg) {
+	public static void logISOMsg(ISOMsg msg) {
 		System.out.println("----ISO MESSAGE-----");
 		try {
 			System.out.println("  MTI : " + msg.getMTI());
