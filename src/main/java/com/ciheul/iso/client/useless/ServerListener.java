@@ -1,4 +1,4 @@
-package com.ciheul.iso.client;
+package com.ciheul.iso.client.useless;
 
 import java.io.IOException;
 

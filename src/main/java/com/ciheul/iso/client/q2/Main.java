@@ -20,7 +20,7 @@ import org.jpos.util.NameRegistrar;
  * To change this template use File | Settings | File Templates.
  */
 public class Main {
- 
+
     static void start() {
         Q2 q2 = new Q2();
         q2.start();
@@ -31,7 +31,7 @@ public class Main {
         ISOUtil.sleep(1000);
         new Thread(new Exec()).start();
     }
- 
+
     static class Exec implements Runnable {
  
         ChannelManager channelManager;

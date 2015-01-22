@@ -1,4 +1,4 @@
-package com.ciheul.iso.client;
+package com.ciheul.iso.client.useless;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,7 +14,7 @@ import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.packager.ISO87APackager;
 
-import com.ciheul.iso.AJChannel;
+import com.ciheul.iso.channel.AJChannel;
 
 public class IsoClient {
 //	private static String host = "localhost";

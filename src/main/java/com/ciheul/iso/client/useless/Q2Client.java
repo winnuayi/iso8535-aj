@@ -1,3 +1,4 @@
+package com.ciheul.iso.client.useless;
 // ERRORRRRRRR
 //
 //package com.ciheul.iso.client;

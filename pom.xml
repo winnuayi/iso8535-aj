@@ -5,11 +5,21 @@
 	<artifactId>Iso8583Client</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+	<properties>
+		<jettyVersion>8.1.9.v20130131</jettyVersion>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.jpos</groupId>
 			<artifactId>jpos</artifactId>
 			<version>1.9.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>${jettyVersion}</version>
 		</dependency>
 	</dependencies>
 
@@ -39,7 +49,6 @@
 						<goals>
 							<goal>shade</goal>
 						</goals>
-
 					</execution>
 				</executions>
 			</plugin>
@@ -50,6 +59,27 @@
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- This plugin is needed for the servlet example -->
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jettyVersion}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.3.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>com.ciheul.iso.server.HelloWorld</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

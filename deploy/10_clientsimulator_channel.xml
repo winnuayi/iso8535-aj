@@ -13,7 +13,7 @@
 
 <channel-adaptor name='jpos-client-adaptor' class="org.jpos.q2.iso.ChannelAdaptor"
 	logger="Q2">
-	<channel class="com.ciheul.iso.AJChannel" logger="Q2"
+	<channel class="com.ciheul.iso.channel.AJChannel" logger="Q2"
 		packager="org.jpos.iso.packager.ISO87APackager">
 
 		<property name="host" value="127.0.0.1" />

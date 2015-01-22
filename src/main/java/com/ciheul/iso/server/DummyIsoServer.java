@@ -13,7 +13,7 @@ import org.jpos.util.LogSource;
 import org.jpos.util.Logger;
 import org.jpos.util.SimpleLogListener;
 
-import com.ciheul.iso.AJChannel;
+import com.ciheul.iso.channel.AJChannel;
 
 public class DummyIsoServer implements ISORequestListener {
 	public static String ECHO_REQ = "0800";

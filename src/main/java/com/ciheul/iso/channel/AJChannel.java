@@ -1,4 +1,4 @@
-package com.ciheul.iso;
+package com.ciheul.iso.channel;
 
 import java.io.IOException;
 import java.net.ServerSocket;

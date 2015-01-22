@@ -2,7 +2,7 @@
 // http://didikhari.web.id/java/jpos-server-forward-request-message-to-another-server/
 // http://indonesiakuterkini.blogspot.com/2011/02/re-bls-jug-indonesia-helpisomux_2703.html
 
-package com.ciheul.iso.client;
+package com.ciheul.iso.client.useless;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -12,7 +12,7 @@ import org.jpos.iso.ISOMsg;
 import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.q2.QBeanSupport;
 
-import com.ciheul.iso.AJChannel;
+import com.ciheul.iso.channel.AJChannel;
 
 public class DummyIsoClient extends QBeanSupport {
 
