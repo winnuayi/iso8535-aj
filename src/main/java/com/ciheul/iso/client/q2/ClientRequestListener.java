@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.jpos.iso.ISODate;
@@ -15,32 +16,86 @@ import org.jpos.iso.packager.ISO87APackager;
 
 public class ClientRequestListener implements ISORequestListener {
 
+	ChannelManager channelManager = ChannelManager.getInstance();
 	@Override
 	public boolean process(ISOSource source, ISOMsg m) {
 		ChannelManager.logISOMsg(m);
+		try {
+			if (m.getMTI().equals("0800")) {
+
+				channelManager.sendMsg(createHandshakeISOMsg2());
+				System.out.println("late response ");
+			}else if (m.getMTI().equals("0200")){
+				
+				if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
+					
+					
+				}else{
+					
+					channelManager.sendMsg(createReversalISOMsg(m));
+				}
+			}
+		} catch (ISOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		System.out.println("wowwww! process ISORequestListener");
 		return false;
 	}
 	
 
     private ISOMsg createHandshakeISOMsg() throws ISOException {
+
+		Map<String, String> date = getDate();
         ISOMsg m = new ISOMsg();
         m.setMTI("0800");
         m.set(7, ISODate.getDateTime(new Date()));
-        m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
-        m.set(70, "301");
+        m.set(11, "1");
+//        m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
+        m.set(70, "001");
         m.setPackager(new ISO87APackager());
         ChannelManager.logISOMsg(m);
         return m;
     }
 
+    private ISOMsg createReversalISOMsg(ISOMsg lateResponse) throws ISOException {
+
+		Map<String, String> date = getDate();
+        ISOMsg m = new ISOMsg();
+        m.setMTI("0400");
+        m.set(2, lateResponse.getValue(2).toString());
+        m.set(3, lateResponse.getValue(3).toString());
+        m.set(4, lateResponse.getValue(4).toString());
+        m.set(7, lateResponse.getValue(7).toString());
+        m.set(11, lateResponse.getValue(11).toString());
+        m.set(12, lateResponse.getValue(12).toString());
+        m.set(13, lateResponse.getValue(13).toString());
+        m.set(15, lateResponse.getValue(15).toString());
+        m.set(18, lateResponse.getValue(18).toString());
+        m.set(32, lateResponse.getValue(32).toString());
+        m.set(37, lateResponse.getValue(37).toString());
+        m.set(42, lateResponse.getValue(42).toString());
+        m.set(43, lateResponse.getValue(43).toString());
+        m.set(48, lateResponse.getValue(48).toString());
+        m.set(49, lateResponse.getValue(49).toString());
+        m.set(63, lateResponse.getValue(63).toString());
+        m.set(90, "0200" + lateResponse.getValue(11).toString() + "" + lateResponse.getValue(7).toString() + "00000" + lateResponse.getValue(32).toString() + "00000000000");
+        m.setPackager(new ISO87APackager());
+        ChannelManager.logISOMsg(m);
+        return m;
+    }
+    
     private ISOMsg createHandshakeISOMsg2() throws ISOException {
         ISOMsg m = new ISOMsg();
         m.setMTI("0810");
         m.set(7, ISODate.getDateTime(new Date()));
-        m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
+        m.set(11, "1");
+//        m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
         m.set(39, "00");
-        m.set(70, "301");
+        m.set(70, "001");
         m.setPackager(new ISO87APackager());
         ChannelManager.logISOMsg(m);
         return m;
