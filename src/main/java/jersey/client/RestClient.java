@@ -8,17 +8,21 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.client.ClientConfig;
 
+//<<<<<<< HEAD
+//=======
+//import com.ciheul.iso.server.IsoMessageRequest;
+//>>>>>>> 2a8edd87d4248cfddeeebd03a1cfe959973fba0c
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RestClient {
 
     public static void main(String[] args) {
+//<<<<<<< HEAD
 
     	
 //    	IsoMsgRequest form = new IsoMsgRequest(1, "test");
@@ -46,10 +50,36 @@ public class RestClient {
 //                .accept(MediaType.APPLICATION_JSON).get(String.class));
         
     }
+//=======
+//        ClientConfig config = new ClientConfig();
+//        Client client = ClientBuilder.newClient(config);
+//        WebTarget target = client.target(getBaseURI());
+//
+//        IsoMessageRequest request = new IsoMessageRequest();
+//        request.setMessage("yoooo");
+//>>>>>>> 2a8edd87d4248cfddeeebd03a1cfe959973fba0c
+
+//        String jsonString = null;
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            jsonString = mapper.writeValueAsString(request);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+
+//<<<<<<< HEAD
+//        return UriBuilder.fromUri("http://localhost:8080/hello/send").build();
+//=======
+//        String responsePost = target.request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+//                .post(Entity.json(jsonString), String.class);
+//        System.out.println(responsePost);
+//>>>>>>> 2a8edd87d4248cfddeeebd03a1cfe959973fba0c
+//
+//        String responseGet = target.request().accept(MediaType.APPLICATION_JSON).get(String.class);
+//        System.out.println(responseGet);
+//    }
 
     private static URI getBaseURI() {
-
         return UriBuilder.fromUri("http://localhost:8080/hello/send").build();
-
     }
 }
