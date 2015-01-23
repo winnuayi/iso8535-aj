@@ -16,7 +16,12 @@
 			<artifactId>jpos</artifactId>
 			<version>1.9.8</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.jpos.ee</groupId>
+			<artifactId>jposee-core</artifactId>
+			<version>2.0.6-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
@@ -68,11 +73,6 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-server</artifactId>
-			<version>2.15</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-client</artifactId>
 			<version>2.15</version>
 		</dependency>
 		<dependency>

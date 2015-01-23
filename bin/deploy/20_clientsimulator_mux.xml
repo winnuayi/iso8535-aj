@@ -11,17 +11,12 @@
 	have received a copy of the GNU Affero General Public License ~ along with 
 	this program. If not, see <http://www.gnu.org/licenses/>. -->
 
-<channel-adaptor name='jpos-client-adaptor' class="org.jpos.q2.iso.ChannelAdaptor"
-	logger="Q2">
-	<channel class="com.ciheul.iso.channel.AJChannel" logger="Q2"
-		packager="org.jpos.iso.packager.ISO87APackager">
+<mux class="org.jpos.q2.iso.QMUX" logger="Q2" name="jpos-client-mux">
+	<in>jpos-client-receive</in>
+	<out>jpos-client-send</out>
+	<unhandled>jpos-client-unhandled</unhandled>
+	<request-listener class="com.ciheul.iso.client.q2.ClientRequestListener"
+		logger="Q2" realm="jpos-client-simulator">
+	</request-listener>
+</mux>
 
-		<property name="host" value="118.97.191.109" />
-		<property name="port" value="2231" />
-		<property name="timeout" value="330000" />
-		<property name="keep-alive" value="true" />
-	</channel>
-	<in>jpos-client-send</in>
-	<out>jpos-client-receive</out>
-	<reconnect-delay>72000000</reconnect-delay>
-</channel-adaptor>

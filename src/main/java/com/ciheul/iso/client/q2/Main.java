@@ -34,7 +34,7 @@ public class Main {
 
     static class Exec implements Runnable {
  
-        ChannelManager channelManager;
+        ChannelManager channelManager = ChannelManager.getInstance();
  
         Exec() throws ISOException {
             try {
@@ -63,14 +63,14 @@ public class Main {
         }
  
         private void sendHandShake() throws Exception {
-            try {
-                channelManager.sendMsg(createHandshakeISOMsg());
-                channelManager.getLog().info("Handshake sent! ");
-            } catch (ISOException e1) {
-                channelManager.getLog().error("ISOException :" + e1.getMessage());
-            } catch (Exception e) {
-                channelManager.getLog().error("Exception :" + e.getMessage());
-            }
+//            try {
+//                channelManager.sendMsg(createHandshakeISOMsg());
+//                channelManager.getLog().info("Handshake sent! ");
+//            } catch (ISOException e1) {
+//                channelManager.getLog().error("ISOException :" + e1.getMessage());
+//            } catch (Exception e) {
+//                channelManager.getLog().error("Exception :" + e.getMessage());
+//            }
         }
  
         @Override

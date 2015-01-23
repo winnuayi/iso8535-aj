@@ -9,6 +9,7 @@ import org.jpos.util.NameRegistrar;
 
 public class ChannelManager extends QBeanSupport {
 
+	private static ChannelManager _cMSingleTon = null;
 	private long MAX_TIME_OUT;
 	private QMUX mux;
 
@@ -66,7 +67,7 @@ public class ChannelManager extends QBeanSupport {
 	private ISOMsg sendMsg(ISOMsg msg, MUX mux, long time) throws Exception {
 		if (mux != null) {
 			long start = System.currentTimeMillis();
-			ISOMsg respMsg = mux.request(msg, 5000);
+			ISOMsg respMsg = mux.request(msg, 60000);
 //			ISOMsg respMsg = null;
 //			mux.request(msg, 8000, new AsyncListener(), respMsg);
 			long duration = System.currentTimeMillis() - start;
@@ -76,4 +77,11 @@ public class ChannelManager extends QBeanSupport {
 		return null;
 	}
 
+	public static ChannelManager getInstance(){
+		if (_cMSingleTon == null) {
+			
+			_cMSingleTon = new ChannelManager();
+		}
+		return _cMSingleTon;
+	}
 }
