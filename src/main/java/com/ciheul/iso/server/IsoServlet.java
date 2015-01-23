@@ -17,31 +17,32 @@ public class IsoServlet {
     @Path("/send")
     @Produces(MediaType.APPLICATION_JSON)
     public IsoMessageResponse send(IsoMessageRequest msg) {
+        
         IsoMessageResponse response = new IsoMessageResponse();
         response.setMessage("ciheul");
         System.out.println(response.toString());
         return response;
     }
 
-    @POST
-    @Path("/send")
-    @Produces(MediaType.TEXT_PLAIN)
-    public IsoMessageResponse send2(IsoMessageRequest msg) {
-        IsoMessageResponse response = new IsoMessageResponse();
-        response.setMessage("ciheul");
-        System.out.println(response.toString());
-        return response;
-    }
-
-    @POST
-    @Path("/send")
-    @Produces(MediaType.TEXT_HTML)
-    public IsoMessageResponse send3(IsoMessageRequest msg) {
-        IsoMessageResponse response = new IsoMessageResponse();
-        response.setMessage("ciheul");
-        System.out.println(response.toString());
-        return response;
-    }
+//    @POST
+//    @Path("/send")
+//    @Produces(MediaType.TEXT_PLAIN)
+//    public IsoMessageResponse send2(IsoMessageRequest msg) {
+//        IsoMessageResponse response = new IsoMessageResponse();
+//        response.setMessage("ciheul");
+//        System.out.println(response.toString());
+//        return response;
+//    }
+//
+//    @POST
+//    @Path("/send")
+//    @Produces(MediaType.TEXT_HTML)
+//    public IsoMessageResponse send3(IsoMessageRequest msg) {
+//        IsoMessageResponse response = new IsoMessageResponse();
+//        response.setMessage("ciheul");
+//        System.out.println(response.toString());
+//        return response;
+//    }
 
     @GET
     @Path("/send")
@@ -52,18 +53,18 @@ public class IsoServlet {
         System.out.println("ciheeeeul!");
         return response;
     }
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String sayPlainTextHello() {
-        return "Hello Jersey";
-    }
-
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    public String sayHtmlHello() {
-        return "<html> " + "<title>" + "Hello Jersey" + "</title>" + "<body><h1>" + "Hello Jersey" + "</body></h1>"
-                + "</html> ";
-    }
+//
+//    @GET
+//    @Produces(MediaType.TEXT_PLAIN)
+//    public String sayPlainTextHello() {
+//        return "Hello Jersey";
+//    }
+//
+//    @GET
+//    @Produces(MediaType.TEXT_HTML)
+//    public String sayHtmlHello() {
+//        return "<html> " + "<title>" + "Hello Jersey" + "</title>" + "<body><h1>" + "Hello Jersey" + "</body></h1>"
+//                + "</html> ";
+//    }
 
 }
