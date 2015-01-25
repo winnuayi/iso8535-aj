@@ -28,7 +28,7 @@ public class Main {
 
     public static void main(String[] args) throws ISOException {
         start();
-        ISOUtil.sleep(1000);
+        ISOUtil.sleep(5000);
         new Thread(new Exec()).start();
     }
 

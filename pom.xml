@@ -27,13 +27,6 @@
 			<artifactId>jetty-xml</artifactId>
 			<version>${jettyVersion}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-deploy</artifactId>
-			<version>${jettyVersion}</version>
-			<scope>compile</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-annotations</artifactId>
@@ -108,7 +101,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.ciheul.thrift.server.PaymentPointThriftServer</mainClass>
+							<mainClass>com.ciheul.iso.client.q2.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -125,6 +118,19 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>META-INF/*.SF</exclude>
+								<exclude>META-INF/*.DSA</exclude>
+								<exclude>META-INF/*.RSA</exclude>
+							</excludes>
+						</filter>
+					</filters>
+					<!-- Additional configuration. -->
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
