@@ -29,7 +29,7 @@ public class IsoServlet {
         String responseMsg = "";
         ISOMsg resp = null;
         
-        System.out.println("request :" + msg.getMessage());
+        System.out.println("request:" + msg.getMessage());
         
         String[] isoMsgSplit = msg.getMessage().split("#");
         
@@ -50,7 +50,7 @@ public class IsoServlet {
                 } else {
 
                 }
-                channelManager.getLog().info("Handshake sent! ");
+//                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -64,7 +64,7 @@ public class IsoServlet {
                 if (resp != null) {
                     responseMsg = resp.getValue(39).toString();
                 }
-                channelManager.getLog().info("Handshake sent! ");
+//                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -79,7 +79,7 @@ public class IsoServlet {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
                 }
-                channelManager.getLog().info("Handshake sent! ");
+//                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -93,7 +93,7 @@ public class IsoServlet {
                 if (resp != null) {
                     responseMsg = resp.getValue(39).toString();
                 }
-                channelManager.getLog().info("Handshake sent! ");
+//                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -107,7 +107,7 @@ public class IsoServlet {
         }
         IsoMessageResponse response = new IsoMessageResponse();
         response.setMessage(responseMsg);
-        System.out.println(response.toString());
+        System.out.println("response: " + response.getMessage());
         return response;
     }
 
