@@ -2,7 +2,7 @@
 // http://didikhari.web.id/java/jpos-server-forward-request-message-to-another-server/
 // http://indonesiakuterkini.blogspot.com/2011/02/re-bls-jug-indonesia-helpisomux_2703.html
 
-package com.ciheul.iso.client.useless;
+package com.ciheul.iso.dummy;
 
 import java.io.IOException;
 import java.net.SocketException;

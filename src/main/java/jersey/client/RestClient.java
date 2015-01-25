@@ -1,7 +1,6 @@
 package jersey.client;
 
 import java.net.URI;
-import java.text.Normalizer.Form;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;

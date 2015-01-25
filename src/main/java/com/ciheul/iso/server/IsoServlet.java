@@ -1,5 +1,6 @@
-// In [86]: headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
-// In [87]: requests.post('http://localhost:8080/hello/send', data=json.dumps(payload), headers=headers).text
+// In [85]: headers = { 'Content-type': 'application/json', 'Accept': 'application/json' }
+// In [86]: payload = { 'message': 'hello world!' }
+// In [87]: requests.post('http://localhost:9092/api/send', data=json.dumps(payload), headers=headers).text
 // Out[87]: u'{"message":"ciheul"}'
 
 package com.ciheul.iso.server;
@@ -16,108 +17,102 @@ import org.jpos.util.LogEvent;
 import org.jpos.util.Logger;
 import org.jpos.util.NameRegistrar;
 
-import com.ciheul.iso.client.q2.ChannelManager;
-
-@Path("/hello")
+@Path("/api")
 public class IsoServlet {
 
     ChannelManager channelManager = ChannelManager.getInstance();
-    
+
     @POST
     @Path("/send")
     @Produces(MediaType.APPLICATION_JSON)
-    public IsoMessageResponse send(IsoMessageRequest msg) {
-
-    	String responseMsg = "";
-    	ISOMsg resp = null;
-        System.out.println("request :"+msg.getMessage());
+    public IsoMessageResponse send(IsoMessageRequest msg) {        
+        String responseMsg = "";
+        ISOMsg resp = null;
+        
+        System.out.println("request :" + msg.getMessage());
+        
         String[] isoMsgSplit = msg.getMessage().split("#");
+        
         channelConnection();
+        
         String isoMsgSend = msg.getMessage();
-//        String isoMsgSend = msg.getMessage().substring(5, msg.getMessage().length());
+        
+        // String isoMsgSend = msg.getMessage().substring(5,
+        // msg.getMessage().length());
+        
         switch (isoMsgSplit[0]) {
-		case "0800":
-			try {
-				resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
-				if (resp != null) {
-					
-					responseMsg = resp.getValue(39).toString();
-				}else{
-					
-				}
-                channelManager.getLog().info("Handshake sent! ");
-			} catch (ISOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
+        case "0800":
+            try {
+                resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
+                if (resp != null) {
 
-		case "0810":
-			try {
-				resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
-				if (resp != null) {
-					
-					responseMsg = resp.getValue(39).toString();
-				}
-                channelManager.getLog().info("Handshake sent! ");
-			} catch (ISOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
+                    responseMsg = resp.getValue(39).toString();
+                } else {
 
-		case "0200":
-			try {
-				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
-				if (resp != null) {
-					
-					responseMsg = resp.getValue(4).toString()+"#"+resp.getValue(39).toString()+"#"+resp.getValue(48);
-				}
+                }
                 channelManager.getLog().info("Handshake sent! ");
-			} catch (ISOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
+            } catch (ISOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            break;
 
-		case "0400":
-			try {
-				resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
-				if (resp != null) {
-					
-					responseMsg = resp.getValue(39).toString();
-				}
+        case "0810":
+            try {
+                resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
+                if (resp != null) {
+                    responseMsg = resp.getValue(39).toString();
+                }
                 channelManager.getLog().info("Handshake sent! ");
-			} catch (ISOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
+            } catch (ISOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            break;
 
-		default:
-			System.out.println("not found");
-			break;
-		}
+        case "0200":
+            try {
+                resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
+                if (resp != null) {
+                    responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
+                            + resp.getValue(48);
+                }
+                channelManager.getLog().info("Handshake sent! ");
+            } catch (ISOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            break;
+
+        case "0400":
+            try {
+                resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
+                if (resp != null) {
+                    responseMsg = resp.getValue(39).toString();
+                }
+                channelManager.getLog().info("Handshake sent! ");
+            } catch (ISOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            break;
+
+        default:
+            System.out.println("not found");
+            break;
+        }
         IsoMessageResponse response = new IsoMessageResponse();
         response.setMessage(responseMsg);
         System.out.println(response.toString());
         return response;
     }
-    
+
     private ISOMsg createHandshakeISOMsg(String isoMsgSend) throws ISOException {
-    	String[] isoMsgSplit = isoMsgSend.split("#");
+        String[] isoMsgSplit = isoMsgSend.split("#");
         ISOMsg m = new ISOMsg();
         m.setMTI(isoMsgSplit[0]);
         m.set(7, isoMsgSplit[1]);
@@ -129,7 +124,7 @@ public class IsoServlet {
     }
 
     private ISOMsg createHandshakeISOMsg2(String isoMsgSend) throws ISOException {
-    	String[] isoMsgSplit = isoMsgSend.split("#");
+        String[] isoMsgSplit = isoMsgSend.split("#");
         ISOMsg m = new ISOMsg();
         m.setMTI(isoMsgSplit[0]);
         m.set(7, isoMsgSplit[1]);
@@ -142,7 +137,7 @@ public class IsoServlet {
     }
 
     private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
-    	String[] isoMsgSplit = isoMsgSend.split("#");
+        String[] isoMsgSplit = isoMsgSend.split("#");
         ISOMsg m = new ISOMsg();
         m.setMTI(isoMsgSplit[0]);
         m.set(2, isoMsgSplit[1]);
@@ -165,60 +160,61 @@ public class IsoServlet {
         ChannelManager.logISOMsg(m);
         return m;
     }
-    
-    private void channelConnection(){
-    	 try {
-             channelManager = ((ChannelManager) NameRegistrar.get("manager"));
-         } catch (NameRegistrar.NotFoundException e) {
-             LogEvent evt = channelManager.getLog().createError();
-             evt.addMessage(e);
-             evt.addMessage(NameRegistrar.getInstance());
-             Logger.log(evt);
-         } catch (Throwable t) {
-             channelManager.getLog().error(t);
-         }
-    }
-//    @POST
-//    @Path("/send")
-//    @Produces(MediaType.TEXT_PLAIN)
-//    public IsoMessageResponse send2(IsoMessageRequest msg) {
-//        IsoMessageResponse response = new IsoMessageResponse();
-//        response.setMessage("ciheul");
-//        System.out.println(response.toString());
-//        return response;
-//    }
-//
-//    @POST
-//    @Path("/send")
-//    @Produces(MediaType.TEXT_HTML)
-//    public IsoMessageResponse send3(IsoMessageRequest msg) {
-//        IsoMessageResponse response = new IsoMessageResponse();
-//        response.setMessage("ciheul");
-//        System.out.println(response.toString());
-//        return response;
-//    }
 
-//    @GET
-//    @Path("/send")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public IsoMessageResponse sayHello() {
-//        IsoMessageResponse response = new IsoMessageResponse();
-//        response.setMessage("ciheul");
-//        System.out.println("ciheeeeul!");
-//        return response;
-//    }
-//
-//    @GET
-//    @Produces(MediaType.TEXT_PLAIN)
-//    public String sayPlainTextHello() {
-//        return "Hello Jersey";
-//    }
-//
-//    @GET
-//    @Produces(MediaType.TEXT_HTML)
-//    public String sayHtmlHello() {
-//        return "<html> " + "<title>" + "Hello Jersey" + "</title>" + "<body><h1>" + "Hello Jersey" + "</body></h1>"
-//                + "</html> ";
-//    }
+    private void channelConnection() {
+        try {
+            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
+        } catch (NameRegistrar.NotFoundException e) {
+            LogEvent evt = channelManager.getLog().createError();
+            evt.addMessage(e);
+            evt.addMessage(NameRegistrar.getInstance());
+            Logger.log(evt);
+        } catch (Throwable t) {
+            channelManager.getLog().error(t);
+        }
+    }
+    // @POST
+    // @Path("/send")
+    // @Produces(MediaType.TEXT_PLAIN)
+    // public IsoMessageResponse send2(IsoMessageRequest msg) {
+    // IsoMessageResponse response = new IsoMessageResponse();
+    // response.setMessage("ciheul");
+    // System.out.println(response.toString());
+    // return response;
+    // }
+    //
+    // @POST
+    // @Path("/send")
+    // @Produces(MediaType.TEXT_HTML)
+    // public IsoMessageResponse send3(IsoMessageRequest msg) {
+    // IsoMessageResponse response = new IsoMessageResponse();
+    // response.setMessage("ciheul");
+    // System.out.println(response.toString());
+    // return response;
+    // }
+
+    // @GET
+    // @Path("/send")
+    // @Produces(MediaType.APPLICATION_JSON)
+    // public IsoMessageResponse sayHello() {
+    // IsoMessageResponse response = new IsoMessageResponse();
+    // response.setMessage("ciheul");
+    // System.out.println("ciheeeeul!");
+    // return response;
+    // }
+    //
+    // @GET
+    // @Produces(MediaType.TEXT_PLAIN)
+    // public String sayPlainTextHello() {
+    // return "Hello Jersey";
+    // }
+    //
+    // @GET
+    // @Produces(MediaType.TEXT_HTML)
+    // public String sayHtmlHello() {
+    // return "<html> " + "<title>" + "Hello Jersey" + "</title>" + "<body><h1>"
+    // + "Hello Jersey" + "</body></h1>"
+    // + "</html> ";
+    // }
 
 }

@@ -1,4 +1,4 @@
-package com.ciheul.iso.client.q2;
+package com.ciheul.iso.server;
 
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
@@ -13,7 +13,7 @@ public class ChannelManager extends QBeanSupport {
 	private long MAX_TIME_OUT;
 	private QMUX mux;
 
-//	public class AsyncListener implements ISOResponseListener {
+//	public class AJResponseListener implements ISOResponseListener {
 //
 //		@Override
 //		public void responseReceived(ISOMsg resp, Object handBack) {
@@ -69,7 +69,7 @@ public class ChannelManager extends QBeanSupport {
 			long start = System.currentTimeMillis();
 			ISOMsg respMsg = mux.request(msg, 5000);
 //			ISOMsg respMsg = null;
-//			mux.request(msg, 8000, new AsyncListener(), respMsg);
+//			mux.request(msg, 8000, new AJResponseListener(), respMsg);
 			long duration = System.currentTimeMillis() - start;
 			log.info("Response time (ms):" + duration);
 			return respMsg;
@@ -78,8 +78,7 @@ public class ChannelManager extends QBeanSupport {
 	}
 
 	public static ChannelManager getInstance(){
-		if (_cMSingleTon == null) {
-			
+		if (_cMSingleTon == null) {			
 			_cMSingleTon = new ChannelManager();
 		}
 		return _cMSingleTon;

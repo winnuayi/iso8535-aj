@@ -5,3 +5,5 @@ src/main/resources
 src/main/java/com/ciheul/iso/Legacy.java
 *.BAD
 *.log
+*.rdb
+dependency-reduced-pom.xml

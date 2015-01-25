@@ -1,4 +1,4 @@
-package com.ciheul.iso.client.useless;
+package com.ciheul.iso.dummy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

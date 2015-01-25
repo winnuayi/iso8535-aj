@@ -1,4 +1,4 @@
-package com.ciheul.iso.server;
+package com.ciheul.iso.dummy;
 
 import java.io.IOException;
 
@@ -111,7 +111,6 @@ public class DummyIsoServer implements ISORequestListener {
 	}
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("main start");
 		Logger logger = new Logger();
 		logger.addListener(new SimpleLogListener(System.out));
 
@@ -124,7 +123,5 @@ public class DummyIsoServer implements ISORequestListener {
 		server.addISORequestListener(new DummyIsoServer());
 
 		new Thread(server).start();
-
-		System.out.println("main end");
 	}
 }
