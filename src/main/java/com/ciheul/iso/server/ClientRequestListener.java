@@ -1,5 +1,6 @@
 package com.ciheul.iso.server;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,8 +18,8 @@ import org.jpos.util.NameRegistrar;
 import org.jpos.util.NameRegistrar.NotFoundException;
 
 public class ClientRequestListener implements ISORequestListener {
-    
-    ChannelManager channelManager = ChannelManager.getInstance();
+
+    private ChannelManager channelManager;
 
     /**
      * MAIN HANDLER
@@ -32,17 +33,24 @@ public class ClientRequestListener implements ISORequestListener {
 			e1.printStackTrace();
 		}
         System.out.println("process start");
-        ChannelManager.logISOMsg(m);
+
+        // channelManager = ChannelManager.getInstance();
+
+        // ChannelManager.logISOMsg(m);
         try {
             if (m.getMTI().equals("0800")) {
-                channelManager.sendMsg(createHandshakeISOMsg2());
+//                channelManager.sendMsg(createHandshakeISOMsg2());
 //                System.out.println("late response ");
+                sendEchoTestResponse(source, m);
+                sendSignOnRequest(source, m);
+            } else if (m.getMTI().equals("0810")) {
+                // source.send(createHandshakeISOMsg2("0810", "001"));
             } else 
         	if (Integer.parseInt(m.getValue(4).toString())>0) {
 
         		if (m.getMTI().equals("0210")) {
                     if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
-
+                    	
                     } else {
                         channelManager.sendMsg(createReversalISOMsg(m));
                     }
@@ -56,6 +64,57 @@ public class ClientRequestListener implements ISORequestListener {
 
         System.out.println("process end");
         return false;
+    }
+
+    /**
+     * Send echo test response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendEchoTestResponse(ISOSource source, ISOMsg m) {
+        System.out.println("sendEchoResponse");
+        try {
+            m.setResponseMTI();
+            m.set(39, "00");
+            m.set(70, "001");
+            m.setPackager(new ISO87APackager());
+            ChannelManager.logISOMsg(m);
+            System.out.println("length: " + m.pack().length);
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Send sign-on response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendSignOnRequest(ISOSource source, ISOMsg m) {
+        System.out.println("sendSignOnResponse");
+        try {
+            m.setMTI("0800");
+            m.set(7, ISODate.getDateTime(new Date()));
+            m.set(11, "000002");
+            m.set(70, "001");
+            m.setPackager(new ISO87APackager());
+            ChannelManager.logISOMsg(m);
+            System.out.println("length: " + m.pack().length);
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private ISOMsg createHandshakeISOMsg() throws ISOException {
@@ -101,15 +160,15 @@ public class ClientRequestListener implements ISORequestListener {
         return m;
     }
 
-    private ISOMsg createHandshakeISOMsg2() throws ISOException {
+    private ISOMsg createHandshakeISOMsg2(String mti, String bit70) throws ISOException {
         System.out.println("createHandshakeISOMsg2");
         ISOMsg m = new ISOMsg();
-        m.setMTI("0810");
+        m.setMTI(mti);
         m.set(7, ISODate.getDateTime(new Date()));
         m.set(11, "1");
         // m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
         m.set(39, "00");
-        m.set(70, "001");
+        m.set(70, bit70);
         m.setPackager(new ISO87APackager());
         ChannelManager.logISOMsg(m);
         return m;
