@@ -63,7 +63,7 @@ public class ClientRequestListener implements ISORequestListener {
         try {
             m.setResponseMTI();
             m.set(39, "00");
-            m.set(70, "001");
+            m.set(70, "301");
             m.setPackager(new ISO87APackager());
             source.send(m);
         } catch (ISOException e) {

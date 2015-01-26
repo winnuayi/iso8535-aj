@@ -55,6 +55,7 @@ public class ChannelManager extends QBeanSupport {
 			MAX_TIME_OUT = cfg.getLong("timeout");
 			NameRegistrar.register("manager", this);
 			mux.addISORequestListener(new ClientRequestListener());
+			System.out.println(mux.getUnhandledQueue());
 		} catch (NameRegistrar.NotFoundException e) {
 			log.error("Error in initializing service :" + e.getMessage());
 		}
@@ -98,5 +99,5 @@ public class ChannelManager extends QBeanSupport {
 		}
 		return _cMSingleTon;
 	}
-		
+	
 }

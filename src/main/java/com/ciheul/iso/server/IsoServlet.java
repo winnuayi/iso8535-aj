@@ -36,7 +36,7 @@ public class IsoServlet {
     @POST
     @Path("/send")
     @Produces(MediaType.APPLICATION_JSON)
-    public IsoMessageResponse send(IsoMessageRequest msg) {        
+    public IsoMessageResponse send(IsoMessageRequest msg){        
         String responseMsg = "";
         ISOMsg resp = null;
         
@@ -58,13 +58,13 @@ public class IsoServlet {
                 if (resp != null) {
 
                     responseMsg = resp.getValue(39).toString();
-                } else {
-
-                }
+                } 
 //                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             } catch (Exception e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             }
             break;
@@ -77,8 +77,10 @@ public class IsoServlet {
                 }
 //                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             } catch (Exception e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             }
             break;
@@ -86,30 +88,48 @@ public class IsoServlet {
         case "0200":
             try {
                 resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
+                System.out.println("sent");
+                System.out.println("Loggernya = "+channelManager.getLogger());
                 if (resp != null) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
-                }
+                }else {
+                	responseMsg = "TIMEOUT";
+				}
 //                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             } catch (Exception e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             }
             break;
 
+        case "0210":
+            System.out.println("masuk sini jugaa");
+            break;
+
         case "0400":
             try {
-                resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
+                resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
                 if (resp != null) {
                     responseMsg = resp.getValue(39).toString();
+                }else{
+                	responseMsg = "TIMEOUT";
                 }
 //                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             } catch (Exception e) {
+            	responseMsg = e.getMessage();
                 e.printStackTrace();
             }
+            break;
+
+        case "0410":
+            System.out.println("sini juga masuk");
             break;
 
         default:
@@ -147,6 +167,31 @@ public class IsoServlet {
         return m;
     }
 
+    private ISOMsg createSendReversalISOMsg(String isoMsgSend) throws ISOException {
+        String[] isoMsgSplit = isoMsgSend.split("#");
+        ISOMsg m = new ISOMsg();
+        m.setMTI(isoMsgSplit[0]);
+        m.set(2, isoMsgSplit[1]);
+        m.set(3, isoMsgSplit[2]);
+        m.set(4, isoMsgSplit[3]);
+        m.set(7, isoMsgSplit[4]);
+        m.set(11, isoMsgSplit[5]);
+        m.set(12, isoMsgSplit[6]);
+        m.set(13, isoMsgSplit[7]);
+        m.set(15, isoMsgSplit[8]);
+        m.set(18, isoMsgSplit[9]);
+        m.set(32, isoMsgSplit[10]);
+        m.set(37, isoMsgSplit[11]);
+        m.set(42, isoMsgSplit[12]);
+        m.set(43, isoMsgSplit[13]);
+        m.set(48, isoMsgSplit[14]);
+        m.set(49, isoMsgSplit[15]);
+        m.set(63, isoMsgSplit[16]);
+        m.set(90, "0200" + isoMsgSplit[5] + isoMsgSplit[4] + isoMsgSplit[10] + "00000");
+        m.setPackager(new ISO87APackager());
+        ChannelManager.logISOMsg(m);
+        return m;
+    }
     private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
         String[] isoMsgSplit = isoMsgSend.split("#");
         ISOMsg m = new ISOMsg();
