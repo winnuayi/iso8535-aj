@@ -13,6 +13,8 @@ import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISORequestListener;
 import org.jpos.iso.ISOSource;
 import org.jpos.iso.packager.ISO87APackager;
+import org.jpos.util.NameRegistrar;
+import org.jpos.util.NameRegistrar.NotFoundException;
 
 public class ClientRequestListener implements ISORequestListener {
     
@@ -23,19 +25,29 @@ public class ClientRequestListener implements ISORequestListener {
      */
     @Override
     public boolean process(ISOSource source, ISOMsg m) {
+        try {
+			channelManager = ((ChannelManager) NameRegistrar.get("manager"));
+		} catch (NotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         System.out.println("process start");
         ChannelManager.logISOMsg(m);
         try {
             if (m.getMTI().equals("0800")) {
                 channelManager.sendMsg(createHandshakeISOMsg2());
 //                System.out.println("late response ");
-            } else if (m.getMTI().equals("0200")) {
-                if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
+            } else 
+        	if (Integer.parseInt(m.getValue(4).toString())>0) {
 
-                } else {
-                    channelManager.sendMsg(createReversalISOMsg(m));
+        		if (m.getMTI().equals("0210")) {
+                    if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
+
+                    } else {
+                        channelManager.sendMsg(createReversalISOMsg(m));
+                    }
                 }
-            }
+			}
         } catch (ISOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -81,7 +93,7 @@ public class ClientRequestListener implements ISORequestListener {
         m.set(48, lateResponse.getValue(48).toString());
         m.set(49, lateResponse.getValue(49).toString());
         m.set(63, lateResponse.getValue(63).toString());
-        m.set(90, "0200" + lateResponse.getValue(11).toString() + "" + lateResponse.getValue(7).toString() + "00000"
+        m.set(90, "0200" + lateResponse.getValue(11).toString() + lateResponse.getValue(7).toString() + lateResponse.getValue(32).toString() + "00000"
                 + lateResponse.getValue(32).toString() + "00000000000");
         m.setPackager(new ISO87APackager());
         ChannelManager.logISOMsg(m);

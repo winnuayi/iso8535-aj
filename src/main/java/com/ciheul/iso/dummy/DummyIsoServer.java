@@ -19,6 +19,7 @@ public class DummyIsoServer implements ISORequestListener {
     public static String ECHO_REQ = "0800";
     public static String ECHO_RES = "0810";
     public static String TRX_REQ = "0200";
+    public static String REV_REQ = "0400";
 
     public DummyIsoServer() {
         super();
@@ -50,11 +51,11 @@ public class DummyIsoServer implements ISORequestListener {
      */
     private void sendEchoTestResponse(ISOSource source, ISOMsg m) {
         System.out.println("sendEchoResponse");
-        try {
-            Thread.sleep(10000); // 1000 milliseconds is one second.
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
+//        try {
+//            Thread.sleep(10000); // 1000 milliseconds is one second.
+//        } catch (InterruptedException ex) {
+//            Thread.currentThread().interrupt();
+//        }
         try {
             m.setResponseMTI();
             m.set(39, "00");
@@ -128,6 +129,11 @@ public class DummyIsoServer implements ISORequestListener {
      *            message from client
      */
     private void sendPaymentPostpaid(ISOSource source, ISOMsg m) {
+//        try {
+//            Thread.sleep(15000); // 1000 milliseconds is one second.
+//        } catch (InterruptedException ex) {
+//            Thread.currentThread().interrupt();
+//        }
         System.out.println("sendInquiryPostpaid");
         try {
             m.setResponseMTI();
@@ -155,6 +161,21 @@ public class DummyIsoServer implements ISORequestListener {
      * @param m
      *            message from client
      */
+    private void sendReversal(ISOSource source, ISOMsg m) {
+        System.out.println("sendReversal");
+        try {
+            m.setResponseMTI();
+            m.set(39, "00");
+//            m.set(48,
+//                    "21144567891230123000PENYAMBUNGAN BARU        2011062420111224531234563301 AZHAR WAHYU'B S.Pd,M-Pd       KGIM9AVVVVVV3XVZ20XVWZWXWWV4XXW1                                SU001JL. RAYA 1 BOJONGGEDE              021-66655544   00000200000003600000000000020000000000000000020000000000000000001200000000050000000");
+            m.setPackager(new ISO87APackager());
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void sendInquiryNontaglis(ISOSource source, ISOMsg m) {
         System.out.println("sendInquiryPostpaid");
         try {
@@ -206,17 +227,22 @@ public class DummyIsoServer implements ISORequestListener {
     public boolean process(ISOSource source, ISOMsg m) {
         System.out.println("ROUTING MESSAGE");
         try {
-            if (m.getMTI().equals(ECHO_REQ)) {
+        	if (m.getMTI().equals(REV_REQ)) {
+//                sendReversal(source, m);
+                return true;
+            }else if (m.getMTI().equals(ECHO_REQ)) {
                 sendEchoTestResponse(source, m);
+                return true;
             } else if (m.getMTI().equals(ECHO_RES)) {
                 sendSignOnResponse(source, m);
+                return true;
             } else if (m.getMTI().equals(TRX_REQ)) {
                 // POSTPAID INQ
                 if (m.getValue(48).toString().substring(0, 4).equals("2112")) {
                     if (m.getValue(3).toString().equals("380000")) {
                         sendInquiryPostpaid(source, m);
                     } else if (m.getValue(3).toString().equals("180000")) {
-                        sendPaymentPostpaid(source, m);
+//                        sendPaymentPostpaid(source, m);
                     }                    
                 } else if (m.getValue(48).toString().substring(0, 4).equals("2114")) {
                     if (m.getValue(3).toString().equals("380000")) {
@@ -225,6 +251,7 @@ public class DummyIsoServer implements ISORequestListener {
                         sendPaymentNontaglis(source, m);
                     }  
                 }
+                return true;
             } else {
                 return false;
             }
