@@ -16,12 +16,23 @@ import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.util.LogEvent;
 import org.jpos.util.Logger;
 import org.jpos.util.NameRegistrar;
+import org.jpos.util.NameRegistrar.NotFoundException;
 
 @Path("/api")
 public class IsoServlet {
 
-    ChannelManager channelManager = ChannelManager.getInstance();
+    ChannelManager channelManager = null;
+//    ChannelManager channelManager = ChannelManager.getInstance();
 
+    public IsoServlet() {
+//        channelManager = ChannelManager.getInstance();
+        try {
+            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    
     @POST
     @Path("/send")
     @Produces(MediaType.APPLICATION_JSON)

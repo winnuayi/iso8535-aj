@@ -6,6 +6,7 @@ import org.jpos.iso.MUX;
 import org.jpos.q2.QBeanSupport;
 import org.jpos.q2.iso.QMUX;
 import org.jpos.util.NameRegistrar;
+import org.jpos.util.NameRegistrar.NotFoundException;
 
 public class ChannelManager extends QBeanSupport {
 
@@ -54,7 +55,6 @@ public class ChannelManager extends QBeanSupport {
 			MAX_TIME_OUT = cfg.getLong("timeout");
 			NameRegistrar.register("manager", this);
 			mux.addISORequestListener(new ClientRequestListener());
-
 		} catch (NameRegistrar.NotFoundException e) {
 			log.error("Error in initializing service :" + e.getMessage());
 		}
@@ -64,8 +64,9 @@ public class ChannelManager extends QBeanSupport {
 		return sendMsg(m, mux, MAX_TIME_OUT);
 	}
 
-	private ISOMsg sendMsg(ISOMsg msg, MUX mux, long time) throws Exception {
+	private ISOMsg sendMsg(ISOMsg msg, MUX mux, long time) throws Exception {	    
 		if (mux != null) {
+		    System.out.println("mux sending message...");
 			long start = System.currentTimeMillis();
 			ISOMsg respMsg = mux.request(msg, time);
 //			ISOMsg respMsg = null;
@@ -74,13 +75,28 @@ public class ChannelManager extends QBeanSupport {
 			log.info("Response time (ms):" + duration);
 			return respMsg;
 		}
+		
+		System.out.println("mux is null");
 		return null;
 	}
 
 	public static ChannelManager getInstance(){
-		if (_cMSingleTon == null) {			
-			_cMSingleTon = new ChannelManager();
+		if (_cMSingleTon == null) {
+		    System.out.println("*************");
+		    System.out.println("channel manager is null");
+		    System.out.println("*************");
+//			_cMSingleTon = new ChannelManager();
+			try {
+			    _cMSingleTon = ((ChannelManager) NameRegistrar.get("manager"));
+	        } catch (NotFoundException e) {
+	            e.printStackTrace();
+	        }
+		} else {
+		    System.out.println("*************");
+		    System.out.println("channel manager is not null");
+		    System.out.println("*************");
 		}
 		return _cMSingleTon;
 	}
+		
 }
