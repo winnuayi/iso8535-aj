@@ -130,7 +130,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.ciheul.iso.client.q2.Main</mainClass>
+							<mainClass>com.ciheul.iso.server.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

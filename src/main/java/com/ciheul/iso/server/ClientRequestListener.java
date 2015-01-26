@@ -16,25 +16,23 @@ import org.jpos.iso.ISOSource;
 import org.jpos.iso.packager.ISO87APackager;
 
 public class ClientRequestListener implements ISORequestListener {
-
+    
     private ChannelManager channelManager;
-
+        
     /**
      * MAIN HANDLER
      */
     @Override
     public boolean process(ISOSource source, ISOMsg m) {
-        System.out.println("process start");
-
-        // channelManager = ChannelManager.getInstance();
-
-        // ChannelManager.logISOMsg(m);
+        System.out.println("process start");       
+        
+        ChannelManager.logISOMsg(m);
         try {
             if (m.getMTI().equals("0800")) {
                 sendEchoTestResponse(source, m);
                 sendSignOnRequest(source, m);
             } else if (m.getMTI().equals("0810")) {
-                // source.send(createHandshakeISOMsg2("0810", "001"));
+                // empty
             } else if (m.getMTI().equals("0200")) {
                 if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
 
@@ -67,8 +65,6 @@ public class ClientRequestListener implements ISORequestListener {
             m.set(39, "00");
             m.set(70, "001");
             m.setPackager(new ISO87APackager());
-            ChannelManager.logISOMsg(m);
-            System.out.println("length: " + m.pack().length);
             source.send(m);
         } catch (ISOException e) {
             e.printStackTrace();
@@ -76,7 +72,7 @@ public class ClientRequestListener implements ISORequestListener {
             e.printStackTrace();
         }
     }
-
+    
     /**
      * Send sign-on response.
      * 
@@ -93,8 +89,6 @@ public class ClientRequestListener implements ISORequestListener {
             m.set(11, "000002");
             m.set(70, "001");
             m.setPackager(new ISO87APackager());
-            ChannelManager.logISOMsg(m);
-            System.out.println("length: " + m.pack().length);
             source.send(m);
         } catch (ISOException e) {
             e.printStackTrace();
@@ -102,7 +96,7 @@ public class ClientRequestListener implements ISORequestListener {
             e.printStackTrace();
         }
     }
-
+    
     private ISOMsg createHandshakeISOMsg() throws ISOException {
         Map<String, String> date = getDate();
         ISOMsg m = new ISOMsg();
