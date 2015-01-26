@@ -104,8 +104,12 @@ public class DummyIsoServer implements ISORequestListener {
         try {
             m.setResponseMTI();
             m.set(39, "00");
+            // m.set(48,
+            // "2112121234567890 101YZ012343210ZYXWXVW0VWX0W4X1XW342                                NAMA BIN NAMA                 12345021            R1  12345678900000250000000015000003602009012009021520090101000000150000D00000000000000001500000001000000010000000200000001000000020000000100000002000");
+
             m.set(48,
-                    "2112121234567890 101YZ012343210ZYXWXVW0VWX0W4X1XW342                                NAMA BIN NAMA                 12345021            R1  12345678900000250000000015000003602009012009021520090101000000150000D00000000000000001500000001000000010000000200000001000000020000000100000002000");
+                    "2112131234561111 404KGIM9AVVVVVV3XVZ20XVWZWXWWV4W4W0                                AZHAR WAHYU' S.T,M-T          SU001021-98765432   R1  00000130000000000000000020000003602014012014012020140102000000050000D000001111100000011110000000000000010000000200000000000000000000000000000000002014022014022020140202000000050000D000002222200000022220000000000000010000000200000000000000000000000000000000002014032014032000000000000000050000D000003333300000033330000000000000010000000200000000000000000000000000000000002014042014032000000000000000050000D00000444440000004444000000000000001000000020000000000000000000000000000000000");
+
             m.setPackager(new ISO87APackager());
             source.send(m);
         } catch (ISOException e) {
@@ -115,6 +119,82 @@ public class DummyIsoServer implements ISORequestListener {
         }
     }
 
+    /**
+     * Send payment postpaid response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendPaymentPostpaid(ISOSource source, ISOMsg m) {
+        System.out.println("sendInquiryPostpaid");
+        try {
+            m.setResponseMTI();
+            m.set(39, "00");
+            // m.set(48,
+            // "2112121234567890 101YZ012343210ZYXWXVW0VWX0W4X1XW342                                NAMA BIN NAMA                 12345021            R1  12345678900000250000000015000003602009012009021520090101000000150000D00000000000000001500000001000000010000000200000001000000020000000100000002000");
+
+            m.set(48,
+                    "2112131234561111 4404KGIM9AVVVVVV3XVZ20XVWZWXWWV4W4W0                                AZHAR WAHYU' S.T,M-T          SU001021-98765432   R1  00000130000000000000000020000003602014012014012020140102000000050000D000001111100000011110000000000000010000000200000000000000000000000000000000002014022014022020140202000000050000D000002222200000022220000000000000010000000200000000000000000000000000000000002014032014032000000000000000050000D000003333300000033330000000000000010000000200000000000000000000000000000000002014042014032000000000000000050000D00000444440000004444000000000000001000000020000000000000000000000000000000000");
+
+            m.setPackager(new ISO87APackager());
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Send inquiry postpaid response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendInquiryNontaglis(ISOSource source, ISOMsg m) {
+        System.out.println("sendInquiryPostpaid");
+        try {
+            m.setResponseMTI();
+            m.set(39, "00");
+            m.set(48,
+                    "21144567891230123000PENYAMBUNGAN BARU        2011062420111224531234563301 AZHAR WAHYU'B S.Pd,M-Pd       KGIM9AVVVVVV3XVZ20XVWZWXWWV4XXW1                                SU001JL. RAYA 1 BOJONGGEDE              021-66655544   00000200000003600000000000020000000000000000020000000000000000001200000000050000000");
+            m.setPackager(new ISO87APackager());
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Send payment postpaid response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendPaymentNontaglis(ISOSource source, ISOMsg m) {
+        System.out.println("sendInquiryPostpaid");
+        try {
+            m.setResponseMTI();
+            m.set(39, "00");           
+            m.set(48,
+                    "21144567891230123000PENYAMBUNGAN BARU        2011062420111224531234563301 AZHAR WAHYU'B S.Pd,M-Pd       KGIM9AVVVVVV3XVZ20XVWZWXWWV4XXW1                                SU001JL. RAYA 1 BOJONGGEDE              021-66655544   00000200000003600000000000020000000000000000020000000000000000001200000000050000000");
+            m.setPackager(new ISO87APackager());
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * Route incoming message to appropriate handler
      * 
@@ -133,7 +213,17 @@ public class DummyIsoServer implements ISORequestListener {
             } else if (m.getMTI().equals(TRX_REQ)) {
                 // POSTPAID INQ
                 if (m.getValue(48).toString().substring(0, 4).equals("2112")) {
-                    sendInquiryPostpaid(source, m);
+                    if (m.getValue(3).toString().equals("380000")) {
+                        sendInquiryPostpaid(source, m);
+                    } else if (m.getValue(3).toString().equals("180000")) {
+                        sendPaymentPostpaid(source, m);
+                    }                    
+                } else if (m.getValue(48).toString().substring(0, 4).equals("2114")) {
+                    if (m.getValue(3).toString().equals("380000")) {
+                        sendInquiryNontaglis(source, m);
+                    } else if (m.getValue(3).toString().equals("180000")) {
+                        sendPaymentNontaglis(source, m);
+                    }  
                 }
             } else {
                 return false;
