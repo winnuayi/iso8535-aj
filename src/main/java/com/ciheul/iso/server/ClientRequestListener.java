@@ -41,10 +41,13 @@ public class ClientRequestListener implements ISORequestListener {
             if (m.getMTI().equals("0800")) {
 //                channelManager.sendMsg(createHandshakeISOMsg2());
 //                System.out.println("late response ");
-                sendEchoTestResponse(source, m);
-                sendSignOnRequest(source, m);
+//                sendEchoTestResponse(source, m);
+//            	channelManager.sendMsg(createHandshakeISOMsg("0800", "001"));
+//                sendSignOnRequest(source, m);
             } else if (m.getMTI().equals("0810")) {
                 // source.send(createHandshakeISOMsg2("0810", "001"));
+//            	channelManager.sendMsg(createHandshakeISOMsg("0810", "001"));
+//            	sendEchoTestResponse(source, m);
             } else 
         	if (Integer.parseInt(m.getValue(4).toString())>0) {
 
@@ -52,7 +55,7 @@ public class ClientRequestListener implements ISORequestListener {
                     if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
                     	
                     } else {
-                        channelManager.sendMsg(createReversalISOMsg(m));
+                        channelManager.sendMsg(createReversalISOMsg(m)); 
                     }
                 }
 			}
@@ -75,11 +78,12 @@ public class ClientRequestListener implements ISORequestListener {
      *            message from client
      */
     private void sendEchoTestResponse(ISOSource source, ISOMsg m) {
+		Map<String, String> date = getDate();
         System.out.println("sendEchoResponse");
         try {
             m.setResponseMTI();
             m.set(39, "00");
-            m.set(70, "001");
+            m.set(70, "301");
             m.setPackager(new ISO87APackager());
             ChannelManager.logISOMsg(m);
             System.out.println("length: " + m.pack().length);
@@ -100,11 +104,12 @@ public class ClientRequestListener implements ISORequestListener {
      *            message from client
      */
     private void sendSignOnRequest(ISOSource source, ISOMsg m) {
+		Map<String, String> date = getDate();
         System.out.println("sendSignOnResponse");
         try {
             m.setMTI("0800");
-            m.set(7, ISODate.getDateTime(new Date()));
-            m.set(11, "000002");
+            m.set(7, date.get("bit7"));
+            m.set(11, "000001");
             m.set(70, "001");
             m.setPackager(new ISO87APackager());
             ChannelManager.logISOMsg(m);
@@ -117,14 +122,14 @@ public class ClientRequestListener implements ISORequestListener {
         }
     }
 
-    private ISOMsg createHandshakeISOMsg() throws ISOException {
+    private ISOMsg createHandshakeISOMsg(String mti, String bit70) throws ISOException {
         Map<String, String> date = getDate();
         ISOMsg m = new ISOMsg();
-        m.setMTI("0800");
-        m.set(7, ISODate.getDateTime(new Date()));
-        m.set(11, "1");
+        m.setMTI(mti);
+        m.set(7, date.get("bit7"));
+        m.set(11, "000001");
         // m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
-        m.set(70, "001");
+        m.set(70, bit70);
         m.setPackager(new ISO87APackager());
         ChannelManager.logISOMsg(m);
         return m;
@@ -161,11 +166,13 @@ public class ClientRequestListener implements ISORequestListener {
     }
 
     private ISOMsg createHandshakeISOMsg2(String mti, String bit70) throws ISOException {
+
+        Map<String, String> date = getDate();
         System.out.println("createHandshakeISOMsg2");
         ISOMsg m = new ISOMsg();
         m.setMTI(mti);
         m.set(7, ISODate.getDateTime(new Date()));
-        m.set(11, "1");
+        m.set(11, "000001");
         // m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
         m.set(39, "00");
         m.set(70, bit70);
