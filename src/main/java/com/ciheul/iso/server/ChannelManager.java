@@ -2,6 +2,7 @@ package com.ciheul.iso.server;
 
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
+import org.jpos.iso.ISOResponseListener;
 import org.jpos.iso.MUX;
 import org.jpos.q2.QBeanSupport;
 import org.jpos.q2.iso.QMUX;
@@ -14,19 +15,19 @@ public class ChannelManager extends QBeanSupport {
 	private long MAX_TIME_OUT;
 	private QMUX mux;
 
-//	public class AJResponseListener implements ISOResponseListener {
-//
-//		@Override
-//		public void responseReceived(ISOMsg resp, Object handBack) {
-//			System.out.println("responseReceived");			
-//		}
-//
-//		@Override
-//		public void expired(Object handBack) {
-//			System.out.println("expired");			
-//		}
-//
-//	}
+	public class AJResponseListener implements ISOResponseListener {
+
+		@Override
+		public void responseReceived(ISOMsg resp, Object handBack) {
+			System.out.println("responseReceived");			
+		}
+
+		@Override
+		public void expired(Object handBack) {
+			System.out.println("expired");			
+		}
+
+	}
 
 	
 	public static void logISOMsg(ISOMsg msg) {

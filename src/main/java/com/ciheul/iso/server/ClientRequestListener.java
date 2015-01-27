@@ -155,14 +155,14 @@ public class ClientRequestListener implements ISORequestListener {
         }
     }
 
-    private ISOMsg createHandshakeISOMsg() throws ISOException {
+    private ISOMsg createHandshakeISOMsg(String mti, String bit70) throws ISOException {
         Map<String, String> date = getDate();
         ISOMsg m = new ISOMsg();
-        m.setMTI("0800");
-        m.set(7, ISODate.getDateTime(new Date()));
-        m.set(11, "1");
+        m.setMTI(mti);
+        m.set(7, date.get("bit7"));
+        m.set(11, "000001");
         // m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
-        m.set(70, "001");
+        m.set(70, bit70);
         m.setPackager(new ISO87APackager());
         ChannelManager.logISOMsg(m);
         return m;
@@ -198,19 +198,20 @@ public class ClientRequestListener implements ISORequestListener {
         return m;
     }
 
-//    private ISOMsg createHandshakeISOMsg2(String mti, String bit70) throws ISOException {
-//        System.out.println("createHandshakeISOMsg2");
-//        ISOMsg m = new ISOMsg();
-//        m.setMTI(mti);
-//        m.set(7, ISODate.getDateTime(new Date()));
-//        m.set(11, "1");
-//        // m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
-//        m.set(39, "00");
-//        m.set(70, bit70);
-//        m.setPackager(new ISO87APackager());
-//        ChannelManager.logISOMsg(m);
-//        return m;
-//    }
+    // private ISOMsg createHandshakeISOMsg2(String mti, String bit70) throws
+    // ISOException {
+    // System.out.println("createHandshakeISOMsg2");
+    // ISOMsg m = new ISOMsg();
+    // m.setMTI(mti);
+    // m.set(7, ISODate.getDateTime(new Date()));
+    // m.set(11, "1");
+    // // m.set(11, String.valueOf(System.currentTimeMillis() % 1000000));
+    // m.set(39, "00");
+    // m.set(70, bit70);
+    // m.setPackager(new ISO87APackager());
+    // ChannelManager.logISOMsg(m);
+    // return m;
+    // }
 
     private static HashMap<String, String> getDate() {
         DateFormat dateFormat1 = new SimpleDateFormat("MMdd");

@@ -221,11 +221,13 @@ public class IsoServlet {
         try {
             channelManager = ((ChannelManager) NameRegistrar.get("manager"));
         } catch (NameRegistrar.NotFoundException e) {
+        	System.out.println("ngga konek");
             LogEvent evt = channelManager.getLog().createError();
             evt.addMessage(e);
             evt.addMessage(NameRegistrar.getInstance());
             Logger.log(evt);
         } catch (Throwable t) {
+        	System.out.println("ngga konek 2");
             channelManager.getLog().error(t);
         }
     }
