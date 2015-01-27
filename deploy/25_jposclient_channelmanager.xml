@@ -2,9 +2,9 @@
 <qbean name="manager" logger="Q2" realm="jpos-client-simulator"
 	class="com.ciheul.iso.server.ChannelManager">
 
-	<property name="mux" value="jpos-client-mux" />
+	<!-- <property name="mux" value="jpos-client-mux" /> -->
 	<property name="channel" value="jpos-client-adaptor" />
-	<!-- <property name="timeout" value="2000" /> -->
+	<property name="timeout" value="2000" />
 	<property name="sessions" value="1" />
 	<property name="shutdown" value="false" />
 </qbean>
