@@ -7,6 +7,7 @@ import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISORequestListener;
 import org.jpos.iso.ISOServer;
 import org.jpos.iso.ISOSource;
+import org.jpos.iso.ISOUtil;
 import org.jpos.iso.ServerChannel;
 import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.util.LogSource;
@@ -51,11 +52,13 @@ public class DummyIsoServer implements ISORequestListener {
      */
     private void sendEchoTestResponse(ISOSource source, ISOMsg m) {
         System.out.println("sendEchoResponse");
-//        try {
-//            Thread.sleep(10000); // 1000 milliseconds is one second.
-//        } catch (InterruptedException ex) {
-//            Thread.currentThread().interrupt();
-//        }
+        // try {
+        // Thread.sleep(10000); // 1000 milliseconds is one second.
+        // } catch (InterruptedException ex) {
+        // Thread.currentThread().interrupt();
+        // }
+//        ISOUtil.sleep(20000);
+
         try {
             m.setResponseMTI();
             m.set(39, "00");
@@ -129,11 +132,11 @@ public class DummyIsoServer implements ISORequestListener {
      *            message from client
      */
     private void sendPaymentPostpaid(ISOSource source, ISOMsg m) {
-//        try {
-//            Thread.sleep(15000); // 1000 milliseconds is one second.
-//        } catch (InterruptedException ex) {
-//            Thread.currentThread().interrupt();
-//        }
+        // try {
+        // Thread.sleep(15000); // 1000 milliseconds is one second.
+        // } catch (InterruptedException ex) {
+        // Thread.currentThread().interrupt();
+        // }
         System.out.println("sendInquiryPostpaid");
         try {
             m.setResponseMTI();
@@ -161,13 +164,14 @@ public class DummyIsoServer implements ISORequestListener {
      * @param m
      *            message from client
      */
-    private void sendReversal(ISOSource source, ISOMsg m) {
-        System.out.println("sendReversal");
+    private void sendInquiryPrepaid(ISOSource source, ISOMsg m) {
+        System.out.println("sendInquiryPrepaid");
         try {
             m.setResponseMTI();
             m.set(39, "00");
-//            m.set(48,
-//                    "21144567891230123000PENYAMBUNGAN BARU        2011062420111224531234563301 AZHAR WAHYU'B S.Pd,M-Pd       KGIM9AVVVVVV3XVZ20XVWZWXWWV4XXW1                                SU001JL. RAYA 1 BOJONGGEDE              021-66655544   00000200000003600000000000020000000000000000020000000000000000001200000000050000000");
+            m.set(48,
+                    "211112345671111131234533301 0AZHAR WAHYU' S.T,M-T     R1  000002200DCSUNITSUPHONE123     1000020000010000000000200000KGIM9AVVVVVVVVVZ4YXVW0VWX3W0VXX4                                360003214");
+
             m.setPackager(new ISO87APackager());
             source.send(m);
         } catch (ISOException e) {
@@ -176,6 +180,56 @@ public class DummyIsoServer implements ISORequestListener {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Send inquiry postpaid response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendPaymentPrepaid(ISOSource source, ISOMsg m) {
+        System.out.println("sendInquiryPrepaid");
+        try {
+            m.setResponseMTI();
+            m.set(39, "68");
+            m.set(48,
+                    "211112345673221131234561111 0AZHAR WAHYU' S.T,M-T     R1  000002200DCSUNITSUPHONE123     1000000000000000000000000000KGIM9AVVVVVVVVVVWXXVWZWXW4W0V3W0V00KF0000130217XCJF0PE001384    0PVENDINGR000000000002000002002220000030033200000400442000555005520000666006661000055550012349874235472358811058Informasi hubungi call center 123 atau hub.PLN terdekat : ");
+
+            m.setPackager(new ISO87APackager());
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Send inquiry postpaid response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendReversal(ISOSource source, ISOMsg m) {
+        System.out.println("sendReversal");
+        try {
+            m.setResponseMTI();
+            m.set(39, "00");
+            // m.set(48,
+            // "21144567891230123000PENYAMBUNGAN BARU        2011062420111224531234563301 AZHAR WAHYU'B S.Pd,M-Pd       KGIM9AVVVVVV3XVZ20XVWZWXWWV4XXW1                                SU001JL. RAYA 1 BOJONGGEDE              021-66655544   00000200000003600000000000020000000000000000020000000000000000001200000000050000000");
+            m.setPackager(new ISO87APackager());
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendInquiryNontaglis(ISOSource source, ISOMsg m) {
         System.out.println("sendInquiryPostpaid");
         try {
@@ -204,7 +258,7 @@ public class DummyIsoServer implements ISORequestListener {
         System.out.println("sendInquiryPostpaid");
         try {
             m.setResponseMTI();
-            m.set(39, "00");           
+            m.set(39, "00");
             m.set(48,
                     "21144567891230123000PENYAMBUNGAN BARU        2011062420111224531234563301 AZHAR WAHYU'B S.Pd,M-Pd       KGIM9AVVVVVV3XVZ20XVWZWXWWV4XXW1                                SU001JL. RAYA 1 BOJONGGEDE              021-66655544   00000200000003600000000000020000000000000000020000000000000000001200000000050000000");
             m.setPackager(new ISO87APackager());
@@ -215,7 +269,7 @@ public class DummyIsoServer implements ISORequestListener {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Route incoming message to appropriate handler
      * 
@@ -226,34 +280,89 @@ public class DummyIsoServer implements ISORequestListener {
      */
     public boolean process(ISOSource source, ISOMsg m) {
         System.out.println("ROUTING MESSAGE");
+
         try {
-        	if (m.getMTI().equals(REV_REQ)) {
-//                sendReversal(source, m);
-                return true;
-            }else if (m.getMTI().equals(ECHO_REQ)) {
+            String bit48 = m.getValue(48).toString();
+
+            // echo test
+            if (m.getMTI().equals(ECHO_REQ)) {
                 sendEchoTestResponse(source, m);
                 return true;
-            } else if (m.getMTI().equals(ECHO_RES)) {
+            }
+
+            // sign on
+            if (m.getMTI().equals(ECHO_RES)) {
                 sendSignOnResponse(source, m);
                 return true;
-            } else if (m.getMTI().equals(TRX_REQ)) {
-                // POSTPAID INQ
+            }
+
+            // reversal
+            if (m.getMTI().equals(REV_REQ)) {
+                sendReversal(source, m);
+                return true;
+            }
+
+            // transaction
+            if (m.getMTI().equals(TRX_REQ)) {
+                System.out.println("transaction");
+                // postpaid
                 if (m.getValue(48).toString().substring(0, 4).equals("2112")) {
+                    // inquiry
                     if (m.getValue(3).toString().equals("380000")) {
                         sendInquiryPostpaid(source, m);
-                    } else if (m.getValue(3).toString().equals("180000")) {
-//                        sendPaymentPostpaid(source, m);
-                    }                    
-                } else if (m.getValue(48).toString().substring(0, 4).equals("2114")) {
+                        return true;
+                    }
+
+                    if (m.getValue(3).toString().equals("180000")) {
+                        // sendPaymentPostpaid(source, m);
+                        return true;
+                    }
+                }
+
+                // prepaid
+                if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
+                    System.out.println("prepaid");
+                    System.out.println("bit48  : " + bit48);
+                    System.out.println("prepaid: " + bit48.substring(bit48.length() - 1));
+
+                    // inquiry
+                    if (m.getValue(3).toString().equals("380000")) {
+                        System.out.println("sendInquiryPrepaid");
+                        sendInquiryPrepaid(source, m);
+                        return true;
+                    }
+
+                    System.out.println("before sendPaymentPrepaid");
+                    System.out.println(bit48.substring(bit48.length() - 1).equals("P"));
+                    System.out.println(bit48.substring(bit48.length() - 1) == "P");
+                    System.out.println(bit48.substring(bit48.length() - 1).length());
+                    // payment
+                    if (m.getValue(3).toString().equals("180000") && bit48.substring(bit48.length() - 1).equals("P")) {
+                        System.out.println("sendPaymentPrepaid");
+                        sendPaymentPrepaid(source, m);
+                        return true;
+                    }
+                    System.out.println("after sendPaymentPrepaid");
+
+                    // advice
+                    if (m.getValue(3).toString().equals("180000") && bit48.substring(bit48.length() - 1).equals("A")) {
+                        System.out.println("sendAdvice");
+                        return true;
+                    }
+                }
+
+                // nontaglis
+                if (m.getValue(48).toString().substring(0, 4).equals("2114")) {
                     if (m.getValue(3).toString().equals("380000")) {
                         sendInquiryNontaglis(source, m);
-                    } else if (m.getValue(3).toString().equals("180000")) {
+                        return true;
+                    }
+
+                    if (m.getValue(3).toString().equals("180000")) {
                         sendPaymentNontaglis(source, m);
-                    }  
+                        return true;
+                    }
                 }
-                return true;
-            } else {
-                return false;
             }
         } catch (ISOException e) {
             e.printStackTrace();

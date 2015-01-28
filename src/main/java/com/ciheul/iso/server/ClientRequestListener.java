@@ -19,8 +19,13 @@ import org.jpos.util.SimpleLogListener;
 
 public class ClientRequestListener implements ISORequestListener {
 
+    private int LOGGEDIN = 1;
+    private int NOT_LOGGEDIN = 0;
+    
     private static Logger logger = new Logger();
     private ChannelManager channelManager;
+    private int state = NOT_LOGGEDIN;
+    
 
     public ClientRequestListener() {
         logger.addListener(new SimpleLogListener(System.out));
@@ -37,9 +42,15 @@ public class ClientRequestListener implements ISORequestListener {
         try {
             if (m.getMTI().equals("0800")) {
                 sendEchoTestResponse(source, m);
-                sendSignOnRequest(source, m);
+                
+                // do not send sign on request if system has been logged in
+                if (state == NOT_LOGGEDIN) {
+                    sendSignOnRequest(source, m);
+                }
             } else if (m.getMTI().equals("0810")) {
-                // empty
+                if (m.getValue(70).equals("001")) {
+                    state = LOGGEDIN;
+                }
             } else if (Integer.parseInt(m.getValue(4).toString()) > 0) {
                 if (m.getMTI().equals("0210")) {
                     if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
