@@ -25,7 +25,7 @@ public class IsoServlet {
 //    ChannelManager channelManager = ChannelManager.getInstance();
 
     public IsoServlet() {
-//        channelManager = ChannelManager.getInstance();
+        channelManager = ChannelManager.getInstance();
         try {
             channelManager = ((ChannelManager) NameRegistrar.get("manager"));
         } catch (NotFoundException e) {
@@ -44,7 +44,7 @@ public class IsoServlet {
         
         String[] isoMsgSplit = msg.getMessage().split("#");
         
-        channelConnection();
+//        channelConnection();
         
         String isoMsgSend = msg.getMessage();
         
@@ -90,7 +90,7 @@ public class IsoServlet {
                 resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
                 System.out.println("sent");
                 System.out.println("Loggernya = "+channelManager.getLogger());
-                if (resp != null) {
+                if (resp != null && !resp.getValue(39).toString().equals("68")) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
                 }else {
@@ -113,8 +113,9 @@ public class IsoServlet {
         case "0400":
             try {
                 resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
-                if (resp != null) {
-                    responseMsg = resp.getValue(39).toString();
+                if (resp != null && !resp.getValue(39).toString().equals("68")) {
+                    responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
+                            + resp.getValue(48);
                 }else{
                 	responseMsg = "TIMEOUT";
                 }
@@ -218,18 +219,16 @@ public class IsoServlet {
     }
 
     private void channelConnection() {
-        try {
-            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
-        } catch (NameRegistrar.NotFoundException e) {
-        	System.out.println("ngga konek");
-            LogEvent evt = channelManager.getLog().createError();
-            evt.addMessage(e);
-            evt.addMessage(NameRegistrar.getInstance());
-            Logger.log(evt);
-        } catch (Throwable t) {
-        	System.out.println("ngga konek 2");
-            channelManager.getLog().error(t);
-        }
+//        try {
+//            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
+//        } catch (NameRegistrar.NotFoundException e) {
+//            LogEvent evt = channelManager.getLog().createError();
+//            evt.addMessage(e);
+//            evt.addMessage(NameRegistrar.getInstance());
+//            Logger.log(evt);
+//        } catch (Throwable t) {
+//            channelManager.getLog().error(t);
+//        }
     }
     // @POST
     // @Path("/send")

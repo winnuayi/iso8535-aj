@@ -17,6 +17,9 @@ import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.util.NameRegistrar;
 import org.jpos.util.NameRegistrar.NotFoundException;
 
+import com.ciheul.database.Context;
+import com.ciheul.database.DatabaseManager;
+
 public class ClientRequestListener implements ISORequestListener {
 
     private ChannelManager channelManager;
@@ -26,38 +29,43 @@ public class ClientRequestListener implements ISORequestListener {
      */
     @Override
     public boolean process(ISOSource source, ISOMsg m) {
-        try {
-			channelManager = ((ChannelManager) NameRegistrar.get("manager"));
-		} catch (NotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        channelManager = ChannelManager.getInstance();
         System.out.println("process start");
-
-        // channelManager = ChannelManager.getInstance();
 
         // ChannelManager.logISOMsg(m);
         try {
             if (m.getMTI().equals("0800")) {
 //                channelManager.sendMsg(createHandshakeISOMsg2());
 //                System.out.println("late response ");
-//                sendEchoTestResponse(source, m);
+                sendEchoTestResponse(source, m);
 //            	channelManager.sendMsg(createHandshakeISOMsg("0800", "001"));
-//                sendSignOnRequest(source, m);
+                sendSignOnRequest(source, m);
             } else if (m.getMTI().equals("0810")) {
                 // source.send(createHandshakeISOMsg2("0810", "001"));
 //            	channelManager.sendMsg(createHandshakeISOMsg("0810", "001"));
 //            	sendEchoTestResponse(source, m);
-            } else 
-        	if (Integer.parseInt(m.getValue(4).toString())>0) {
+//            	sendSignOnRequest2(source, m);
+            } else if (Integer.parseInt(m.getValue(4).toString())>0) {
 
         		if (m.getMTI().equals("0210")) {
                     if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
-                    	
+                    	DatabaseManager.updateBit48(m.getValue(48).toString().substring(4, 15), m.getValue(48).toString().substring(15, 27), 
+                    			""+Integer.parseInt(m.getValue(37).toString()), m.getValue(48).toString(), Context.PENDING_STATUS);
+                    	if (m.getValue(39).toString().equals("00")) {
+                        	DatabaseManager.updateStatusTransaction(""+m.getValue(37), Context.SUCCESS_STATUS, 
+                        			m.getValue(39).toString(), "Approved");
+						}else{
+	                    	DatabaseManager.updateStatusTransaction(""+m.getValue(37), Context.FAIL_STATUS, 
+	                    			m.getValue(39).toString(), "Transaction Fail");
+						}
                     } else {
                         channelManager.sendMsg(createReversalISOMsg(m)); 
                     }
                 }
+			}else{
+				
+				System.out.println(m.getMTI());
+				channelManager.logISOMsg(m);
 			}
         } catch (ISOException e) {
             e.printStackTrace();
@@ -108,6 +116,33 @@ public class ClientRequestListener implements ISORequestListener {
         System.out.println("sendSignOnResponse");
         try {
             m.setMTI("0800");
+            m.set(7, date.get("bit7"));
+            m.set(11, "000001");
+            m.set(70, "001");
+            m.setPackager(new ISO87APackager());
+            ChannelManager.logISOMsg(m);
+            System.out.println("length: " + m.pack().length);
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Send sign-on response.
+     * 
+     * @param source
+     *            (Artajasa) channel
+     * @param m
+     *            message from client
+     */
+    private void sendSignOnRequest2(ISOSource source, ISOMsg m) {
+		Map<String, String> date = getDate();
+        System.out.println("sendSignOnResponse");
+        try {
+            m.setMTI("0810");
             m.set(7, date.get("bit7"));
             m.set(11, "000001");
             m.set(70, "001");

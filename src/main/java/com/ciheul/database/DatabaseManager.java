@@ -3,11 +3,13 @@ package com.ciheul.database;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 //import org.apache.log4j.Logger;
+
 
 import com.ciheul.database.Context;
 import com.ciheul.database.DBConnection;
@@ -18,6 +20,82 @@ public class DatabaseManager {
 //	private static final Logger logger = Logger
 //			.getLogger(DatabaseManager.class);
 
+	public static void updateBit48(String billNumber1, String billNumber2,
+			String transactionId, String bit48, int status) {
+
+		PreparedStatement prepStatement = null;
+		DBConnection dbConn = null;
+		Connection conn = null;
+		ResultSet rs = null;
+
+		String updatebit48Transaction = " Update adm_transaction set bit_48=? where transaction_id=? AND (bill_number=? or bill_number=?) AND status=?";
+
+		try {
+			dbConn = DBConnection.getInstance();
+			conn = dbConn.getConnection();
+			conn.setAutoCommit(false);
+
+			prepStatement = conn.prepareStatement(updatebit48Transaction);
+			prepStatement.setString(1, bit48);
+			prepStatement.setString(2, transactionId);
+			prepStatement.setString(3, billNumber1);
+			prepStatement.setString(4, billNumber2);
+			prepStatement.setInt(5, status);
+//			logger.info("Query : " + prepStatement.toString());
+
+			int statuss = prepStatement.executeUpdate();
+			if (statuss == 1) {
+//				logger.info("Query success ");
+			} else {
+//				logger.info("Query failed ");
+			}
+
+			if (statuss != 1) { // fail
+//				logger.warn("Failed to update bit48 on transaction "
+//						+ transactionId);
+				conn.rollback();
+			}
+			conn.commit();
+			
+		} catch (SQLException e) {
+//			logger.error("Error on update bit 48 on transaction : " + e.getMessage());
+			e.printStackTrace();
+
+			if (conn != null) {
+				try {
+					conn.rollback();
+					conn.close();
+				} catch (SQLException se) {
+//					logger.error("Failed to close connection : "
+//							+ se.getMessage());
+				}
+			}
+
+		} catch (Exception e) {
+//			logger.error("Error on update bit 48 on transaction : " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			
+			if (prepStatement != null) {
+				try {
+					prepStatement.close();
+				} catch (SQLException e) {
+//					logger.error("Failed to close preparation Statement : "
+//							+ e.getMessage());
+				}
+			}
+
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException se) {
+//					logger.error("Failed to close connection : "
+//							+ se.getMessage());
+				}
+			}
+
+		}
+	}
 	/**
 	 * Updating status on Transaction
 	 * 

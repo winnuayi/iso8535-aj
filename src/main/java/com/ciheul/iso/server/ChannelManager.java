@@ -15,20 +15,19 @@ public class ChannelManager extends QBeanSupport {
 	private long MAX_TIME_OUT;
 	private QMUX mux;
 
-	public class AJResponseListener implements ISOResponseListener {
-
-		@Override
-		public void responseReceived(ISOMsg resp, Object handBack) {
-			System.out.println("responseReceived");			
-		}
-
-		@Override
-		public void expired(Object handBack) {
-			System.out.println("expired");			
-		}
-
-	}
-
+//	public class AJResponseListener implements ISOResponseListener {
+//
+//		@Override
+//		public void responseReceived(ISOMsg resp, Object handBack) {
+//			System.out.println("responseReceived");			
+//		}
+//
+//		@Override
+//		public void expired(Object handBack) {
+//			System.out.println("expired");			
+//		}
+//
+//	}
 	
 	public static void logISOMsg(ISOMsg msg) {
 		System.out.println("----ISO MESSAGE-----");
@@ -55,7 +54,7 @@ public class ChannelManager extends QBeanSupport {
 			mux = (QMUX) NameRegistrar.get("mux." + cfg.get("mux"));
 			MAX_TIME_OUT = cfg.getLong("timeout");
 			NameRegistrar.register("manager", this);
-			mux.addISORequestListener(new ClientRequestListener());
+//			mux.addISORequestListener(new ClientRequestListener());
 		} catch (NameRegistrar.NotFoundException e) {
 			log.error("Error in initializing service :" + e.getMessage());
 		}
@@ -65,7 +64,7 @@ public class ChannelManager extends QBeanSupport {
 		return sendMsg(m, mux, MAX_TIME_OUT);
 	}
 
-	private ISOMsg sendMsg(ISOMsg msg, MUX mux, long time) throws Exception {	    
+	private ISOMsg sendMsg(ISOMsg msg, QMUX mux, long time) throws Exception {	    
 		if (mux != null) {
 		    System.out.println("mux sending message...");
 			long start = System.currentTimeMillis();

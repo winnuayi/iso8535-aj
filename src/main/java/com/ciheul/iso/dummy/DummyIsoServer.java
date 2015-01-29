@@ -242,7 +242,10 @@ public class DummyIsoServer implements ISORequestListener {
                     if (m.getValue(3).toString().equals("380000")) {
                         sendInquiryPostpaid(source, m);
                     } else if (m.getValue(3).toString().equals("180000")) {
-//                        sendPaymentPostpaid(source, m);
+                    	if (m.getValue(48).toString().substring(m.getValue(48).toString().length()-2, m.getValue(48).toString().length()-1).equals("A")) {
+
+                          sendPaymentPostpaid(source, m);
+						}
                     }                    
                 } else if (m.getValue(48).toString().substring(0, 4).equals("2114")) {
                     if (m.getValue(3).toString().equals("380000")) {
