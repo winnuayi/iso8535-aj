@@ -16,7 +16,6 @@ import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.util.LogEvent;
 import org.jpos.util.Logger;
 import org.jpos.util.NameRegistrar;
-import org.jpos.util.NameRegistrar.NotFoundException;
 
 @Path("/api")
 public class IsoServlet {
@@ -56,7 +55,6 @@ public class IsoServlet {
             try {
                 resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
                 if (resp != null) {
-
                     responseMsg = resp.getValue(39).toString();
                 } 
 //                channelManager.getLog().info("Handshake sent! ");
@@ -88,12 +86,11 @@ public class IsoServlet {
         case "0200":
             try {
                 resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
-                System.out.println("sent");
-                System.out.println("Loggernya = "+channelManager.getLogger());
-                if (resp != null) {
+
+                if (resp != null && !resp.getValue(39).toString().equals("68")) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
-                }else {
+                } else {
                 	responseMsg = "TIMEOUT";
 				}
 //                channelManager.getLog().info("Handshake sent! ");

@@ -22,6 +22,11 @@ public class DummyIsoServer implements ISORequestListener {
     public static String TRX_REQ = "0200";
     public static String REV_REQ = "0400";
 
+    private static int SUCCESS = 0;
+    private static int FAIL = -1;
+    
+    private static int ADVICE_STATUS = FAIL;
+    
     public DummyIsoServer() {
         super();
     }
@@ -57,7 +62,7 @@ public class DummyIsoServer implements ISORequestListener {
         // } catch (InterruptedException ex) {
         // Thread.currentThread().interrupt();
         // }
-//        ISOUtil.sleep(20000);
+        // ISOUtil.sleep(20000);
 
         try {
             m.setResponseMTI();
@@ -271,6 +276,30 @@ public class DummyIsoServer implements ISORequestListener {
     }
 
     /**
+     * Send advice. If bit39==00, bit48 equals to bit48 when payment success.
+     * Otherwise, bit48 doesn't change.
+     */
+    private void sendAdvice(ISOSource source, ISOMsg m) {
+        try {
+            ISOUtil.sleep(5000);
+            m.setResponseMTI();
+            if (ADVICE_STATUS == SUCCESS) {
+                m.set(39, "00");
+                m.set(48,
+                        "211112345673221131234561111 0AZHAR WAHYU' S.T,M-T     R1  000002200DCSUNITSUPHONE123     1000000000000000000000000000KGIM9AVVVVVVVVVVWXXVWZWXW4W0V3W0V00KF0000130217XCJF0PE001384    0PVENDINGR000000000002000002002220000030033200000400442000555005520000666006661000055550012349874235472358811058Informasi hubungi call center 123 atau hub.PLN terdekat : ");
+            } else {
+                m.set(39, "68");
+            }
+            m.setPackager(new ISO87APackager());
+            source.send(m);
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Route incoming message to appropriate handler
      * 
      * @param source
@@ -332,21 +361,17 @@ public class DummyIsoServer implements ISORequestListener {
                         return true;
                     }
 
-                    System.out.println("before sendPaymentPrepaid");
-                    System.out.println(bit48.substring(bit48.length() - 1).equals("P"));
-                    System.out.println(bit48.substring(bit48.length() - 1) == "P");
-                    System.out.println(bit48.substring(bit48.length() - 1).length());
                     // payment
                     if (m.getValue(3).toString().equals("180000") && bit48.substring(bit48.length() - 1).equals("P")) {
                         System.out.println("sendPaymentPrepaid");
                         sendPaymentPrepaid(source, m);
                         return true;
                     }
-                    System.out.println("after sendPaymentPrepaid");
 
                     // advice
                     if (m.getValue(3).toString().equals("180000") && bit48.substring(bit48.length() - 1).equals("A")) {
                         System.out.println("sendAdvice");
+                        sendAdvice(source, m);
                         return true;
                     }
                 }

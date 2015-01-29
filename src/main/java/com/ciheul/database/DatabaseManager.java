@@ -6,12 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 //import org.apache.log4j.Logger;
-
-import com.ciheul.database.Context;
-import com.ciheul.database.DBConnection;
-import com.ciheul.database.DatabaseManager;
 
 public class DatabaseManager {
 
