@@ -9,6 +9,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 //import org.apache.log4j.Logger;
 
+
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
+
 import com.ciheul.database.Context;
 import com.ciheul.database.DBConnection;
 import com.ciheul.database.DatabaseManager;
@@ -318,5 +323,197 @@ public class DatabaseManager {
 		}
 //		logger.debug("Finish insert transaction Method");
 		return result;
+	}
+
+	/**
+	 * Get advice
+	 * 
+	 * @return adviceMessage
+	 */
+	public static String getAdviceSuccess(String trxId) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		String result = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId))) {
+
+//				logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+
+				jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			result = jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+		return result;
+	}
+
+	/**
+	 * Set Advice
+	 * 
+	 * @return adviceMessage
+	 */
+	public static void setAdviceSuccess(String trxId, String msgBytes) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId))) {
+
+//				logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+
+				jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, trxId, msgBytes);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+	}
+
+
+	/**
+	 * Set Advice
+	 * 
+	 * @return adviceMessage
+	 */
+	public static void delAdviceSuccess(String trxId, String msgBytes) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId))) {
+
+//				logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+
+				jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			jedis.hdel(Context.ADVICE_MESSAGE_SUCCESS, trxId);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+	}
+
+	/**
+	 * Get advice
+	 * 
+	 * @return adviceMessage
+	 */
+	public static String getAdvice(String billNumber) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		String result = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hget(Context.ADVICE_MESSAGE, billNumber))) {
+
+//				logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+
+				jedis.hset(Context.ADVICE_MESSAGE, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			result = jedis.hget(Context.ADVICE_MESSAGE, billNumber);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+		return result;
+	}
+
+	/**
+	 * Set Advice
+	 * 
+	 * @return adviceMessage
+	 */
+	public static void setAdvice(String billNumber, String msgBytes) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hget(Context.ADVICE_MESSAGE, billNumber))) {
+
+//				logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+
+				jedis.hset(Context.ADVICE_MESSAGE, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			jedis.hset(Context.ADVICE_MESSAGE, billNumber, msgBytes);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+	}
+
+
+	/**
+	 * Set Advice
+	 * 
+	 * @return adviceMessage
+	 */
+	public static void delAdvice(String billNumber, String msgBytes) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hget(Context.ADVICE_MESSAGE, billNumber))) {
+
+//				logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+
+				jedis.hset(Context.ADVICE_MESSAGE, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			jedis.hdel(Context.ADVICE_MESSAGE, billNumber);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
 	}
 }

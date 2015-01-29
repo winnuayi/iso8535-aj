@@ -59,15 +59,27 @@ public class ClientRequestListener implements ISORequestListener {
 
 				if (m.getMTI().equals("0210")) {
 					if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
-						DatabaseManager.updateBit48(m.getValue(48).toString().substring(4, 15), m.getValue(48)
-								.toString().substring(15, 27), "" + Integer.parseInt(m.getValue(37).toString()), m
-								.getValue(48).toString(), Context.PENDING_STATUS);
-						if (m.getValue(39).toString().equals("00")) {
-							DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.SUCCESS_STATUS, m
-									.getValue(39).toString(), "Approved");
-						} else {
-							DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.FAIL_STATUS, m
-									.getValue(39).toString(), "Transaction Fail");
+						String adviceMessage1 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(15, 27));
+						String adviceMessage2 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(4, 15));
+						
+						if (!(adviceMessage1.equals("") || adviceMessage1==null
+								|| adviceMessage2.equals("") || adviceMessage2==null)) {
+							String msgBytes = m.getValue(4).toString()+"#"+m.getValue(39).toString()+"#"+m.getValue(48).toString();
+							DatabaseManager.setAdviceSuccess(""+Integer.parseInt(m.getValue(37).toString()), msgBytes);
+						}else{
+							if (!m.getValue(39).toString().equals("68")) {
+
+								DatabaseManager.updateBit48(m.getValue(48).toString().substring(4, 15), m.getValue(48)
+										.toString().substring(15, 27), "" + Integer.parseInt(m.getValue(37).toString()), m
+										.getValue(48).toString(), Context.PENDING_STATUS);
+								if (m.getValue(39).toString().equals("00")) {
+									DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.SUCCESS_STATUS, m
+											.getValue(39).toString(), "Approved");
+								} else {
+									DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.FAIL_STATUS, m
+											.getValue(39).toString(), "Transaction Fail");
+								}
+							}
 						}
 						// =======
 						// System.out.println("=============");

@@ -30,6 +30,16 @@ public class Context {
 	public static final boolean DB_REMOVE_ABANDONED = true;
 
 
+	// REDIS AND JEDIS CONFIGURATION
+	public static final String REDIS_HOST = "localhost";
+	public static final int REDIS_PORT = 6379;
+	public static final String TRAX_ID_COUNTER = "traxIdCounter";
+	public static final String STAN_PLN_COUNTER = "stanPLNCounter";
+	public static final String IS_CONNECTED_PLN = "isConnectedPLN";
+	public static final String REVERSAL_MESSAGE_SUCCESS = "reversalMessageSuccess";
+	public static final String USER_REVERSAL_MESSAGE = "userReversalMessage";
+	public static final String ADVICE_MESSAGE_SUCCESS = "adviceMessageSuccess";
+	public static final String ADVICE_MESSAGE = "adviceMessage";
 	public static final String TYPE_EXCLUDED = "EX";
 	public static final String TYPE_INCLUDED = "IN";
 }
