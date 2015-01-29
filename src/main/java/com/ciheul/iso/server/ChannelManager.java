@@ -98,5 +98,5 @@ public class ChannelManager extends QBeanSupport {
 		}
 		return _cMSingleTon;
 	}
-		
+	
 }

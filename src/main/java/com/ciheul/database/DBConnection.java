@@ -9,9 +9,6 @@ import java.sql.SQLException;
 import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
-import com.ciheul.database.Context;
-import com.ciheul.database.DBConnection;
-
 public class DBConnection {
 
 	private static DBConnection _dbSingleton = null;

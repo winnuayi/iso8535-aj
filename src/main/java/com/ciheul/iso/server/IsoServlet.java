@@ -25,12 +25,21 @@ public class IsoServlet {
 //    ChannelManager channelManager = ChannelManager.getInstance();
 
     public IsoServlet() {
+//<<<<<<< HEAD
         channelManager = ChannelManager.getInstance();
         try {
             channelManager = ((ChannelManager) NameRegistrar.get("manager"));
         } catch (NotFoundException e) {
             e.printStackTrace();
         }
+//=======
+////        channelManager = ChannelManager.getInstance();
+//        try {
+//            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
+//        } catch (NotFoundException e) {
+//            e.printStackTrace();
+//        }
+//>>>>>>> e552205670449e869b3fcd9730fd84b325d8f03f
     }
     
     @POST
@@ -56,7 +65,6 @@ public class IsoServlet {
             try {
                 resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
                 if (resp != null) {
-
                     responseMsg = resp.getValue(39).toString();
                 } 
 //                channelManager.getLog().info("Handshake sent! ");
@@ -93,7 +101,7 @@ public class IsoServlet {
                 if (resp != null && !resp.getValue(39).toString().equals("68")) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
-                }else {
+                } else {
                 	responseMsg = "TIMEOUT";
 				}
 //                channelManager.getLog().info("Handshake sent! ");

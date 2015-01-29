@@ -7,9 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 //import org.apache.log4j.Logger;
-
 
 import com.ciheul.database.Context;
 import com.ciheul.database.DBConnection;
