@@ -75,8 +75,11 @@ public class ClientRequestListener implements ISORequestListener {
 									DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.SUCCESS_STATUS, m
 											.getValue(39).toString(), "Approved");
 								} else {
-									DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.FAIL_STATUS, m
-											.getValue(39).toString(), "Transaction Fail");
+									String rc = m.getValue(39).toString();
+									if (m.getValue(39).toString().equals("68")) {
+										rc = rc + "2";
+									}
+									DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.FAIL_STATUS, rc, "Transaction Fail");
 								}
 								DatabaseManager.delAdvice(m.getValue(48).toString().substring(15, 27));
 								DatabaseManager.delAdvice(m.getValue(48).toString().substring(4, 15));
