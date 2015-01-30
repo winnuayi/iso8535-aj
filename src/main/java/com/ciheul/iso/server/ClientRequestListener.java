@@ -61,9 +61,13 @@ public class ClientRequestListener implements ISORequestListener {
 					if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
 						String adviceMessage1 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(15, 27));
 						String adviceMessage2 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(4, 15));
-						
+
+						String rc = m.getValue(39).toString();
+						if (m.getValue(39).toString().equals("68")) {
+							rc = rc + "2";
+						}
 						if ((adviceMessage1==null || adviceMessage2==null)) {
-							String msgBytes = m.getValue(4).toString()+"#"+m.getValue(39).toString()+"#"+m.getValue(48).toString();
+							String msgBytes = m.getValue(4).toString()+"#"+rc+"#"+m.getValue(48).toString();
 							DatabaseManager.setAdviceSuccess(""+Integer.parseInt(m.getValue(37).toString()), msgBytes);
 						}else{
 //							if (!m.getValue(39).toString().equals("68")) {
@@ -75,10 +79,6 @@ public class ClientRequestListener implements ISORequestListener {
 									DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.SUCCESS_STATUS, m
 											.getValue(39).toString(), "Approved");
 								} else {
-									String rc = m.getValue(39).toString();
-									if (m.getValue(39).toString().equals("68")) {
-										rc = rc + "2";
-									}
 									DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.FAIL_STATUS, rc, "Transaction Fail");
 								}
 								DatabaseManager.delAdvice(m.getValue(48).toString().substring(15, 27));
