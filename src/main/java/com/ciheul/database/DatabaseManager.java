@@ -491,7 +491,7 @@ public class DatabaseManager {
 	 * 
 	 * @return adviceMessage
 	 */
-	public static void delAdvice(String billNumber, String msgBytes) {
+	public static void delAdvice(String billNumber) {
 		Jedis jedis = null;
 		RedisConnection rc = null;
 		try {

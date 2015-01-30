@@ -196,6 +196,7 @@ public class DummyIsoServer implements ISORequestListener {
 	 */
 	private void sendPaymentPrepaid(ISOSource source, ISOMsg m) {
 		System.out.println("sendInquiryPrepaid");
+		ISOUtil.sleep(65000);
 		try {
 			m.setResponseMTI();
 			m.set(39, "68");
