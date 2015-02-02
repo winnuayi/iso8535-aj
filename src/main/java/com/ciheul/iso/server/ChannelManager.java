@@ -1,14 +1,18 @@
 package com.ciheul.iso.server;
 
+import java.util.List;
+
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
+import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.q2.QBeanSupport;
-import org.jpos.q2.iso.QMUX;
 import org.jpos.space.LocalSpace;
 import org.jpos.space.SpaceListener;
 import org.jpos.util.NameRegistrar;
 import org.jpos.util.NameRegistrar.NotFoundException;
 
+import com.ciheul.database.DatabaseManager;
+import com.ciheul.database.RedisConnection;
 import com.ciheul.iso.AJMUX;
 
 public class ChannelManager extends QBeanSupport implements SpaceListener {
@@ -18,6 +22,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
     private LocalSpace sp;
     private String in;
     private String out;
+
+    private RedisConnection r = RedisConnection.getInstance();
 
     public static void logISOMsg(ISOMsg msg) {
         System.out.println("----ISO MESSAGE-----");
@@ -38,7 +44,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
     @Override
     protected void initService() throws ISOException {
-        log.info("initializing ChannelManager Service");        
+        log.info("initializing ChannelManager Service");
         try {
             mux = (AJMUX) NameRegistrar.get("mux." + cfg.get("mux"));
 
@@ -59,42 +65,61 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
         return sendMsg(m, mux, MAX_TIME_OUT);
     }
 
-    private ISOMsg sendMsg(ISOMsg msg, AJMUX mux, long timeout) throws Exception {
-        if (mux != null) {
-            System.out.println("mux sending message...");
-            long start = System.currentTimeMillis();
+    private ISOMsg sendMsg(ISOMsg m, AJMUX mux, long timeout) throws Exception {
+        System.out.println("mux sending message...");
+        long start = System.currentTimeMillis();
 
-            ISOMsg resp = null;
-            
-            // append message to 'out' queue
-            sp.out(out, msg, timeout);
+        ISOMsg resp = null;
 
-            // wait till exists and take away message from 'in' queue
-            Object obj = sp.in(in, timeout);
-
-            // success to receive response message from server
-            if (obj instanceof ISOMsg) {
-                resp = (ISOMsg) obj;
-                logISOMsg(resp);
-            }
-
-            // link down
-            if (obj instanceof String) {
-                System.out.println((String) obj);
-            }
-            
-            // timeout
-            if (obj == null) {
-                System.out.println("TIMEOUT BRO");
-            }
-
-            long duration = System.currentTimeMillis() - start;
-            log.info("Response time (ms):" + duration);
+        // if connection is not established, LINK DOWN
+        if (mux.isConnected() == false) {
+            resp = (ISOMsg) m.clone();
+            resp.set(39, "404");
             return resp;
         }
 
-        System.out.println("mux is null");
-        return null;
+        // append message to 'out' queue
+        // sp.out(out, m, timeout);
+        DatabaseManager.setStan(m.getValue(11).toString());
+        Object obj = mux.request(m, timeout);
+
+        // wait till exists and take away message from 'in' queue
+        // Object obj = sp.in(in, timeout);
+
+        // success to receive response message from server
+        if (obj instanceof ISOMsg) {
+            resp = (ISOMsg) obj;
+            DatabaseManager.deleteStan(m.getValue(11).toString());
+            
+            logISOMsg(resp);
+            
+            // LINK DOWN
+            if (resp.getValue(39).toString().equals("404")) {
+                m.set(39, "404");
+                return m;
+            }
+            
+            return resp;
+        }
+
+        // link down
+        // if (obj instanceof String) {
+        // resp = (ISOMsg) m.clone();
+        // resp.set(39, "404");
+        // return resp;
+        // }
+
+        // timeout
+        if (obj == null) {
+            System.out.println("TIMEOUT BRO");
+            resp = (ISOMsg) m.clone();
+            resp.set(39, "68");
+            return resp;
+        }
+
+        long duration = System.currentTimeMillis() - start;
+        log.info("Response time (ms):" + duration);
+        return resp;
     }
 
     public static ChannelManager getInstance() {
@@ -121,12 +146,5 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
         System.out.println("*************");
         System.out.println("channelmanager.notify()");
         System.out.println("*************");
-        System.out.println(key);
-        System.out.println(value);
-        // Object obj = sp.inp(key);
-        // if (obj instanceof ISOMsg) {
-        // ISOMsg msg = (ISOMsg) obj;
-        // logISOMsg(msg);
-        // }
     }
 }

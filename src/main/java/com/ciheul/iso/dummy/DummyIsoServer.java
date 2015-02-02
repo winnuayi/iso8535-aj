@@ -345,7 +345,7 @@ public class DummyIsoServer implements ISORequestListener {
 
                     // payment
                     if (m.getValue(3).toString().equals("180000")) {
-//                        sendPaymentPostpaid(source, m);
+                        sendPaymentPostpaid(source, m);
                         return true;
                     }
                 }
@@ -412,4 +412,5 @@ public class DummyIsoServer implements ISORequestListener {
 
         new Thread(server).start();
     }
+
 }

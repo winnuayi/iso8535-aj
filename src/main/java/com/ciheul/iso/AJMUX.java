@@ -49,6 +49,8 @@ import org.jpos.space.TSpace;
 import org.jpos.util.Loggeable;
 import org.jpos.util.NameRegistrar;
 
+import com.ciheul.database.DatabaseManager;
+
 /**
  * @author Alejandro Revilla
  */
@@ -185,29 +187,38 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
     }
 
     public void notify(Object k, Object value) {
-        System.out.println("******");
-        System.out.println("AJMUX.notify");
-        System.out.println((String) k);
-        System.out.println("******");
         Object obj = sp.inp(k);
         
-        if (obj instanceof String && (String) value == "LINK DOWN") {
-            ISOMsg linkDown = new ISOMsg();
-            try {
-                linkDown.setMTI("0210");
-                linkDown.set(39, "404");    
-                linkDown.setPackager(new ISO87APackager());
-            } catch (ISOException e) {
-                e.printStackTrace();
+        if (value instanceof String && (String) value == "LINK DOWN") {
+            synchronized (this) {
+                if (DatabaseManager.isEmptyStan() == false) {
+                    List<String> stans = DatabaseManager.getAllStan();
+                    for (String stan : stans) {
+                        System.out.println(stan);
+
+                        ISOMsg linkDown = new ISOMsg();
+                        try {
+                            linkDown.setMTI("0210");
+                            linkDown.set(11, stan);
+                            linkDown.set(39, "404");
+                            linkDown.setPackager(new ISO87APackager());
+                            
+                            String key = getKey(linkDown);
+                            isp.out(key, linkDown);
+                            
+                        } catch (ISOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    DatabaseManager.deleteAllStan();
+                }
             }
-            obj = linkDown;
         }
         
         if (obj instanceof ISOMsg) {
             ISOMsg m = (ISOMsg) obj;
             try {
                 String key = getKey(m);
-                System.out.println(key);
                 String req = key + ".req";
                 Object r = isp.inp(req);
                 if (r != null) {

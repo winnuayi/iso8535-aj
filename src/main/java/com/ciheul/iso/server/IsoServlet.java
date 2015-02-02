@@ -89,6 +89,9 @@ public class IsoServlet {
                 resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
                 System.out.println("sent");
                 System.out.println("Loggernya = "+channelManager.getLogger());
+                System.out.println("********** DEBUG");
+                ChannelManager.logISOMsg(resp);
+                System.out.println("39: " + resp.getValue(39).toString().equals("68"));
                 if (resp != null && !resp.getValue(39).toString().equals("68")) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
