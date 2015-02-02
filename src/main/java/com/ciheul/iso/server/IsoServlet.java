@@ -25,21 +25,12 @@ public class IsoServlet {
 //    ChannelManager channelManager = ChannelManager.getInstance();
 
     public IsoServlet() {
-//<<<<<<< HEAD
         channelManager = ChannelManager.getInstance();
         try {
             channelManager = ((ChannelManager) NameRegistrar.get("manager"));
         } catch (NotFoundException e) {
             e.printStackTrace();
         }
-//=======
-////        channelManager = ChannelManager.getInstance();
-//        try {
-//            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
-//        } catch (NotFoundException e) {
-//            e.printStackTrace();
-//        }
-//>>>>>>> e552205670449e869b3fcd9730fd84b325d8f03f
     }
     
     @POST
