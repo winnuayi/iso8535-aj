@@ -173,15 +173,25 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 					msg.setPackager(new ISO87APackager());
 					int count = 0;
-					ISOMsg reply = sendMsg(msg);
+					ISOMsg reply = null;
+					String replyStr = "";
 
-					while (count < 4 && reply == null) {
+					while (count < 4 && (reply == null || replyStr.equals(""))) {
 						count = count + 1;
-						reply = sendMsg(msg);
+						if (reply != null) {
+							if (reply.getValue(39).equals("00")) {
+								replyStr = "success";
+							} else {
+								reply = sendMsg(msg);
+							}
+						} else {
+							reply = sendMsg(msg);
+						}
 					}
-					if (reply!=null) {
-						if (reply.getValue(39).equals("00")) {	
-							DatabaseManager.DelReversal(""+Integer.parseInt(msg.getValue(48).toString().substring(4, 17)));
+					if (reply != null) {
+						if (reply.getValue(39).equals("00")) {
+							DatabaseManager.DelReversal(""
+									+ Integer.parseInt(msg.getValue(48).toString().substring(4, 17)));
 						}
 					}
 					// source.send(msg);
