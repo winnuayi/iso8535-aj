@@ -328,7 +328,7 @@ public class DummyIsoServer implements ISORequestListener {
 
             // reversal
             if (m.getMTI().equals(REV_REQ)) {
-                sendReversal(source, m);
+//                sendReversal(source, m);
                 return true;
             }
 
