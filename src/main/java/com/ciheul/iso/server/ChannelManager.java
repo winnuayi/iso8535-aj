@@ -165,13 +165,12 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					msg.set(49, "360");
 					msg.set(63, "214");
 					msg.set(90, reversalMsgSent[6]);
+					msg.setPackager(new ISO87APackager());
 
 					byte[] messageBody = msg.pack();
-					System.out.println(messageBody);
 					System.out.println("request : " + new String(messageBody));
 					ChannelManager.logISOMsg(msg);
 
-					msg.setPackager(new ISO87APackager());
 					int count = 0;
 					ISOMsg reply = null;
 					String replyStr = "";
@@ -185,6 +184,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 								reply = sendMsg(msg);
 							}
 						} else {
+							System.out.println("masuk sini");
 							reply = sendMsg(msg);
 						}
 					}
