@@ -48,6 +48,7 @@ public class ClientRequestListener implements ISORequestListener {
 				// channelManager.sendMsg(createHandshakeISOMsg2());
 				// System.out.println("late response ");
 				sendEchoTestResponse(source, m);
+				sendLinkUp(source, m);
 				// channelManager.sendMsg(createHandshakeISOMsg("0800", "001"));
 				sendSignOnRequest(source, m);
 			} else if (m.getMTI().equals("0810")) {
@@ -55,6 +56,12 @@ public class ClientRequestListener implements ISORequestListener {
 				// channelManager.sendMsg(createHandshakeISOMsg("0810", "001"));
 				// sendEchoTestResponse(source, m);
 				// sendSignOnRequest2(source, m);
+			} else if (m.getMTI().equals("0410")) {
+				// source.send(createHandshakeISOMsg2("0810", "001"));
+				// channelManager.sendMsg(createHandshakeISOMsg("0810", "001"));
+				// sendEchoTestResponse(source, m);
+				// sendSignOnRequest2(source, m);
+				DatabaseManager.DelReversal(""+Integer.parseInt(m.getValue(48).toString().substring(4, 17)));
 			} else if (Integer.parseInt(m.getValue(4).toString()) > 0) {
 
 				if (m.getMTI().equals("0210")) {
@@ -194,6 +201,103 @@ public class ClientRequestListener implements ISORequestListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+
+	/**
+	 * Send Link up response.
+	 * 
+	 * @param source
+	 *            (Artajasa) channel
+	 * @param m
+	 *            message from client
+	 */
+	private void sendLinkUp(ISOSource source, ISOMsg m) {
+
+		Map<String, String> reversal = DatabaseManager.getReversal();
+		
+		String reversalString = reversal.values().toString();
+		String[] reversalMessage = reversalString.substring(1,
+				reversalString.length() - 1).split(",");
+		
+		int jumlah = 0;
+		int tambah = 1;
+		String revelsalMsgStr = "";
+		int reversalSize = reversalMessage.length;
+		for (int i = 0; i < reversalMessage.length; i += tambah) {
+
+			revelsalMsgStr = reversalMessage[i];
+			if (!revelsalMsgStr.equals("")) {
+				tambah = 1;
+				String[] reversalMsg = reversalMessage[i].split("#");
+				jumlah = jumlah + reversalMsg.length;
+				
+				while (jumlah < 8) {
+					revelsalMsgStr += "," + reversalMessage[i + tambah];
+					reversalMsg = reversalMessage[i + tambah].split("#");
+
+					jumlah = jumlah + reversalMsg.length - 1;
+					tambah++;
+				}
+
+				System.out.println("\nsendLinkUp");
+				try {
+
+					Map<String, String> date = getDate();
+					ISOMsg msg = (ISOMsg) m.clone();
+
+					msg.setMTI("0400");
+					// msg.set(1, "723A400128618002");
+					msg.set(2, Context.ISO_BIT2);
+					msg.set(3, Context.ISO_BIT3_PAY);
+					msg.set(4, reversalMsg[0]);
+					msg.set(7, reversalMsg[1]);
+					msg.set(11, reversalMsg[2]); // postpaid
+					// msg.set(11, "890931"); // prepaid
+					msg.set(12, date.get("bit12"));
+					msg.set(13, date.get("bit13"));
+					msg.set(15, date.get("bit15"));
+					msg.set(18, Context.ISO_BIT18);
+					msg.set(32, Context.ISO_BIT32);
+					msg.set(35, Context.ISO_BIT35);
+					msg.set(37, reversalMsg[3]);
+					msg.set(42, reversalMsg[4]);
+					msg.set(43, Context.ISO_BIT43);
+					msg.set(48, reversalMsg[5]);
+					msg.set(49, "360");
+					msg.set(63, "214");
+					msg.set(90, reversalMsg[6]);
+					
+					byte[] messageBody = msg.pack();
+					System.out.println("request : " + new String(messageBody));
+					ChannelManager.logISOMsg(msg);
+
+					msg.setPackager(new ISO87APackager());
+					source.send(msg);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+		}
+
+//		try {
+//			ISOMsg msg = (ISOMsg) m.clone();
+//
+//			msg.setMTI("0810");
+//			msg.set(39, "00");
+//			// msg.set(70, "301");
+//
+//			byte[] messageBody = msg.pack();
+//			System.out.println("request : " + new String(messageBody));
+//			ChannelManager.logISOMsg(msg);
+//
+//			msg.setPackager(new ISO87APackager());
+//			source.send(msg);
+//		} catch (ISOException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

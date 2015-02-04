@@ -97,6 +97,23 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
             // LINK DOWN
             if (resp.getValue(39).toString().equals("404")) {
+            	String billNumber = ""+Integer.parseInt(m.getValue(48).toString().substring(4, 17));
+            	String reversalMessage = m.getValue(4).toString()
+            			+"#"
+            			+m.getValue(7).toString()
+            			+"#"
+            			+m.getValue(11).toString()
+            			+"#"
+            			+m.getValue(37).toString()
+            			+"#"
+            			+m.getValue(42).toString()
+            			+"#"
+            			+m.getValue(48).toString()
+            			+"#"
+            			+"0200" + m.getValue(11).toString() + m.getValue(7).toString() + m.getValue(32).toString() + "00000000000"
+            			+"#"
+            			+billNumber;
+            	DatabaseManager.setReversal(billNumber, reversalMessage);
                 m.set(39, "404");
                 return m;
             }

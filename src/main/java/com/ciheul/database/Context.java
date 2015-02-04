@@ -5,7 +5,8 @@ public class Context {
 	public static final int PENDING_STATUS = 2;
 	public static final int SUCCESS_STATUS = 3;
 	public static final int FAIL_STATUS = 1;
-	
+
+	public static final String REVERSAL_MESSAGE = "reversalMessage";
 	// POOL DATABASE CONFIGURATION
 	public static final String DB_USERNAME = "ciheul";
 	public static final String DB_PASSWORD = "";
@@ -43,4 +44,20 @@ public class Context {
 	public static final String TYPE_EXCLUDED = "EX";
 	public static final String TYPE_INCLUDED = "IN";
     public static final String STAN = "stan";
+    
+
+	public static final String ISO_BIT18 = "6021";
+	public static final String ISO_BIT42 = "AXS9999        ";
+	public static final String ISO_BIT49 = "360";
+	public static final String ISO_BIT2 = "454633334444";
+	public static final String ISO_BIT3_INQ = "380000";
+	public static final String ISO_BIT3_PAY = "180000";
+	public static final String ISO_BIT32 = "000735";
+	public static final String ISO_BIT43 = "AXES                                    ";
+	public static final String ISO_BIT48_NONTAGLIST = "2114";
+	public static final String ISO_BIT48_NONTAGLIST_TAIL = "000";
+	public static final String ISO_BIT48_POSPAID = "2112";
+	public static final String ISO_BIT48_PREPAID = "2111";
+	public static final String ISO_BIT63 = "214";
+	public static final String ISO_BIT35 = "454633334444=;=0909";
 }

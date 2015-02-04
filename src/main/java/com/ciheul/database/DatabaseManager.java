@@ -20,6 +20,100 @@ public class DatabaseManager {
     // private static final Logger logger = Logger
     // .getLogger(DatabaseManager.class);
 
+	/**
+	 * Set Reversal
+	 * 
+	 * @return reversalMessage
+	 */
+	public static void setReversal(String user, String reversalMessage) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hgetAll(Context.REVERSAL_MESSAGE))) {
+
+//				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
+
+				jedis.hset(Context.REVERSAL_MESSAGE, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			jedis.hset(Context.REVERSAL_MESSAGE, user, reversalMessage);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+	}
+	/**
+	 * Get reversal
+	 * 
+	 * @return reversalMessage
+	 */
+	public static Map<String, String> getReversal() {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		Map<String, String> result = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hgetAll(Context.REVERSAL_MESSAGE))) {
+
+//				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
+
+				jedis.hset(Context.REVERSAL_MESSAGE, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			result = jedis.hgetAll(Context.REVERSAL_MESSAGE);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+		return result;
+	}
+
+	/**
+	 * Del Reversal
+	 * 
+	 * @return reversalMessage
+	 */
+	public static void DelReversal(String user) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.hgetAll(Context.REVERSAL_MESSAGE))) {
+
+//				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
+
+				jedis.hset(Context.REVERSAL_MESSAGE, "", "");
+			}
+			// result = jedis.incr(Context.IS_CONNECTED);
+			jedis.hdel(Context.REVERSAL_MESSAGE, user);
+
+		} catch (JedisConnectionException jce) {
+//			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+//			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+	}
+
     public static void updateBit48(String billNumber1, String billNumber2, String transactionId, String bit48,
             int status) {
 
