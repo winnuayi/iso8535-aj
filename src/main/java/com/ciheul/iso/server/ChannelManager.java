@@ -39,7 +39,6 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
         } finally {
             System.out.println("--------------------");
         }
-
     }
 
     @Override
@@ -61,6 +60,9 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
         }
     }
 
+    protected void startService() throws ISOException {
+    }
+    
     public ISOMsg sendMsg(ISOMsg m) throws Exception {
         return sendMsg(m, mux, MAX_TIME_OUT);
     }
@@ -90,24 +92,17 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
         if (obj instanceof ISOMsg) {
             resp = (ISOMsg) obj;
             DatabaseManager.deleteStan(m.getValue(11).toString());
-            
+
             logISOMsg(resp);
-            
+
             // LINK DOWN
             if (resp.getValue(39).toString().equals("404")) {
                 m.set(39, "404");
                 return m;
             }
-            
+
             return resp;
         }
-
-        // link down
-        // if (obj instanceof String) {
-        // resp = (ISOMsg) m.clone();
-        // resp.set(39, "404");
-        // return resp;
-        // }
 
         // timeout
         if (obj == null) {

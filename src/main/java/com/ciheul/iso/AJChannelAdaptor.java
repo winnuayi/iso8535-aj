@@ -356,6 +356,7 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
                             disconnect();
                             sp.out(in, Boolean.TRUE); // wake-up Sender
                         }
+                        sp.out(out, "LINK DOWN");
                         ISOUtil.sleep(1000);
                     }
                 } catch (SocketTimeoutException e) {
@@ -364,6 +365,7 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
                         sp.out(reconnect, Boolean.TRUE, delay);
                         disconnect();
                         sp.out(in, Boolean.TRUE); // wake-up Sender
+                        sp.out(out, "LINK DOWN");
                         ISOUtil.sleep(1000);
                     }
                 } catch (Exception e) {
