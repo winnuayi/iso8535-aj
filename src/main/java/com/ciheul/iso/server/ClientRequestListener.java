@@ -48,7 +48,7 @@ public class ClientRequestListener implements ISORequestListener {
 				// channelManager.sendMsg(createHandshakeISOMsg2());
 				// System.out.println("late response ");
 				sendEchoTestResponse(source, m);
-				sendLinkUp(source, m);
+//				sendLinkUp(source, m);
 				// channelManager.sendMsg(createHandshakeISOMsg("0800", "001"));
 				sendSignOnRequest(source, m);
 			} else if (m.getMTI().equals("0810")) {
@@ -61,7 +61,7 @@ public class ClientRequestListener implements ISORequestListener {
 				// channelManager.sendMsg(createHandshakeISOMsg("0810", "001"));
 				// sendEchoTestResponse(source, m);
 				// sendSignOnRequest2(source, m);
-				DatabaseManager.DelReversal(""+Integer.parseInt(m.getValue(48).toString().substring(4, 17)));
+				
 			} else if (Integer.parseInt(m.getValue(4).toString()) > 0) {
 
 				if (m.getMTI().equals("0210")) {
