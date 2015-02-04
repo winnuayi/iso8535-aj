@@ -190,8 +190,16 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					}
 					if (reply != null) {
 						if (reply.getValue(39).equals("00")) {
-							DatabaseManager.DelReversal(""
-									+ Integer.parseInt(msg.getValue(48).toString().substring(4, 17)));
+							System.out.println("masuk sini juga");
+							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
+
+								System.out.println(msg.getValue(48).toString().substring(4, 16));
+								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
+							}else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
+
+								System.out.println("masuk sini juga B");
+								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
+							}
 						}
 					}
 					// source.send(msg);
