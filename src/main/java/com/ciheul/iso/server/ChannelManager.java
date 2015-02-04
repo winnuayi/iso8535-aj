@@ -78,7 +78,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
         	System.out.println("masuk");
             resp = (ISOMsg) m.clone();
             resp.set(39, "404");
-            sendLinkUp(m);
+            if (Integer.parseInt(m.getValue(4).toString())>0 && !m.getValue(48).toString().substring(0, 4).equals("2111")) {
+
+                sendLinkUp(m);
+			}
             return resp;
         }
 
@@ -100,7 +103,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
             // LINK DOWN
             if (resp.getValue(39).toString().equals("404")) {
             	System.out.println("masuk");
-            	sendLinkUp(m);
+                if (Integer.parseInt(m.getValue(4).toString())>0 && !m.getValue(48).toString().substring(0, 4).equals("2111")) {
+
+                    sendLinkUp(m);
+    			}
                 m.set(39, "404");
                 return m;
             }
