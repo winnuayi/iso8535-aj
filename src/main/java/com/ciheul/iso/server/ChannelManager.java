@@ -75,8 +75,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
         // if connection is not established, LINK DOWN
         if (mux.isConnected() == false) {
+        	System.out.println("masuk");
             resp = (ISOMsg) m.clone();
             resp.set(39, "404");
+            sendLinkUp(m);
             return resp;
         }
 
@@ -97,23 +99,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
             // LINK DOWN
             if (resp.getValue(39).toString().equals("404")) {
-            	String billNumber = ""+Integer.parseInt(m.getValue(48).toString().substring(4, 17));
-            	String reversalMessage = m.getValue(4).toString()
-            			+"#"
-            			+m.getValue(7).toString()
-            			+"#"
-            			+m.getValue(11).toString()
-            			+"#"
-            			+m.getValue(37).toString()
-            			+"#"
-            			+m.getValue(42).toString()
-            			+"#"
-            			+m.getValue(48).toString()
-            			+"#"
-            			+"0200" + m.getValue(11).toString() + m.getValue(7).toString() + m.getValue(32).toString() + "00000000000"
-            			+"#"
-            			+billNumber;
-            	DatabaseManager.setReversal(billNumber, reversalMessage);
+            	System.out.println("masuk");
+            	sendLinkUp(m);
                 m.set(39, "404");
                 return m;
             }
@@ -134,6 +121,39 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
         return resp;
     }
 
+    public void sendLinkUp(ISOMsg m){
+
+    	String billNumber = "";
+		try {
+			if (m.getValue(48).toString().substring(0, 4).equals("2112")) {
+
+				billNumber = m.getValue(48).toString().substring(4, 16);
+			}else if (m.getValue(48).toString().substring(0, 4).equals("2114")) {
+
+				billNumber = m.getValue(48).toString().substring(4, 17);
+			}
+	    	String reversalMessage = m.getValue(4).toString()
+	    			+"#"
+	    			+m.getValue(7).toString()
+	    			+"#"
+	    			+m.getValue(11).toString()
+	    			+"#"
+	    			+m.getValue(37).toString()
+	    			+"#"
+	    			+m.getValue(42).toString()
+	    			+"#"
+	    			+m.getValue(48).toString()
+	    			+"#"
+	    			+"0200" + m.getValue(11).toString() + m.getValue(7).toString() + m.getValue(32).toString() + "00000000000"
+	    			+"#"
+	    			+billNumber;
+	    	System.out.println("masuk :"+reversalMessage);
+	    	DatabaseManager.setReversal(billNumber, reversalMessage);
+		} catch (NumberFormatException | ISOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     public static ChannelManager getInstance() {
         if (_cMSingleTon == null) {
             System.out.println("*************");

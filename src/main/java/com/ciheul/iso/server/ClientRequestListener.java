@@ -240,6 +240,7 @@ public class ClientRequestListener implements ISORequestListener {
 					tambah++;
 				}
 
+				String[] reversalMsgSent = revelsalMsgStr.split("#");
 				System.out.println("\nsendLinkUp");
 				try {
 
@@ -247,12 +248,13 @@ public class ClientRequestListener implements ISORequestListener {
 					ISOMsg msg = (ISOMsg) m.clone();
 
 					msg.setMTI("0400");
+					System.out.println();
 					// msg.set(1, "723A400128618002");
 					msg.set(2, Context.ISO_BIT2);
 					msg.set(3, Context.ISO_BIT3_PAY);
-					msg.set(4, reversalMsg[0]);
-					msg.set(7, reversalMsg[1]);
-					msg.set(11, reversalMsg[2]); // postpaid
+					msg.set(4, reversalMsgSent[0]);
+					msg.set(7, reversalMsgSent[1]);
+					msg.set(11, reversalMsgSent[2]); // postpaid
 					// msg.set(11, "890931"); // prepaid
 					msg.set(12, date.get("bit12"));
 					msg.set(13, date.get("bit13"));
@@ -260,15 +262,16 @@ public class ClientRequestListener implements ISORequestListener {
 					msg.set(18, Context.ISO_BIT18);
 					msg.set(32, Context.ISO_BIT32);
 					msg.set(35, Context.ISO_BIT35);
-					msg.set(37, reversalMsg[3]);
-					msg.set(42, reversalMsg[4]);
+					msg.set(37, reversalMsgSent[3]);
+					msg.set(42, reversalMsgSent[4]);
 					msg.set(43, Context.ISO_BIT43);
-					msg.set(48, reversalMsg[5]);
+					msg.set(48, reversalMsgSent[5]);
 					msg.set(49, "360");
 					msg.set(63, "214");
-					msg.set(90, reversalMsg[6]);
+					msg.set(90, reversalMsgSent[6]);
 					
 					byte[] messageBody = msg.pack();
+					System.out.println(messageBody);
 					System.out.println("request : " + new String(messageBody));
 					ChannelManager.logISOMsg(msg);
 

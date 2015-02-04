@@ -95,6 +95,9 @@ public class IsoServlet {
                 if (resp != null && !resp.getValue(39).toString().equals("68")) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
+                    if (resp.getValue(39).toString().equals("68")) {
+						
+					}
                 } else {
                 	responseMsg = "TIMEOUT";
 				}
