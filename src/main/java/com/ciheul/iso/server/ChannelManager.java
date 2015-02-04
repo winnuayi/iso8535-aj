@@ -103,7 +103,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
             // LINK DOWN
             if (resp.getValue(39).toString().equals("404")) {
             	System.out.println("masuk");
-                if (Integer.parseInt(m.getValue(4).toString())>0 && !m.getValue(48).toString().substring(0, 4).equals("2111")) {
+                if (Long.parseLong(m.getValue(4).toString())>0 && !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 
                     sendLinkUp(m);
     			}
