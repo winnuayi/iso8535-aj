@@ -143,6 +143,7 @@ public class DummyIsoServer implements ISORequestListener {
         // } catch (InterruptedException ex) {
         // Thread.currentThread().interrupt();
         // }
+        ISOUtil.sleep(10000);
         System.out.println("sendInquiryPostpaid");
         try {
             m.setResponseMTI();
