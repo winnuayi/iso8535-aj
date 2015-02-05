@@ -2,6 +2,8 @@ package com.ciheul.database;
 
 //import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -11,12 +13,11 @@ public class RedisConnection {
 	private static JedisPool _pool = null;
 	private static RedisConnection _singleton = null;
 
-//	private static final Logger logger = Logger
-//			.getLogger(RedisConnection.class);
+	private static final Logger logger = Logger.getLogger(RedisConnection.class);
 
 	/** A private Constructor prevents any other class from instantiating. */
 	private RedisConnection() {
-//		logger.debug("Begin to create Jedis Pool Configuration");
+		logger.debug("Begin to create Jedis Pool Configuration");
 		JedisPoolConfig poolConfig = new JedisPoolConfig();
 		poolConfig
 				.setBlockWhenExhausted(poolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED);
@@ -37,9 +38,9 @@ public class RedisConnection {
 		_pool = new JedisPool(poolConfig, Context.REDIS_HOST,
 				Context.REDIS_PORT);
 		if (_pool != null) {
-//			logger.debug("Succes to create Jedis Pool");
+			logger.debug("Succes to create Jedis Pool");
 		} else {
-//			logger.error("Failed to create Jedis Pool");
+			logger.error("Failed to create Jedis Pool");
 		}
 	}
 

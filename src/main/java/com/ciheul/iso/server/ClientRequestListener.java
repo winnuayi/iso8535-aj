@@ -22,15 +22,17 @@ import com.ciheul.database.DatabaseManager;
 
 public class ClientRequestListener implements ISORequestListener {
 
+	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ChannelManager.class);
 	private int LOGGEDIN = 1;
 	private int NOT_LOGGEDIN = 0;
 
-	private static Logger logger = new Logger();
+//	private static Logger logger = new Logger();
 	private ChannelManager channelManager;
 	private int state = NOT_LOGGEDIN;
 
 	public ClientRequestListener() {
-		logger.addListener(new SimpleLogListener(System.out));
+//		logger.addListener(new SimpleLogListener(System.out));
+//		logger.debug(new SimpleLogListener(System.out));
 	}
 
 	/**
@@ -39,6 +41,13 @@ public class ClientRequestListener implements ISORequestListener {
 	@Override
 	public boolean process(ISOSource source, ISOMsg m) {
 		// <<<<<<< HEAD
+		try {
+			logger.info("incoming ISOMSG : "+m.getMTI());
+		} catch (ISOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		channelManager.logISOMsg(m);
 		channelManager = ChannelManager.getInstance();
 		System.out.println("process start");
 

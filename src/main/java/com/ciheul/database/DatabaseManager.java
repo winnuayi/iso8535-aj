@@ -12,13 +12,14 @@ import java.util.List;
 //import org.apache.log4j.Logger;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class DatabaseManager {
 
-    // private static final Logger logger = Logger
-    // .getLogger(DatabaseManager.class);
+     private static final Logger logger = Logger.getLogger(DatabaseManager.class);
 
 	/**
 	 * Set Reversal
@@ -34,18 +35,17 @@ public class DatabaseManager {
 
 			if ((null == jedis.hgetAll(Context.REVERSAL_MESSAGE))) {
 
-//				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
+				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
 
 				jedis.hset(Context.REVERSAL_MESSAGE, "", "");
 			}
-			// result = jedis.incr(Context.IS_CONNECTED);
 			jedis.hset(Context.REVERSAL_MESSAGE, user, reversalMessage);
 
 		} catch (JedisConnectionException jce) {
-//			logger.error("Error on redis connection : " + jce.getMessage());
+			logger.error("Error on redis connection : " + jce.getMessage());
 			rc.closeBrokenConnection(jedis);
 		} catch (Exception e) {
-//			logger.error("Error on redis connection : " + e.getMessage());
+			logger.error("Error on redis connection : " + e.getMessage());
 		} finally {
 			rc.closeConnection(jedis);
 		}
@@ -65,7 +65,7 @@ public class DatabaseManager {
 
 			if ((null == jedis.hgetAll(Context.REVERSAL_MESSAGE))) {
 
-//				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
+				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
 
 				jedis.hset(Context.REVERSAL_MESSAGE, "", "");
 			}
@@ -73,10 +73,10 @@ public class DatabaseManager {
 			result = jedis.hgetAll(Context.REVERSAL_MESSAGE);
 
 		} catch (JedisConnectionException jce) {
-//			logger.error("Error on redis connection : " + jce.getMessage());
+			logger.error("Error on redis connection : " + jce.getMessage());
 			rc.closeBrokenConnection(jedis);
 		} catch (Exception e) {
-//			logger.error("Error on redis connection : " + e.getMessage());
+			logger.error("Error on redis connection : " + e.getMessage());
 		} finally {
 			rc.closeConnection(jedis);
 		}
@@ -98,19 +98,19 @@ public class DatabaseManager {
 
 			if ((null == jedis.hgetAll(Context.REVERSAL_MESSAGE))) {
 
-//				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
+				logger.debug("REVERSAL_MESSAGE is not listed on Redis yet. Begin to initiate Reversal Message.");
 
 				jedis.hset(Context.REVERSAL_MESSAGE, "", "");
 			}
-			// result = jedis.incr(Context.IS_CONNECTED);
+//			 result = jedis.incr(Context.IS_CONNECTED);
 			System.out.println(Context.REVERSAL_MESSAGE+user);
 			jedis.hdel(Context.REVERSAL_MESSAGE, user);
 
 		} catch (JedisConnectionException jce) {
-//			logger.error("Error on redis connection : " + jce.getMessage());
+			logger.error("Error on redis connection : " + jce.getMessage());
 			rc.closeBrokenConnection(jedis);
 		} catch (Exception e) {
-//			logger.error("Error on redis connection : " + e.getMessage());
+			logger.error("Error on redis connection : " + e.getMessage());
 		} finally {
 			rc.closeConnection(jedis);
 		}
@@ -137,24 +137,24 @@ public class DatabaseManager {
             prepStatement.setString(3, billNumber1);
             prepStatement.setString(4, billNumber2);
             prepStatement.setInt(5, status);
-            // logger.info("Query : " + prepStatement.toString());
+             logger.info("Query : " + prepStatement.toString());
 
             int statuss = prepStatement.executeUpdate();
             if (statuss == 1) {
-                // logger.info("Query success ");
+                 logger.info("Query success ");
             } else {
-                // logger.info("Query failed ");
+                 logger.info("Query failed ");
             }
 
             if (statuss != 1) { // fail
-                // logger.warn("Failed to update bit48 on transaction "
-                // + transactionId);
+                 logger.warn("Failed to update bit48 on transaction "
+                 + transactionId);
                 conn.rollback();
             }
             conn.commit();
 
         } catch (SQLException e) {
-            // logger.error("Error on update bit 48 on transaction : " + e.getMessage());
+             logger.error("Error on update bit 48 on transaction : " + e.getMessage());
             e.printStackTrace();
 
             if (conn != null) {
@@ -162,13 +162,13 @@ public class DatabaseManager {
                     conn.rollback();
                     conn.close();
                 } catch (SQLException se) {
-                    // logger.error("Failed to close connection : "
-                    // + se.getMessage());
+                     logger.error("Failed to close connection : "
+                     + se.getMessage());
                 }
             }
 
         } catch (Exception e) {
-            // logger.error("Error on update bit 48 on transaction : " + e.getMessage());
+             logger.error("Error on update bit 48 on transaction : " + e.getMessage());
             e.printStackTrace();
         } finally {
 
@@ -176,8 +176,8 @@ public class DatabaseManager {
                 try {
                     prepStatement.close();
                 } catch (SQLException e) {
-                    // logger.error("Failed to close preparation Statement : "
-                    // + e.getMessage());
+                     logger.error("Failed to close preparation Statement : "
+                     + e.getMessage());
                 }
             }
 
@@ -185,8 +185,8 @@ public class DatabaseManager {
                 try {
                     conn.close();
                 } catch (SQLException se) {
-                    // logger.error("Failed to close connection : "
-                    // + se.getMessage());
+                     logger.error("Failed to close connection : "
+                     + se.getMessage());
                 }
             }
 
@@ -203,7 +203,7 @@ public class DatabaseManager {
      * @return
      */
     public static boolean updateStatusTransaction(String transactionId, int status, String resultCode, String message) {
-        // logger.debug("Begin updateStatusTransaction Method");
+         logger.debug("Begin updateStatusTransaction Method");
         boolean result = false;
         PreparedStatement prepStatement = null;
         DBConnection dbConn = null;
@@ -235,12 +235,12 @@ public class DatabaseManager {
             prepStatement.setString(3, message);
             prepStatement.setString(4, transactionId);
             prepStatement.setInt(5, Context.PENDING_STATUS);
-            // logger.info("Query : " + prepStatement.toString());
+             logger.info("Query : " + prepStatement.toString());
             int _result = prepStatement.executeUpdate();
             if (_result == 1) {
-                // logger.info("Query success ");
+                 logger.info("Query success ");
             } else {
-                // logger.info("Query failed ");
+                 logger.info("Query failed ");
             }
             if (_result == 1) {
                 result = true;
@@ -250,30 +250,30 @@ public class DatabaseManager {
             if (Context.FAIL_STATUS == status && result) {
                 prepStatement = conn.prepareStatement(revertBalanceQ);
                 prepStatement.setString(1, transactionId);
-                // logger.info("Query : " + prepStatement.toString());
+                 logger.info("Query : " + prepStatement.toString());
                 status = prepStatement.executeUpdate();
                 if (status == 1) {
-                    // logger.info("Query success ");
+                     logger.info("Query success ");
                 } else {
-                    // logger.info("Query failed ");
+                     logger.info("Query failed ");
                 }
 
                 prepStatement = conn.prepareStatement(updateBalanceQ);
                 prepStatement.setString(1, transactionId);
-                // logger.info("Query : " + prepStatement.toString());
+                 logger.info("Query : " + prepStatement.toString());
                 status = prepStatement.executeUpdate();
                 if (status == 1) {
-                    // logger.info("Query success ");
+                     logger.info("Query success ");
                 } else {
-                    // logger.info("Query failed ");
+                     logger.info("Query failed ");
                 }
             }
 
             conn.commit();
 
         } catch (SQLException e) {
-            // logger.error("Error on updating status of transaction : "
-            // + e.getMessage());
+             logger.error("Error on updating status of transaction : "
+             + e.getMessage());
             e.printStackTrace();
 
             if (conn != null) {
@@ -281,22 +281,22 @@ public class DatabaseManager {
                     conn.rollback();
                     conn.close();
                 } catch (SQLException se) {
-                    // logger.error("Failed to close connection : "
-                    // + se.getMessage());
+                     logger.error("Failed to close connection : "
+                     + se.getMessage());
                 }
             }
 
         } catch (Exception e) {
-            // logger.error("Error on updating status of transaction : "
-            // + e.getMessage());
+             logger.error("Error on updating status of transaction : "
+             + e.getMessage());
             e.printStackTrace();
         } finally {
             if (prepStatement != null) {
                 try {
                     prepStatement.close();
                 } catch (SQLException e) {
-                    // logger.error("Failed to close preparation statement : "
-                    // + e.getMessage());
+                     logger.error("Failed to close preparation statement : "
+                     + e.getMessage());
                 }
             }
 
@@ -304,19 +304,19 @@ public class DatabaseManager {
                 try {
                     conn.close();
                 } catch (SQLException se) {
-                    // logger.error("Failed to close connection : "
-                    // + se.getMessage());
+                     logger.error("Failed to close connection : "
+                     + se.getMessage());
                 }
             }
         }
-        // logger.debug("Finish updateStatusTransaction Method");
+         logger.debug("Finish updateStatusTransaction Method");
         return result;
     }
 
     public static boolean insertTransaction(String transactionId, String transactionRef, int accountId, int productId,
             String billNumber, int status, String amount, String feeAdmin, String resultCode, String note,
             String bit61, String bit48, String date, String feeType) {
-        // logger.debug("Begin insert Transaction Method");
+         logger.debug("Begin insert Transaction Method");
         boolean result = false;
         PreparedStatement prepStatement = null;
         DBConnection dbConn = null;
@@ -363,17 +363,17 @@ public class DatabaseManager {
             prepStatement.setString(10, bit61);// bit_61
             prepStatement.setString(11, bit48);// bit_48
             prepStatement.setTimestamp(12, new java.sql.Timestamp(milis));// timestamp
-            // logger.info("Query : " + prepStatement.toString());
+             logger.info("Query : " + prepStatement.toString());
             int _result = prepStatement.executeUpdate();
             if (_result == 1) {
-                // logger.info("Query success ");
+                 logger.info("Query success ");
             } else {
-                // logger.info("Query failed ");
+                 logger.info("Query failed ");
             }
 
         } catch (SQLException e) {
-            // logger.error("Error on updating status of transaction : "
-            // + e.getMessage());
+             logger.error("Error on updating status of transaction : "
+             + e.getMessage());
             e.printStackTrace();
 
             if (conn != null) {
@@ -381,22 +381,22 @@ public class DatabaseManager {
                     conn.rollback();
                     conn.close();
                 } catch (SQLException se) {
-                    // logger.error("Failed to close connection : "
-                    // + se.getMessage());
+                     logger.error("Failed to close connection : "
+                     + se.getMessage());
                 }
             }
 
         } catch (Exception e) {
-            // logger.error("Error on updating status of transaction : "
-            // + e.getMessage());
+             logger.error("Error on updating status of transaction : "
+             + e.getMessage());
             e.printStackTrace();
         } finally {
             if (prepStatement != null) {
                 try {
                     prepStatement.close();
                 } catch (SQLException e) {
-                    // logger.error("Failed to close preparation statement : "
-                    // + e.getMessage());
+                     logger.error("Failed to close preparation statement : "
+                     + e.getMessage());
                 }
             }
 
@@ -404,12 +404,12 @@ public class DatabaseManager {
                 try {
                     conn.close();
                 } catch (SQLException se) {
-                    // logger.error("Failed to close connection : "
-                    // + se.getMessage());
+                     logger.error("Failed to close connection : "
+                     + se.getMessage());
                 }
             }
         }
-        // logger.debug("Finish insert transaction Method");
+         logger.debug("Finish insert transaction Method");
         return result;
     }
 
@@ -428,18 +428,18 @@ public class DatabaseManager {
 
             if ((null == jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId))) {
 
-                // logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+                 logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
 
                 jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, "", "");
             }
-            // result = jedis.incr(Context.IS_CONNECTED);
+//             result = jedis.incr(Context.IS_CONNECTED);
             result = jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId);
 
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -460,18 +460,18 @@ public class DatabaseManager {
 
             if ((null == jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId))) {
 
-                // logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+                 logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
 
                 jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, "", "");
             }
-            // result = jedis.incr(Context.IS_CONNECTED);
+//             result = jedis.incr(Context.IS_CONNECTED);
             jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, trxId, msgBytes);
 
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -491,7 +491,7 @@ public class DatabaseManager {
 
             if ((null == jedis.hget(Context.ADVICE_MESSAGE_SUCCESS, trxId))) {
 
-                // logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+                 logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
 
                 jedis.hset(Context.ADVICE_MESSAGE_SUCCESS, "", "");
             }
@@ -499,10 +499,10 @@ public class DatabaseManager {
             jedis.hdel(Context.ADVICE_MESSAGE_SUCCESS, trxId);
 
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -523,7 +523,7 @@ public class DatabaseManager {
 
             if ((null == jedis.hget(Context.ADVICE_MESSAGE, billNumber))) {
 
-                // logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+                 logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
 
                 jedis.hset(Context.ADVICE_MESSAGE, "", "");
             }
@@ -531,10 +531,10 @@ public class DatabaseManager {
             result = jedis.hget(Context.ADVICE_MESSAGE, billNumber);
 
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -555,7 +555,7 @@ public class DatabaseManager {
 
             if ((null == jedis.hget(Context.ADVICE_MESSAGE, billNumber))) {
 
-                // logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+                 logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
 
                 jedis.hset(Context.ADVICE_MESSAGE, "", "");
             }
@@ -563,10 +563,10 @@ public class DatabaseManager {
             jedis.hset(Context.ADVICE_MESSAGE, billNumber, msgBytes);
 
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -586,7 +586,7 @@ public class DatabaseManager {
 
             if ((null == jedis.hget(Context.ADVICE_MESSAGE, billNumber))) {
 
-                // logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
+                 logger.debug("ADVICE_MESSAGE is not listed on Redis yet. Begin to initiate Advice Message.");
 
                 jedis.hset(Context.ADVICE_MESSAGE, "", "");
             }
@@ -594,10 +594,10 @@ public class DatabaseManager {
             jedis.hdel(Context.ADVICE_MESSAGE, billNumber);
 
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -616,10 +616,10 @@ public class DatabaseManager {
 
             jedis.hset(Context.STAN, stan, "1");
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -638,10 +638,10 @@ public class DatabaseManager {
 
             jedis.hdel(Context.STAN, stan);
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -666,10 +666,10 @@ public class DatabaseManager {
                 stans.add(s);
             }
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -690,10 +690,10 @@ public class DatabaseManager {
 
             jedis.del(Context.STAN);
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }
@@ -715,10 +715,10 @@ public class DatabaseManager {
 
             allStan = jedis.hgetAll(Context.STAN);
         } catch (JedisConnectionException jce) {
-            // logger.error("Error on redis connection : " + jce.getMessage());
+             logger.error("Error on redis connection : " + jce.getMessage());
             rc.closeBrokenConnection(jedis);
         } catch (Exception e) {
-            // logger.error("Error on redis connection : " + e.getMessage());
+             logger.error("Error on redis connection : " + e.getMessage());
         } finally {
             rc.closeConnection(jedis);
         }

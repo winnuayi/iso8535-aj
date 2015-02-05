@@ -20,7 +20,7 @@ import org.jpos.util.NameRegistrar.NotFoundException;
 
 @Path("/api")
 public class IsoServlet {
-
+	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(IsoServlet.class);
     ChannelManager channelManager = null;
 //    ChannelManager channelManager = ChannelManager.getInstance();
 
@@ -36,7 +36,8 @@ public class IsoServlet {
     @POST
     @Path("/send")
     @Produces(MediaType.APPLICATION_JSON)
-    public IsoMessageResponse send(IsoMessageRequest msg){        
+    public IsoMessageResponse send(IsoMessageRequest msg){     
+    	logger.info("incoming from PGW :"+msg);
         String responseMsg = "";
         ISOMsg resp = null;
         
@@ -55,6 +56,8 @@ public class IsoServlet {
         case "0800":
             try {
                 resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
+                logger.info("response : ");
+                ChannelManager.logISOMsg(resp);
                 if (resp != null) {
                     responseMsg = resp.getValue(39).toString();
                 } 
@@ -71,6 +74,8 @@ public class IsoServlet {
         case "0810":
             try {
                 resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
+                logger.info("response : ");
+                ChannelManager.logISOMsg(resp);
                 if (resp != null) {
                     responseMsg = resp.getValue(39).toString();
                 }
@@ -87,27 +92,33 @@ public class IsoServlet {
         case "0200":
             try {
                 resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
-                System.out.println("sent");
-                System.out.println("Loggernya = "+channelManager.getLogger());
-                System.out.println("********** DEBUG");
+                logger.info("response : ");
                 ChannelManager.logISOMsg(resp);
+//                System.out.println("sent");
+//                System.out.println("Loggernya = "+channelManager.getLogger());
+//                System.out.println("********** DEBUG");
+//                ChannelManager.logISOMsg(resp);
                 System.out.println("39: " + resp.getValue(39).toString().equals("68"));
                 if (resp != null && !resp.getValue(39).toString().equals("68")) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
+                    logger.info("response : "+responseMsg);
                     if (resp.getValue(39).toString().equals("68")) {
 						
 					}
                 } else {
                 	responseMsg = "TIMEOUT";
+                	logger.info("REQUEST TIMEOUT");
 				}
 //                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
             	responseMsg = e.getMessage();
-                e.printStackTrace();
+            	logger.error(responseMsg);
+//                e.printStackTrace();
             } catch (Exception e) {
             	responseMsg = e.getMessage();
-                e.printStackTrace();
+            	logger.error(responseMsg);
+//                e.printStackTrace();
             }
             break;
 
@@ -118,19 +129,25 @@ public class IsoServlet {
         case "0400":
             try {
                 resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
+                logger.info("response : ");
+                ChannelManager.logISOMsg(resp);
                 if (resp != null && !resp.getValue(39).toString().equals("68")) {
                     responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
                             + resp.getValue(48);
+                    logger.info("response : "+responseMsg);
                 }else{
                 	responseMsg = "TIMEOUT";
+                	logger.info("REQUEST TIMEOUT");
                 }
 //                channelManager.getLog().info("Handshake sent! ");
             } catch (ISOException e) {
             	responseMsg = e.getMessage();
-                e.printStackTrace();
+            	logger.error(responseMsg);
+//                e.printStackTrace();
             } catch (Exception e) {
             	responseMsg = e.getMessage();
-                e.printStackTrace();
+            	logger.error(responseMsg);
+//                e.printStackTrace();
             }
             break;
 
@@ -144,6 +161,7 @@ public class IsoServlet {
         }
         IsoMessageResponse response = new IsoMessageResponse();
         response.setMessage(responseMsg);
+        logger.info("response for PGW :" + response.getMessage());
         System.out.println("response: " + response.getMessage());
         return response;
     }

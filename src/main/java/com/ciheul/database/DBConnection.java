@@ -5,6 +5,8 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+
+import org.apache.log4j.Logger;
 //import org.apache.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -16,18 +18,17 @@ public class DBConnection {
 	
 	private boolean _flag = true;
 	
-//	private static final Logger logger = Logger
-//			.getLogger(DBConnection.class);
+	private static final Logger logger = Logger.getLogger(DBConnection.class);
 	
 
 	/** A private Constructor prevents any other class from instantiating. */
 	private DBConnection() {
-//		logger.debug("Initiate creation of Database Connection Pool");
+		logger.debug("Initiate creation of Database Connection Pool");
 		Class<?> c = null;
 		try {
 			c = Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e) {
-//			logger.error("Failed to find class driver : " + e.getMessage());
+			logger.error("Failed to find class driver : " + e.getMessage());
 			_flag = false;
 		}
 
@@ -36,11 +37,11 @@ public class DBConnection {
 		try {
 			driver = (Driver) c.newInstance();
 		} catch (InstantiationException e1) {
-//			logger.error("Failed to process DB Connection instance initiation : " + e1.getMessage());
+			logger.error("Failed to process DB Connection instance initiation : " + e1.getMessage());
 //			_flag = false;
 			e1.printStackTrace();
 		} catch (IllegalAccessException e1) {
-//			logger.error("Failed to process DB Connection instance initiation : " + e1.getMessage());
+			logger.error("Failed to process DB Connection instance initiation : " + e1.getMessage());
 			_flag = false;
 			e1.printStackTrace();
 		}
@@ -48,7 +49,7 @@ public class DBConnection {
 		try {
 			DriverManager.registerDriver(driver);
 		} catch (SQLException e) {
-//			logger.error("Failed to register Database Driver : " + e.getMessage());
+			logger.error("Failed to register Database Driver : " + e.getMessage());
 			_flag = false;
 		}
 		if (_flag) {
@@ -86,9 +87,9 @@ public class DBConnection {
 							+ "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
 			try {
 				_pool = new ConnectionPool(poolProperties);
-//				logger.debug("Database Connection Pool created");
+				logger.debug("Database Connection Pool created");
 			} catch (SQLException e) {
-//				logger.error("Failed to create Database Connection pool : " + e.getMessage());
+				logger.error("Failed to create Database Connection pool : " + e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -101,7 +102,7 @@ public class DBConnection {
 			conn = _pool.getConnection();
 			_flag = true;
 		} catch (SQLException e) {
-//			logger.error("Fail to create connection : " + e.getMessage());
+			logger.error("Fail to create connection : " + e.getMessage());
 			_flag = false;
 		}
 		return conn;

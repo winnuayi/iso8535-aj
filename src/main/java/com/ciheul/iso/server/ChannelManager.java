@@ -4,15 +4,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
-import org.jpos.iso.ISOSource;
 import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.q2.QBeanSupport;
 import org.jpos.space.LocalSpace;
@@ -26,6 +25,8 @@ import com.ciheul.database.RedisConnection;
 import com.ciheul.iso.AJMUX;
 
 public class ChannelManager extends QBeanSupport implements SpaceListener {
+	private static final Logger logger = Logger.getLogger(ChannelManager.class);
+	
 	private static ChannelManager _cMSingleTon = null;
 	private long MAX_TIME_OUT;
 	private AJMUX mux;
@@ -36,24 +37,28 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 	private RedisConnection r = RedisConnection.getInstance();
 
 	public static void logISOMsg(ISOMsg msg) {
-		System.out.println("----ISO MESSAGE-----");
+//		System.out.println("----ISO MESSAGE-----");
+		logger.info("----ISO MESSAGE-----");
 		try {
-			System.out.println("  MTI : " + msg.getMTI());
+//			System.out.println("  MTI : " + msg.getMTI());
+			logger.info("  MTI : " + msg.getMTI());
 			for (int i = 1; i <= msg.getMaxField(); i++) {
 				if (msg.hasField(i)) {
-					System.out.println("    Field-" + i + " : " + msg.getString(i));
+//					System.out.println("    Field-" + i + " : " + msg.getString(i));
+					logger.info("    Field-" + i + " : " + msg.getString(i));
 				}
 			}
 		} catch (ISOException e) {
 			e.printStackTrace();
 		} finally {
-			System.out.println("--------------------");
+//			System.out.println("--------------------");
+			logger.info("--------------------");
 		}
 	}
 
 	@Override
 	protected void initService() throws ISOException {
-		log.info("initializing ChannelManager Service");
+		logger.info("initializing ChannelManager Service");
 		try {
 			mux = (AJMUX) NameRegistrar.get("mux." + cfg.get("mux"));
 
@@ -66,39 +71,22 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			MAX_TIME_OUT = cfg.getLong("timeout");
 			NameRegistrar.register("manager", this);
 		} catch (NameRegistrar.NotFoundException e) {
-			log.error("Error in initializing service :" + e.getMessage());
+			logger.error("Error in initializing service :" + e.getMessage());
 		}
 	}
 
 	protected void startService() throws ISOException {
-		System.out.println("cekkk");
-
 		Timer timer = new Timer();
-
 		timer.schedule(new TimerTask() {
 			public void run() {
 				// do your work
 				System.out.println(mux.isConnected());
-
 				Map<String, String> reversal = DatabaseManager.getReversal();
 				if (mux.isConnected() && !reversal.toString().equals("{}")) {
 					sendLinkUp(reversal);
 				}
 			}
 		}, 0, Context.LINK_UP_THREAD_TIME);
-
-		// Runnable linkUp = new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// // TODO Auto-generated method stub
-		// System.out.println(mux.isConnected());
-		// if (mux.isConnected()) {
-		// sendLinkUp();
-		// }
-		// }
-		// };
-		// new Thread(linkUp).start();
 	}
 
 	/**
@@ -110,9 +98,6 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 	 *            message from client
 	 */
 	private void sendLinkUp(Map<String, String> reversal) {
-
-		System.out.println("masuk");
-
 		String reversalString = reversal.values().toString();
 		String[] reversalMessage = reversalString.substring(1, reversalString.length() - 1).split(",");
 
@@ -127,7 +112,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				tambah = 1;
 				String[] reversalMsg = reversalMessage[i].split("#");
 				jumlah = jumlah + reversalMsg.length;
-
+				
 				while (jumlah < 8) {
 					revelsalMsgStr += "," + reversalMessage[i + tambah];
 					reversalMsg = reversalMessage[i + tambah].split("#");
@@ -135,11 +120,9 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					jumlah = jumlah + reversalMsg.length - 1;
 					tambah++;
 				}
-
 				String[] reversalMsgSent = revelsalMsgStr.split("#");
 				System.out.println("\nsendLinkUp");
 				try {
-
 					Map<String, String> date = getDate();
 					ISOMsg msg = new ISOMsg();
 
@@ -174,11 +157,13 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					int count = 0;
 					ISOMsg reply = null;
 					String replyStr = "";
-
 					while (count < 4 && (reply == null || replyStr.equals(""))) {
+						logger.info("request : " + new String(messageBody));
 						count = count + 1;
 						if (reply != null) {
+							
 							if (reply.getValue(39).equals("00")) {
+								logger.info("Link up response: "+reply.pack());
 								replyStr = "success";
 							} else {
 								reply = sendMsg(msg);
@@ -190,32 +175,24 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 						if (count==4) {
 
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
-
-								System.out.println(msg.getValue(48).toString().substring(4, 16));
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
 							}else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
-
-								System.out.println("masuk sini juga B");
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
 							}
 						}
 					}
 					
 					if (reply != null) {
+						
 						if (reply.getValue(39).equals("00")) {
-							System.out.println("masuk sini juga");
-							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 
-								System.out.println(msg.getValue(48).toString().substring(4, 16));
+							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
 							}else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
-
-								System.out.println("masuk sini juga B");
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
 							}
 						}
 					}
-					// source.send(msg);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
@@ -240,7 +217,6 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		String bit15 = Integer.toString(Integer.parseInt(bit13) + 1);
 
 		HashMap<String, String> result = new HashMap<String, String>();
-
 		result.put("bit7", bit7);
 		result.put("bit12", bit12);
 		result.put("bit13", bit13);
@@ -261,12 +237,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		// if connection is not established, LINK DOWN
 		if (mux.isConnected() == false) {
-			System.out.println("masuk");
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "404");
 			if (Integer.parseInt(m.getValue(4).toString()) > 0
 					&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
-
 				sendLinkUp(m);
 			}
 			return resp;
@@ -284,21 +258,17 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		if (obj instanceof ISOMsg) {
 			resp = (ISOMsg) obj;
 			DatabaseManager.deleteStan(m.getValue(11).toString());
-
 			logISOMsg(resp);
-
 			// LINK DOWN
 			if (resp.getValue(39).toString().equals("404")) {
-				System.out.println("masuk");
+
 				if (Long.parseLong(m.getValue(4).toString()) > 0
 						&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
-
 					sendLinkUp(m);
 				}
 				m.set(39, "404");
 				return m;
 			}
-
 			return resp;
 		}
 
