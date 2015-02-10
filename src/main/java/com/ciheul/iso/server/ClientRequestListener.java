@@ -14,8 +14,6 @@ import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISORequestListener;
 import org.jpos.iso.ISOSource;
 import org.jpos.iso.packager.ISO87APackager;
-import org.jpos.util.Logger;
-import org.jpos.util.SimpleLogListener;
 
 import com.ciheul.database.Context;
 import com.ciheul.database.DatabaseManager;
