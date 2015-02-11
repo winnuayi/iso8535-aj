@@ -13,8 +13,6 @@ import javax.ws.rs.core.MediaType;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.packager.ISO87APackager;
-import org.jpos.util.LogEvent;
-import org.jpos.util.Logger;
 import org.jpos.util.NameRegistrar;
 import org.jpos.util.NameRegistrar.NotFoundException;
 
