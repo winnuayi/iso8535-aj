@@ -56,470 +56,470 @@ import com.ciheul.database.DatabaseManager;
  */
 @SuppressWarnings("unchecked")
 public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean, Loggeable {
-    static final String nomap = "0123456789";
-    static final String DEFAULT_KEY = "41, 11";
-    protected LocalSpace sp;
-    protected String in, out, unhandled;
-    protected String[] ready;
-    protected String[] key;
-    protected String ignorerc;
-    protected String[] mtiMapping;
-    private boolean headerIsKey;
-    private LocalSpace isp; // internal space
+	static final String nomap = "0123456789";
+	static final String DEFAULT_KEY = "41, 11";
+	protected LocalSpace sp;
+	protected String in, out, unhandled;
+	protected String[] ready;
+	protected String[] key;
+	protected String ignorerc;
+	protected String[] mtiMapping;
+	private boolean headerIsKey;
+	private LocalSpace isp; // internal space
 
-    List<ISORequestListener> listeners;
-    int rx, tx, rxExpired, txExpired, rxPending, rxUnhandled, rxForwarded;
-    long lastTxn = 0L;
-    boolean listenerRegistered;
+	List<ISORequestListener> listeners;
+	int rx, tx, rxExpired, txExpired, rxPending, rxUnhandled, rxForwarded;
+	long lastTxn = 0L;
+	boolean listenerRegistered;
 
-    public AJMUX() {
-        super();
-        listeners = new ArrayList<ISORequestListener>();
-    }
+	public AJMUX() {
+		super();
+		listeners = new ArrayList<ISORequestListener>();
+	}
 
-    public void initService() throws ConfigurationException {
-        Element e = getPersist();
-        sp = grabSpace(e.getChild("space"));
-        isp = cfg.getBoolean("reuse-space", false) ? sp : new TSpace();
-        in = e.getChildTextTrim("in");
-        out = e.getChildTextTrim("out");
-        ignorerc = e.getChildTextTrim("ignore-rc");
-        key = toStringArray(e.getChildTextTrim("key"), ", ", DEFAULT_KEY);
-        ready = toStringArray(e.getChildTextTrim("ready"));
-        mtiMapping = toStringArray(e.getChildTextTrim("mtimapping"));
-        if (mtiMapping == null || mtiMapping.length != 3)
-            mtiMapping = new String[] { nomap, nomap, "0022446789" };
-        addListeners();
-        unhandled = e.getChildTextTrim("unhandled");
-        NameRegistrar.register("mux." + getName(), this);
-    }
+	public void initService() throws ConfigurationException {
+		Element e = getPersist();
+		sp = grabSpace(e.getChild("space"));
+		isp = cfg.getBoolean("reuse-space", false) ? sp : new TSpace();
+		in = e.getChildTextTrim("in");
+		out = e.getChildTextTrim("out");
+		ignorerc = e.getChildTextTrim("ignore-rc");
+		key = toStringArray(e.getChildTextTrim("key"), ", ", DEFAULT_KEY);
+		ready = toStringArray(e.getChildTextTrim("ready"));
+		mtiMapping = toStringArray(e.getChildTextTrim("mtimapping"));
+		if (mtiMapping == null || mtiMapping.length != 3)
+			mtiMapping = new String[] { nomap, nomap, "0022446789" };
+		addListeners();
+		unhandled = e.getChildTextTrim("unhandled");
+		NameRegistrar.register("mux." + getName(), this);
+	}
 
-    public void startService() {
-        if (!listenerRegistered) {
-            listenerRegistered = true;
-            // Handle messages that could be in the in queue at start time
-            synchronized (sp) {
-                Object[] pending = SpaceUtil.inpAll(sp, in);
-                sp.addListener(in, this);
-                for (Object o : pending)
-                    sp.out(in, o);
-            }
-        }
-    }
+	public void startService() {
+		if (!listenerRegistered) {
+			listenerRegistered = true;
+			// Handle messages that could be in the in queue at start time
+			synchronized (sp) {
+				Object[] pending = SpaceUtil.inpAll(sp, in);
+				sp.addListener(in, this);
+				for (Object o : pending)
+					sp.out(in, o);
+			}
+		}
+	}
 
-    public void stopService() {
-        listenerRegistered = false;
-        sp.removeListener(in, this);
-    }
+	public void stopService() {
+		listenerRegistered = false;
+		sp.removeListener(in, this);
+	}
 
-    public void destroyService() {
-        NameRegistrar.unregister("mux." + getName());
-    }
+	public void destroyService() {
+		NameRegistrar.unregister("mux." + getName());
+	}
 
-    /**
-     * @return MUX with name using NameRegistrar
-     * @throws NameRegistrar.NotFoundException
-     * @see NameRegistrar
-     */
-    public static MUX getMUX(String name) throws NameRegistrar.NotFoundException {
-        return (MUX) NameRegistrar.get("mux." + name);
-    }
+	/**
+	 * @return MUX with name using NameRegistrar
+	 * @throws NameRegistrar.NotFoundException
+	 * @see NameRegistrar
+	 */
+	public static MUX getMUX(String name) throws NameRegistrar.NotFoundException {
+		return (MUX) NameRegistrar.get("mux." + name);
+	}
 
-    /**
-     * @param m
-     *            message to send
-     * @param timeout
-     *            amount of time in millis to wait for a response
-     * @return response or null
-     */
-    public ISOMsg request(ISOMsg m, long timeout) throws ISOException {
-        String key = getKey(m);
-        System.out.println("AJMUX.request");
-        System.out.println(key);
-        String req = key + ".req";
-        if (isp.rdp(req) != null)
-            throw new ISOException("Duplicate key '" + req + "' detected");
-        isp.out(req, m);
-        m.setDirection(0);
-        if (timeout > 0)
-            sp.out(out, m, timeout);
-        else
-            sp.out(out, m);
+	/**
+	 * @param m
+	 *            message to send
+	 * @param timeout
+	 *            amount of time in millis to wait for a response
+	 * @return response or null
+	 */
+	public ISOMsg request(ISOMsg m, long timeout) throws ISOException {
+		String key = getKey(m);
+		System.out.println("AJMUX.request");
+		System.out.println(key);
+		String req = key + ".req";
+		if (isp.rdp(req) != null)
+			throw new ISOException("Duplicate key '" + req + "' detected");
+		isp.out(req, m);
+		m.setDirection(0);
+		if (timeout > 0)
+			sp.out(out, m, timeout);
+		else
+			sp.out(out, m);
 
-        ISOMsg resp = null;
-        try {
-            synchronized (this) {
-                tx++;
-                rxPending++;
-            }
+		ISOMsg resp = null;
+		try {
+			synchronized (this) {
+				tx++;
+				rxPending++;
+			}
 
-            for (;;) {
-//                Object obj = isp.rd(key, timeout);
-//                if (obj instanceof String) {
-//                    System.out.println();
-//                }
-                resp = (ISOMsg) isp.rd(key, timeout);
-                if (shouldIgnore(resp))
-                    continue;
-                isp.inp(key);
-                break;
-            }
-            if (resp == null && isp.inp(req) == null) {
-                // possible race condition, retry for a few extra seconds
-                resp = (ISOMsg) isp.in(key, 10000);
-            }
-            synchronized (this) {
-                if (resp != null) {
-                    rx++;
-                    lastTxn = System.currentTimeMillis();
-                } else {
-                    rxExpired++;
-                    if (m.getDirection() != ISOMsg.OUTGOING)
-                        txExpired++;
-                }
-            }
-        } finally {
-            synchronized (this) {
-                rxPending--;
-            }
-        }
-        return resp;
-    }
+			for (;;) {
+				// Object obj = isp.rd(key, timeout);
+				// if (obj instanceof String) {
+				// System.out.println();
+				// }
+				resp = (ISOMsg) isp.rd(key, timeout);
+				if (shouldIgnore(resp))
+					continue;
+				isp.inp(key);
+				break;
+			}
+			if (resp == null && isp.inp(req) == null) {
+				// possible race condition, retry for a few extra seconds
+				resp = (ISOMsg) isp.in(key, 10000);
+			}
+			synchronized (this) {
+				if (resp != null) {
+					rx++;
+					lastTxn = System.currentTimeMillis();
+				} else {
+					rxExpired++;
+					if (m.getDirection() != ISOMsg.OUTGOING)
+						txExpired++;
+				}
+			}
+		} finally {
+			synchronized (this) {
+				rxPending--;
+			}
+		}
+		return resp;
+	}
 
-    public void notify(Object k, Object value) {
-        Object obj = sp.inp(k);
-        
-        if (value instanceof String && (String) value == "LINK DOWN") {
-            synchronized (this) {
-                if (DatabaseManager.isEmptyStan() == false) {
-                    List<String> stans = DatabaseManager.getAllStan();
-                    for (String stan : stans) {
-                        System.out.println(stan);
+	public void notify(Object k, Object value) {
+		Object obj = sp.inp(k);
 
-                        ISOMsg linkDown = new ISOMsg();
-                        try {
-                            linkDown.setMTI("0210");
-                            linkDown.set(11, stan);
-                            linkDown.set(39, "404");
-                            linkDown.setPackager(new ISO87APackager());
-                            
-                            String key = getKey(linkDown);
-                            isp.out(key, linkDown);
-                            
-                        } catch (ISOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    DatabaseManager.deleteAllStan();
-                }
-            }
-        }
-        
-        if (obj instanceof ISOMsg) {
-            ISOMsg m = (ISOMsg) obj;
-            try {
-                String key = getKey(m);
-                String req = key + ".req";
-                Object r = isp.inp(req);
-                if (r != null) {
-                    if (r instanceof AsyncRequest) {
-                        ((AsyncRequest) r).responseReceived(m);
-                    } else {
-                        isp.out(key, m);
-                    }
-                    return;
-                }
-            } catch (ISOException e) {
-                getLog().warn("notify", e);
-            }
-            processUnhandled(m);
-        }
-    }
+		if (value instanceof String && (String) value == "LINK DOWN") {
+			synchronized (this) {
+				if (DatabaseManager.isEmptyStan() == false) {
+					List<String> stans = DatabaseManager.getAllStan();
+					for (String stan : stans) {
+						System.out.println(stan);
 
-    public String getKey(ISOMsg m) throws ISOException {
-        StringBuilder sb = new StringBuilder(out);
-        sb.append('.');
-        sb.append(mapMTI(m.getMTI()));
-        if (headerIsKey && m.getHeader() != null) {
-            sb.append('.');
-            sb.append(ISOUtil.hexString(m.getHeader()));
-            sb.append('.');
-        }
-        boolean hasFields = false;
-        for (String f : key) {
-            String v = m.getString(f);
-            if (v != null) {
-                if ("11".equals(f)) {
-                    String vt = v.trim();
-                    int l = m.getMTI().charAt(0) == '2' ? 12 : 6;
-                    if (vt.length() < l)
-                        v = ISOUtil.zeropad(vt, l);
-                }
-                if ("41".equals(f)) {
-                    v = ISOUtil.zeropad(v.trim(), 16); // BIC ANSI to ISO hack
-                }
-                hasFields = true;
-                sb.append(v);
-            }
-        }
-        if (!hasFields)
-            throw new ISOException("Key fields not found - not sending " + sb.toString());
-        return sb.toString();
-    }
+						ISOMsg linkDown = new ISOMsg();
+						try {
+							linkDown.setMTI("0210");
+							linkDown.set(11, stan);
+							linkDown.set(39, "404");
+							linkDown.setPackager(new ISO87APackager());
 
-    private String mapMTI(String mti) throws ISOException {
-        StringBuilder sb = new StringBuilder();
-        if (mti != null) {
-            if (mti.length() < 4)
-                mti = ISOUtil.zeropad(mti, 4); // #jPOS-55
-            if (mti.length() == 4) {
-                for (int i = 0; i < mtiMapping.length; i++) {
-                    int c = mti.charAt(i) - '0';
-                    if (c >= 0 && c < 10)
-                        sb.append(mtiMapping[i].charAt(c));
-                }
-            }
-        }
-        return sb.toString();
-    }
+							String key = getKey(linkDown);
+							isp.out(key, linkDown);
 
-    public synchronized void setInQueue(String in) {
-        this.in = in;
-        getPersist().getChild("in").setText(in);
-        setModified(true);
-    }
+						} catch (ISOException e) {
+							e.printStackTrace();
+						}
+					}
+					DatabaseManager.deleteAllStan();
+				}
+			}
+		}
 
-    public String getInQueue() {
-        return in;
-    }
+		if (obj instanceof ISOMsg) {
+			ISOMsg m = (ISOMsg) obj;
+			try {
+				String key = getKey(m);
+				String req = key + ".req";
+				Object r = isp.inp(req);
+				if (r != null) {
+					if (r instanceof AsyncRequest) {
+						((AsyncRequest) r).responseReceived(m);
+					} else {
+						isp.out(key, m);
+					}
+					return;
+				}
+			} catch (ISOException e) {
+				getLog().warn("notify", e);
+			}
+			processUnhandled(m);
+		}
+	}
 
-    public synchronized void setOutQueue(String out) {
-        this.out = out;
-        getPersist().getChild("out").setText(out);
-        setModified(true);
-    }
+	public String getKey(ISOMsg m) throws ISOException {
+		StringBuilder sb = new StringBuilder(out);
+		sb.append('.');
+		sb.append(mapMTI(m.getMTI()));
+		if (headerIsKey && m.getHeader() != null) {
+			sb.append('.');
+			sb.append(ISOUtil.hexString(m.getHeader()));
+			sb.append('.');
+		}
+		boolean hasFields = false;
+		for (String f : key) {
+			String v = m.getString(f);
+			if (v != null) {
+				if ("11".equals(f)) {
+					String vt = v.trim();
+					int l = m.getMTI().charAt(0) == '2' ? 12 : 6;
+					if (vt.length() < l)
+						v = ISOUtil.zeropad(vt, l);
+				}
+				if ("41".equals(f)) {
+					v = ISOUtil.zeropad(v.trim(), 16); // BIC ANSI to ISO hack
+				}
+				hasFields = true;
+				sb.append(v);
+			}
+		}
+		if (!hasFields)
+			throw new ISOException("Key fields not found - not sending " + sb.toString());
+		return sb.toString();
+	}
 
-    public String getOutQueue() {
-        return out;
-    }
+	private String mapMTI(String mti) throws ISOException {
+		StringBuilder sb = new StringBuilder();
+		if (mti != null) {
+			if (mti.length() < 4)
+				mti = ISOUtil.zeropad(mti, 4); // #jPOS-55
+			if (mti.length() == 4) {
+				for (int i = 0; i < mtiMapping.length; i++) {
+					int c = mti.charAt(i) - '0';
+					if (c >= 0 && c < 10)
+						sb.append(mtiMapping[i].charAt(c));
+				}
+			}
+		}
+		return sb.toString();
+	}
 
-    public Space getSpace() {
-        return sp;
-    }
+	public synchronized void setInQueue(String in) {
+		this.in = in;
+		getPersist().getChild("in").setText(in);
+		setModified(true);
+	}
 
-    public synchronized void setUnhandledQueue(String unhandled) {
-        this.unhandled = unhandled;
-        getPersist().getChild("unhandled").setText(unhandled);
-        setModified(true);
-    }
+	public String getInQueue() {
+		return in;
+	}
 
-    public String getUnhandledQueue() {
-        return unhandled;
-    }
+	public synchronized void setOutQueue(String out) {
+		this.out = out;
+		getPersist().getChild("out").setText(out);
+		setModified(true);
+	}
 
-    public void request(ISOMsg m, long timeout, ISOResponseListener rl, Object handBack) throws ISOException {
-        String key = getKey(m);
-        String req = key + ".req";
-        if (isp.rdp(req) != null)
-            throw new ISOException("Duplicate key '" + req + "' detected.");
-        m.setDirection(0);
-        AsyncRequest ar = new AsyncRequest(rl, handBack);
-        synchronized (ar) {
-            if (timeout > 0)
-                ar.setFuture(getScheduledThreadPoolExecutor().schedule(ar, timeout, TimeUnit.MILLISECONDS));
-        }
-        isp.out(req, ar, timeout);
-        sp.out(out, m, timeout);
-    }
+	public String getOutQueue() {
+		return out;
+	}
 
-    @SuppressWarnings("unused")
-    public String[] getReadyIndicatorNames() {
-        return ready;
-    }
+	public Space getSpace() {
+		return sp;
+	}
 
-    private void addListeners() throws ConfigurationException {
-        QFactory factory = getFactory();
-        Iterator iter = getPersist().getChildren("request-listener").iterator();
-        while (iter.hasNext()) {
-            Element l = (Element) iter.next();
-            ISORequestListener listener = (ISORequestListener) factory.newInstance(l.getAttributeValue("class"));
-            factory.setLogger(listener, l);
-            factory.setConfiguration(listener, l);
-            addISORequestListener(listener);
-        }
-    }
+	public synchronized void setUnhandledQueue(String unhandled) {
+		this.unhandled = unhandled;
+		getPersist().getChild("unhandled").setText(unhandled);
+		setModified(true);
+	}
 
-    public void addISORequestListener(ISORequestListener l) {
-        listeners.add(l);
-    }
+	public String getUnhandledQueue() {
+		return unhandled;
+	}
 
-    public boolean removeISORequestListener(ISORequestListener l) {
-        return listeners.remove(l);
-    }
+	public void request(ISOMsg m, long timeout, ISOResponseListener rl, Object handBack) throws ISOException {
+		String key = getKey(m);
+		String req = key + ".req";
+		if (isp.rdp(req) != null)
+			throw new ISOException("Duplicate key '" + req + "' detected.");
+		m.setDirection(0);
+		AsyncRequest ar = new AsyncRequest(rl, handBack);
+		synchronized (ar) {
+			if (timeout > 0)
+				ar.setFuture(getScheduledThreadPoolExecutor().schedule(ar, timeout, TimeUnit.MILLISECONDS));
+		}
+		isp.out(req, ar, timeout);
+		sp.out(out, m, timeout);
+	}
 
-    public synchronized void resetCounters() {
-        rx = tx = rxExpired = txExpired = rxPending = rxUnhandled = rxForwarded = 0;
-        lastTxn = 0l;
-    }
+	@SuppressWarnings("unused")
+	public String[] getReadyIndicatorNames() {
+		return ready;
+	}
 
-    public String getCountersAsString() {
-        StringBuffer sb = new StringBuffer();
-        append(sb, "tx=", tx);
-        append(sb, ", rx=", rx);
-        append(sb, ", tx_expired=", txExpired);
-        append(sb, ", tx_pending=", sp.size(out));
-        append(sb, ", rx_expired=", rxExpired);
-        append(sb, ", rx_pending=", rxPending);
-        append(sb, ", rx_unhandled=", rxUnhandled);
-        append(sb, ", rx_forwarded=", rxForwarded);
-        sb.append(", connected=");
-        sb.append(Boolean.toString(isConnected()));
-        sb.append(", last=");
-        sb.append(lastTxn);
-        if (lastTxn > 0) {
-            sb.append(", idle=");
-            sb.append(System.currentTimeMillis() - lastTxn);
-            sb.append("ms");
-        }
-        return sb.toString();
-    }
+	private void addListeners() throws ConfigurationException {
+		QFactory factory = getFactory();
+		Iterator iter = getPersist().getChildren("request-listener").iterator();
+		while (iter.hasNext()) {
+			Element l = (Element) iter.next();
+			ISORequestListener listener = (ISORequestListener) factory.newInstance(l.getAttributeValue("class"));
+			factory.setLogger(listener, l);
+			factory.setConfiguration(listener, l);
+			addISORequestListener(listener);
+		}
+	}
 
-    public int getTXCounter() {
-        return tx;
-    }
+	public void addISORequestListener(ISORequestListener l) {
+		listeners.add(l);
+	}
 
-    public int getRXCounter() {
-        return rx;
-    }
+	public boolean removeISORequestListener(ISORequestListener l) {
+		return listeners.remove(l);
+	}
 
-    public long getLastTxnTimestampInMillis() {
-        return lastTxn;
-    }
+	public synchronized void resetCounters() {
+		rx = tx = rxExpired = txExpired = rxPending = rxUnhandled = rxForwarded = 0;
+		lastTxn = 0l;
+	}
 
-    public long getIdleTimeInMillis() {
-        return lastTxn > 0L ? System.currentTimeMillis() - lastTxn : -1L;
-    }
+	public String getCountersAsString() {
+		StringBuffer sb = new StringBuffer();
+		append(sb, "tx=", tx);
+		append(sb, ", rx=", rx);
+		append(sb, ", tx_expired=", txExpired);
+		append(sb, ", tx_pending=", sp.size(out));
+		append(sb, ", rx_expired=", rxExpired);
+		append(sb, ", rx_pending=", rxPending);
+		append(sb, ", rx_unhandled=", rxUnhandled);
+		append(sb, ", rx_forwarded=", rxForwarded);
+		sb.append(", connected=");
+		sb.append(Boolean.toString(isConnected()));
+		sb.append(", last=");
+		sb.append(lastTxn);
+		if (lastTxn > 0) {
+			sb.append(", idle=");
+			sb.append(System.currentTimeMillis() - lastTxn);
+			sb.append("ms");
+		}
+		return sb.toString();
+	}
 
-    protected void processUnhandled(ISOMsg m) {
-        ISOSource source = m.getSource() != null ? m.getSource() : this;
-        Iterator iter = listeners.iterator();
-        if (iter.hasNext())
-            synchronized (this) {
-                rxForwarded++;
-            }
-        while (iter.hasNext())
-            if (((ISORequestListener) iter.next()).process(source, m))
-                return;
-        if (unhandled != null) {
-            synchronized (this) {
-                rxUnhandled++;
-            }
-            sp.out(unhandled, m, 120000);
-        }
-    }
+	public int getTXCounter() {
+		return tx;
+	}
 
-    private LocalSpace grabSpace(Element e) throws ConfigurationException {
-        String uri = e != null ? e.getText() : "";
-        Space sp = SpaceFactory.getSpace(uri);
-        if (sp instanceof LocalSpace) {
-            return (LocalSpace) sp;
-        }
-        throw new ConfigurationException("Invalid space " + uri);
-    }
+	public int getRXCounter() {
+		return rx;
+	}
 
-    /**
-     * sends (or hands back) an ISOMsg
-     * 
-     * @param m
-     *            the Message to be sent
-     * @throws java.io.IOException
-     * @throws org.jpos.iso.ISOException
-     * @throws org.jpos.iso.ISOFilter.VetoException
-     *             ;
-     */
-    public void send(ISOMsg m) throws IOException, ISOException {
-        if (!isConnected())
-            throw new ISOException("MUX is not connected");
-        sp.out(out, m);
-    }
+	public long getLastTxnTimestampInMillis() {
+		return lastTxn;
+	}
 
-    public boolean isConnected() {
-        if (running() && ready != null && ready.length > 0) {
-            for (String aReady : ready)
-                if (sp.rdp(aReady) != null)
-                    return true;
-            return false;
-        }
-        return running();
-    }
+	public long getIdleTimeInMillis() {
+		return lastTxn > 0L ? System.currentTimeMillis() - lastTxn : -1L;
+	}
 
-    public void dump(PrintStream p, String indent) {
-        p.println(indent + getCountersAsString());
-    }
+	protected void processUnhandled(ISOMsg m) {
+		ISOSource source = m.getSource() != null ? m.getSource() : this;
+		Iterator iter = listeners.iterator();
+		if (iter.hasNext())
+			synchronized (this) {
+				rxForwarded++;
+			}
+		while (iter.hasNext())
+			if (((ISORequestListener) iter.next()).process(source, m))
+				return;
+		if (unhandled != null) {
+			synchronized (this) {
+				rxUnhandled++;
+			}
+			sp.out(unhandled, m, 120000);
+		}
+	}
 
-    private String[] toStringArray(String s, String delimiter, String def) {
-        if (s == null)
-            s = def;
-        String[] arr = null;
-        if (s != null && s.length() > 0) {
-            StringTokenizer st;
-            if (delimiter != null)
-                st = new StringTokenizer(s, delimiter);
-            else
-                st = new StringTokenizer(s);
+	private LocalSpace grabSpace(Element e) throws ConfigurationException {
+		String uri = e != null ? e.getText() : "";
+		Space sp = SpaceFactory.getSpace(uri);
+		if (sp instanceof LocalSpace) {
+			return (LocalSpace) sp;
+		}
+		throw new ConfigurationException("Invalid space " + uri);
+	}
 
-            List<String> l = new ArrayList<String>();
-            while (st.hasMoreTokens()) {
-                String t = st.nextToken();
-                if ("header".equalsIgnoreCase(t)) {
-                    headerIsKey = true;
-                } else {
-                    l.add(t);
-                }
-            }
-            arr = l.toArray(new String[l.size()]);
-        }
-        return arr;
-    }
+	/**
+	 * sends (or hands back) an ISOMsg
+	 * 
+	 * @param m
+	 *            the Message to be sent
+	 * @throws java.io.IOException
+	 * @throws org.jpos.iso.ISOException
+	 * @throws org.jpos.iso.ISOFilter.VetoException
+	 *             ;
+	 */
+	public void send(ISOMsg m) throws IOException, ISOException {
+		if (!isConnected())
+			throw new ISOException("MUX is not connected");
+		sp.out(out, m);
+	}
 
-    private String[] toStringArray(String s) {
-        return toStringArray(s, null, null);
-    }
+	public boolean isConnected() {
+		if (running() && ready != null && ready.length > 0) {
+			for (String aReady : ready)
+				if (sp.rdp(aReady) != null)
+					return true;
+			return false;
+		}
+		return running();
+	}
 
-    private boolean shouldIgnore(ISOMsg m) {
-        if (m != null && ignorerc != null && ignorerc.length() > 0 && m.hasField(39)) {
-            return ignorerc.contains(m.getString(39));
-        }
-        return false;
-    }
+	public void dump(PrintStream p, String indent) {
+		p.println(indent + getCountersAsString());
+	}
 
-    private void append(StringBuffer sb, String name, int value) {
-        sb.append(name);
-        sb.append(value);
-    }
+	private String[] toStringArray(String s, String delimiter, String def) {
+		if (s == null)
+			s = def;
+		String[] arr = null;
+		if (s != null && s.length() > 0) {
+			StringTokenizer st;
+			if (delimiter != null)
+				st = new StringTokenizer(s, delimiter);
+			else
+				st = new StringTokenizer(s);
 
-    public static class AsyncRequest implements Runnable {
-        ISOResponseListener rl;
-        Object handBack;
-        ScheduledFuture future;
+			List<String> l = new ArrayList<String>();
+			while (st.hasMoreTokens()) {
+				String t = st.nextToken();
+				if ("header".equalsIgnoreCase(t)) {
+					headerIsKey = true;
+				} else {
+					l.add(t);
+				}
+			}
+			arr = l.toArray(new String[l.size()]);
+		}
+		return arr;
+	}
 
-        public AsyncRequest(ISOResponseListener rl, Object handBack) {
-            super();
-            this.rl = rl;
-            this.handBack = handBack;
-        }
+	private String[] toStringArray(String s) {
+		return toStringArray(s, null, null);
+	}
 
-        public void setFuture(ScheduledFuture future) {
-            this.future = future;
-        }
+	private boolean shouldIgnore(ISOMsg m) {
+		if (m != null && ignorerc != null && ignorerc.length() > 0 && m.hasField(39)) {
+			return ignorerc.contains(m.getString(39));
+		}
+		return false;
+	}
 
-        public void responseReceived(ISOMsg response) {
-            if (future == null || future.cancel(false))
-                rl.responseReceived(response, handBack);
-        }
+	private void append(StringBuffer sb, String name, int value) {
+		sb.append(name);
+		sb.append(value);
+	}
 
-        public void run() {
-            rl.expired(handBack);
-        }
-    }
+	public static class AsyncRequest implements Runnable {
+		ISOResponseListener rl;
+		Object handBack;
+		ScheduledFuture future;
+
+		public AsyncRequest(ISOResponseListener rl, Object handBack) {
+			super();
+			this.rl = rl;
+			this.handBack = handBack;
+		}
+
+		public void setFuture(ScheduledFuture future) {
+			this.future = future;
+		}
+
+		public void responseReceived(ISOMsg response) {
+			if (future == null || future.cancel(false))
+				rl.responseReceived(response, handBack);
+		}
+
+		public void run() {
+			rl.expired(handBack);
+		}
+	}
 }

@@ -25,8 +25,7 @@ public class AJChannel extends BaseChannel {
 		super(p);
 	}
 
-	public AJChannel(ISOPackager p, ServerSocket serverSocket)
-			throws IOException {
+	public AJChannel(ISOPackager p, ServerSocket serverSocket) throws IOException {
 		super(p, serverSocket);
 	}
 
@@ -60,38 +59,39 @@ public class AJChannel extends BaseChannel {
 
 	protected void sendMessageHeader(ISOMsg m, int len) throws IOException {
 		// AJ Channel does not support header
-	}	
-	
+	}
+
 	/**
-     * sends a byte[] over the TCP/IP session
-     * @param b the byte array to be sent
-     * @exception IOException
-     * @exception ISOException
-     * @exception ISOFilter.VetoException;
-     */
-    public void send (ISOMsg m) 
-        throws IOException, ISOException
-    {
-        LogEvent evt = new LogEvent (this, "send");
-        try {
-            if (!isConnected())
-                throw new ISOException ("unconnected ISOChannel");
-            byte[] b = createMessageAJ(m);
-            synchronized (serverOutLock) {
-                serverOut.write(b);
-                serverOut.flush();
-            }
-            cnt[TX]++;
-            setChanged();
-        } catch (Exception e) {
-            evt.addMessage (e);
-            throw new ISOException ("unexpected exception", e);
-        } finally {
-            Logger.log (evt);
-        }
-    }    
-    
-    private byte[] concat(byte[] array1, byte[] array2) {
+	 * sends a byte[] over the TCP/IP session
+	 * 
+	 * @param b
+	 *            the byte array to be sent
+	 * @exception IOException
+	 * @exception ISOException
+	 * @exception ISOFilter.VetoException
+	 *                ;
+	 */
+	public void send(ISOMsg m) throws IOException, ISOException {
+		LogEvent evt = new LogEvent(this, "send");
+		try {
+			if (!isConnected())
+				throw new ISOException("unconnected ISOChannel");
+			byte[] b = createMessageAJ(m);
+			synchronized (serverOutLock) {
+				serverOut.write(b);
+				serverOut.flush();
+			}
+			cnt[TX]++;
+			setChanged();
+		} catch (Exception e) {
+			evt.addMessage(e);
+			throw new ISOException("unexpected exception", e);
+		} finally {
+			Logger.log(evt);
+		}
+	}
+
+	private byte[] concat(byte[] array1, byte[] array2) {
 		byte[] result = new byte[array1.length + array2.length];
 
 		for (int i = 0; i < array1.length; i++) {
@@ -103,8 +103,8 @@ public class AJChannel extends BaseChannel {
 		}
 		return result;
 	}
-    
-    private byte[] createMessageAJ(ISOMsg msg) throws ISOException {
+
+	private byte[] createMessageAJ(ISOMsg msg) throws ISOException {
 		byte[] messageBody = msg.pack();
 
 		short messageLength = (short) messageBody.length;

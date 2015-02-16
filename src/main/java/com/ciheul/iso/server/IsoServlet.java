@@ -19,280 +19,224 @@ import org.jpos.util.NameRegistrar.NotFoundException;
 @Path("/api")
 public class IsoServlet {
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(IsoServlet.class);
-    ChannelManager channelManager = null;
-//    ChannelManager channelManager = ChannelManager.getInstance();
+	ChannelManager channelManager = null;
 
-    public IsoServlet() {
-        channelManager = ChannelManager.getInstance();
-        try {
-            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
-        } catch (NotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    @POST
-    @Path("/send")
-    @Produces(MediaType.APPLICATION_JSON)
-    public IsoMessageResponse send(IsoMessageRequest msg){     
-    	logger.info("incoming from PGW :"+msg);
-        String responseMsg = "";
-        ISOMsg resp = null;
-        
-        System.out.println("request:" + msg.getMessage());
-        
-        String[] isoMsgSplit = msg.getMessage().split("#");
-        
-//        channelConnection();
-        
-        String isoMsgSend = msg.getMessage();
-        
-        // String isoMsgSend = msg.getMessage().substring(5,
-        // msg.getMessage().length());
-        
-        switch (isoMsgSplit[0]) {
-        case "0800":
-            try {
-                resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
-                logger.info("response : ");
-                ChannelManager.logISOMsg(resp);
-                if (resp != null) {
-                    responseMsg = resp.getValue(39).toString();
-                } 
-//                channelManager.getLog().info("Handshake sent! ");
-            } catch (ISOException e) {
-            	responseMsg = e.getMessage();
-                e.printStackTrace();
-            } catch (Exception e) {
-            	responseMsg = e.getMessage();
-                e.printStackTrace();
-            }
-            break;
+	public IsoServlet() {
+		channelManager = ChannelManager.getInstance();
+		try {
+			channelManager = ((ChannelManager) NameRegistrar.get("manager"));
+		} catch (NotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
-        case "0810":
-            try {
-                resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
-                logger.info("response : ");
-                ChannelManager.logISOMsg(resp);
-                if (resp != null) {
-                    responseMsg = resp.getValue(39).toString();
-                }
-//                channelManager.getLog().info("Handshake sent! ");
-            } catch (ISOException e) {
-            	responseMsg = e.getMessage();
-                e.printStackTrace();
-            } catch (Exception e) {
-            	responseMsg = e.getMessage();
-                e.printStackTrace();
-            }
-            break;
-
-        case "0200":
-            try {
-                resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
-                logger.info("response : ");
-                ChannelManager.logISOMsg(resp);
-//                System.out.println("sent");
-//                System.out.println("Loggernya = "+channelManager.getLogger());
-//                System.out.println("********** DEBUG");
-//                ChannelManager.logISOMsg(resp);
-                System.out.println("39: " + resp.getValue(39).toString().equals("68"));
-                if (resp != null && !resp.getValue(39).toString().equals("68")) {
-                    responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
-                            + resp.getValue(48);
-                    logger.info("response : "+responseMsg);
-                    if (resp.getValue(39).toString().equals("68")) {
-						
-					}
-                } else {
-                	responseMsg = "TIMEOUT";
-                	logger.info("REQUEST TIMEOUT");
+	@POST
+	@Path("/send")
+	@Produces(MediaType.APPLICATION_JSON)
+	public IsoMessageResponse send(IsoMessageRequest msg) {
+		logger.info("incoming from PGW :" + msg);
+		String responseMsg = "";
+		ISOMsg resp = null;
+		String[] isoMsgSplit = msg.getMessage().split("#");
+		String isoMsgSend = msg.getMessage();
+		
+		switch (isoMsgSplit[0]) {
+		//Send MTI 0800
+		case "0800":
+			try {
+				resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
+				logger.info("response : ");
+				ChannelManager.logISOMsg(resp);
+				if (resp != null) {
+					responseMsg = resp.getValue(39).toString();
 				}
-//                channelManager.getLog().info("Handshake sent! ");
-            } catch (ISOException e) {
-            	responseMsg = e.getMessage();
-            	logger.error(responseMsg);
-//                e.printStackTrace();
-            } catch (Exception e) {
-            	responseMsg = e.getMessage();
-            	logger.error(responseMsg);
-//                e.printStackTrace();
-            }
-            break;
+			} catch (ISOException e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			} catch (Exception e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			}
+			break;
 
-        case "0210":
-            System.out.println("masuk sini jugaa");
-            break;
+		//Send MTI 0810
+		case "0810":
+			try {
+				resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
+				logger.info("response : ");
+				ChannelManager.logISOMsg(resp);
+				if (resp != null) {
+					responseMsg = resp.getValue(39).toString();
+				}
+			} catch (ISOException e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			} catch (Exception e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			}
+			break;
 
-        case "0400":
-            try {
-                resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
-                logger.info("response : ");
-                ChannelManager.logISOMsg(resp);
-                if (resp != null && !resp.getValue(39).toString().equals("68")) {
-                    responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
-                            + resp.getValue(48);
-                    logger.info("response : "+responseMsg);
-                }else{
-                	responseMsg = "TIMEOUT";
-                	logger.info("REQUEST TIMEOUT");
-                }
-//                channelManager.getLog().info("Handshake sent! ");
-            } catch (ISOException e) {
-            	responseMsg = e.getMessage();
-            	logger.error(responseMsg);
-//                e.printStackTrace();
-            } catch (Exception e) {
-            	responseMsg = e.getMessage();
-            	logger.error(responseMsg);
-//                e.printStackTrace();
-            }
-            break;
+		//Send MTI 0200
+		case "0200":
+			try {
+				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
+				logger.info("response : ");
+				ChannelManager.logISOMsg(resp);
+				if (resp != null && !resp.getValue(39).toString().equals("68")) {
+					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
+							+ resp.getValue(48);
+					logger.info("response : " + responseMsg);
+				} else {
+					responseMsg = "TIMEOUT";
+					logger.info("REQUEST TIMEOUT");
+				}
+			} catch (ISOException e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			} catch (Exception e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			}
+			break;
 
-        case "0410":
-            System.out.println("sini juga masuk");
-            break;
+		//Send MTI 0210
+		case "0210":
+			break;
 
-        default:
-            System.out.println("not found");
-            break;
-        }
-        IsoMessageResponse response = new IsoMessageResponse();
-        response.setMessage(responseMsg);
-        logger.info("response for PGW :" + response.getMessage());
-        System.out.println("response: " + response.getMessage());
-        return response;
-    }
+		//Send MTI 0400
+		case "0400":
+			try {
+				resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
+				logger.info("response : ");
+				ChannelManager.logISOMsg(resp);
+				if (resp != null && !resp.getValue(39).toString().equals("68")) {
+					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
+							+ resp.getValue(48);
+					logger.info("response : " + responseMsg);
+				} else {
+					responseMsg = "TIMEOUT";
+					logger.info("REQUEST TIMEOUT");
+				}
+			} catch (ISOException e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			} catch (Exception e) {
+				responseMsg = e.getMessage();
+				logger.error(responseMsg);
+			}
+			break;
 
-    private ISOMsg createHandshakeISOMsg(String isoMsgSend) throws ISOException {
-        String[] isoMsgSplit = isoMsgSend.split("#");
-        ISOMsg m = new ISOMsg();
-        m.setMTI(isoMsgSplit[0]);
-        m.set(7, isoMsgSplit[1]);
-        m.set(11, isoMsgSplit[2]);
-        m.set(70, isoMsgSplit[3]);
-        m.setPackager(new ISO87APackager());
-        ChannelManager.logISOMsg(m);
-        return m;
-    }
+		//Send MTI 0410
+		case "0410":
+			break;
 
-    private ISOMsg createHandshakeISOMsg2(String isoMsgSend) throws ISOException {
-        String[] isoMsgSplit = isoMsgSend.split("#");
-        ISOMsg m = new ISOMsg();
-        m.setMTI(isoMsgSplit[0]);
-        m.set(7, isoMsgSplit[1]);
-        m.set(11, isoMsgSplit[2]);
-        m.set(39, isoMsgSplit[3]);
-        m.set(70, isoMsgSplit[4]);
-        m.setPackager(new ISO87APackager());
-        ChannelManager.logISOMsg(m);
-        return m;
-    }
+		default:
+			break;
+		}
+		IsoMessageResponse response = new IsoMessageResponse();
+		response.setMessage(responseMsg);
+		logger.info("response for PGW :" + response.getMessage());
+		return response;
+	}
 
-    private ISOMsg createSendReversalISOMsg(String isoMsgSend) throws ISOException {
-        String[] isoMsgSplit = isoMsgSend.split("#");
-        ISOMsg m = new ISOMsg();
-        m.setMTI(isoMsgSplit[0]);
-        m.set(2, isoMsgSplit[1]);
-        m.set(3, isoMsgSplit[2]);
-        m.set(4, isoMsgSplit[3]);
-        m.set(7, isoMsgSplit[4]);
-        m.set(11, isoMsgSplit[5]);
-        m.set(12, isoMsgSplit[6]);
-        m.set(13, isoMsgSplit[7]);
-        m.set(15, isoMsgSplit[8]);
-        m.set(18, isoMsgSplit[9]);
-        m.set(32, isoMsgSplit[10]);
-        m.set(37, isoMsgSplit[11]);
-        m.set(42, isoMsgSplit[12]);
-        m.set(43, isoMsgSplit[13]);
-        m.set(48, isoMsgSplit[14]);
-        m.set(49, isoMsgSplit[15]);
-        m.set(63, isoMsgSplit[16]);
-        m.set(90, "0200" + isoMsgSplit[5] + isoMsgSplit[4] + isoMsgSplit[10] + "00000");
-        m.setPackager(new ISO87APackager());
-        ChannelManager.logISOMsg(m);
-        return m;
-    }
-    private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
-        String[] isoMsgSplit = isoMsgSend.split("#");
-        ISOMsg m = new ISOMsg();
-        m.setMTI(isoMsgSplit[0]);
-        m.set(2, isoMsgSplit[1]);
-        m.set(3, isoMsgSplit[2]);
-        m.set(4, isoMsgSplit[3]);
-        m.set(7, isoMsgSplit[4]);
-        m.set(11, isoMsgSplit[5]);
-        m.set(12, isoMsgSplit[6]);
-        m.set(13, isoMsgSplit[7]);
-        m.set(15, isoMsgSplit[8]);
-        m.set(18, isoMsgSplit[9]);
-        m.set(32, isoMsgSplit[10]);
-        m.set(37, isoMsgSplit[11]);
-        m.set(42, isoMsgSplit[12]);
-        m.set(43, isoMsgSplit[13]);
-        m.set(48, isoMsgSplit[14]);
-        m.set(49, isoMsgSplit[15]);
-        m.set(63, isoMsgSplit[16]);
-        m.setPackager(new ISO87APackager());
-        ChannelManager.logISOMsg(m);
-        return m;
-    }
+	/**
+	 * Setting Iso Message for sending to Artajasa
+	 * Request from PGW when sending 0800 message
+	 */
+	private ISOMsg createHandshakeISOMsg(String isoMsgSend) throws ISOException {
+		String[] isoMsgSplit = isoMsgSend.split("#");
+		ISOMsg m = new ISOMsg();
+		m.setMTI(isoMsgSplit[0]);
+		m.set(7, isoMsgSplit[1]);
+		m.set(11, isoMsgSplit[2]);
+		m.set(70, isoMsgSplit[3]);
+		m.setPackager(new ISO87APackager());
+		
+		ChannelManager.logISOMsg(m);
+		return m;
+	}
 
-    private void channelConnection() {
-//        try {
-//            channelManager = ((ChannelManager) NameRegistrar.get("manager"));
-//        } catch (NameRegistrar.NotFoundException e) {
-//            LogEvent evt = channelManager.getLog().createError();
-//            evt.addMessage(e);
-//            evt.addMessage(NameRegistrar.getInstance());
-//            Logger.log(evt);
-//        } catch (Throwable t) {
-//            channelManager.getLog().error(t);
-//        }
-    }
-    // @POST
-    // @Path("/send")
-    // @Produces(MediaType.TEXT_PLAIN)
-    // public IsoMessageResponse send2(IsoMessageRequest msg) {
-    // IsoMessageResponse response = new IsoMessageResponse();
-    // response.setMessage("ciheul");
-    // System.out.println(response.toString());
-    // return response;
-    // }
-    //
-    // @POST
-    // @Path("/send")
-    // @Produces(MediaType.TEXT_HTML)
-    // public IsoMessageResponse send3(IsoMessageRequest msg) {
-    // IsoMessageResponse response = new IsoMessageResponse();
-    // response.setMessage("ciheul");
-    // System.out.println(response.toString());
-    // return response;
-    // }
+	/**
+	 * Setting Iso Message for sending to Artajasa
+	 * Request from PGW when sending 0810 message
+	 */
+	private ISOMsg createHandshakeISOMsg2(String isoMsgSend) throws ISOException {
+		String[] isoMsgSplit = isoMsgSend.split("#");
+		ISOMsg m = new ISOMsg();
+		m.setMTI(isoMsgSplit[0]);
+		m.set(7, isoMsgSplit[1]);
+		m.set(11, isoMsgSplit[2]);
+		m.set(39, isoMsgSplit[3]);
+		m.set(70, isoMsgSplit[4]);
+		m.setPackager(new ISO87APackager());
+		
+		ChannelManager.logISOMsg(m);
+		return m;
+	}
 
-    // @GET
-    // @Path("/send")
-    // @Produces(MediaType.APPLICATION_JSON)
-    // public IsoMessageResponse sayHello() {
-    // IsoMessageResponse response = new IsoMessageResponse();
-    // response.setMessage("ciheul");
-    // System.out.println("ciheeeeul!");
-    // return response;
-    // }
-    //
-    // @GET
-    // @Produces(MediaType.TEXT_PLAIN)
-    // public String sayPlainTextHello() {
-    // return "Hello Jersey";
-    // }
-    //
-    // @GET
-    // @Produces(MediaType.TEXT_HTML)
-    // public String sayHtmlHello() {
-    // return "<html> " + "<title>" + "Hello Jersey" + "</title>" + "<body><h1>"
-    // + "Hello Jersey" + "</body></h1>"
-    // + "</html> ";
-    // }
+	/**
+	 * Setting Iso Message for sending to Artajasa
+	 * Request from PGW when sending 0400 message
+	 */
+	private ISOMsg createSendReversalISOMsg(String isoMsgSend) throws ISOException {
+		String[] isoMsgSplit = isoMsgSend.split("#");
+		ISOMsg m = new ISOMsg();
+		m.setMTI(isoMsgSplit[0]);
+		m.set(2, isoMsgSplit[1]);
+		m.set(3, isoMsgSplit[2]);
+		m.set(4, isoMsgSplit[3]);
+		m.set(7, isoMsgSplit[4]);
+		m.set(11, isoMsgSplit[5]);
+		m.set(12, isoMsgSplit[6]);
+		m.set(13, isoMsgSplit[7]);
+		m.set(15, isoMsgSplit[8]);
+		m.set(18, isoMsgSplit[9]);
+		m.set(32, isoMsgSplit[10]);
+		m.set(37, isoMsgSplit[11]);
+		m.set(42, isoMsgSplit[12]);
+		m.set(43, isoMsgSplit[13]);
+		m.set(48, isoMsgSplit[14]);
+		m.set(49, isoMsgSplit[15]);
+		m.set(63, isoMsgSplit[16]);
+		m.set(90, "0200" + isoMsgSplit[5] + isoMsgSplit[4] + isoMsgSplit[10] + "00000");
+		m.setPackager(new ISO87APackager());
+		
+		ChannelManager.logISOMsg(m);
+		return m;
+	}
 
+	/**
+	 * Setting Iso Message for sending to Artajasa
+	 * Request from PGW when sending 0200 message
+	 * Request for inquiry and payment
+	 */
+	private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
+		String[] isoMsgSplit = isoMsgSend.split("#");
+		ISOMsg m = new ISOMsg();
+		m.setMTI(isoMsgSplit[0]);
+		m.set(2, isoMsgSplit[1]);
+		m.set(3, isoMsgSplit[2]);
+		m.set(4, isoMsgSplit[3]);
+		m.set(7, isoMsgSplit[4]);
+		m.set(11, isoMsgSplit[5]);
+		m.set(12, isoMsgSplit[6]);
+		m.set(13, isoMsgSplit[7]);
+		m.set(15, isoMsgSplit[8]);
+		m.set(18, isoMsgSplit[9]);
+		m.set(32, isoMsgSplit[10]);
+		m.set(37, isoMsgSplit[11]);
+		m.set(42, isoMsgSplit[12]);
+		m.set(43, isoMsgSplit[13]);
+		m.set(48, isoMsgSplit[14]);
+		m.set(49, isoMsgSplit[15]);
+		m.set(63, isoMsgSplit[16]);
+		m.setPackager(new ISO87APackager());
+		
+		ChannelManager.logISOMsg(m);
+		return m;
+	}
+
+	private void channelConnection() {
+	}
 }

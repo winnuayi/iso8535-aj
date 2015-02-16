@@ -5,7 +5,6 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-
 import org.apache.log4j.Logger;
 //import org.apache.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.ConnectionPool;
@@ -15,11 +14,10 @@ public class DBConnection {
 
 	private static DBConnection _dbSingleton = null;
 	private static ConnectionPool _pool = null;
-	
+
 	private boolean _flag = true;
-	
+
 	private static final Logger logger = Logger.getLogger(DBConnection.class);
-	
 
 	/** A private Constructor prevents any other class from instantiating. */
 	private DBConnection() {
@@ -38,7 +36,7 @@ public class DBConnection {
 			driver = (Driver) c.newInstance();
 		} catch (InstantiationException e1) {
 			logger.error("Failed to process DB Connection instance initiation : " + e1.getMessage());
-//			_flag = false;
+			// _flag = false;
 			e1.printStackTrace();
 		} catch (IllegalAccessException e1) {
 			logger.error("Failed to process DB Connection instance initiation : " + e1.getMessage());
@@ -58,12 +56,11 @@ public class DBConnection {
 
 			String hostname = Context.DB_HOSTNAME;
 			String dbName = Context.DB_NAME;
-			StringBuilder connectionUrl = new StringBuilder(
-					Context.DB_URL);
+			StringBuilder connectionUrl = new StringBuilder(Context.DB_URL);
 			connectionUrl.append(hostname);
 			connectionUrl.append("/").append(dbName);
 			poolProperties.setUrl(connectionUrl.toString());
-			
+
 			poolProperties.setDriverClassName(Context.DB_DRIVER);
 			poolProperties.setUsername(Context.DB_USERNAME);
 			poolProperties.setPassword(Context.DB_PASSWORD);
@@ -82,9 +79,8 @@ public class DBConnection {
 			poolProperties.setMinIdle(Context.DB_MIN_IDLE);
 			poolProperties.setLogAbandoned(Context.DB_LOG_ABANDONED);
 			poolProperties.setRemoveAbandoned(Context.DB_REMOVE_ABANDONED);
-			poolProperties
-					.setJdbcInterceptors("org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
-							+ "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
+			poolProperties.setJdbcInterceptors("org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
+					+ "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
 			try {
 				_pool = new ConnectionPool(poolProperties);
 				logger.debug("Database Connection Pool created");
@@ -119,5 +115,5 @@ public class DBConnection {
 	public boolean getConnectionStatus() {
 		return _flag;
 	}
-	
+
 }

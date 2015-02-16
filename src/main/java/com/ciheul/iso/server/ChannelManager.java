@@ -26,7 +26,7 @@ import com.ciheul.iso.AJMUX;
 
 public class ChannelManager extends QBeanSupport implements SpaceListener {
 	private static final Logger logger = Logger.getLogger(ChannelManager.class);
-	
+
 	private static ChannelManager _cMSingleTon = null;
 	private long MAX_TIME_OUT;
 	private AJMUX mux;
@@ -37,21 +37,17 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 	private RedisConnection r = RedisConnection.getInstance();
 
 	public static void logISOMsg(ISOMsg msg) {
-//		System.out.println("----ISO MESSAGE-----");
 		logger.info("----ISO MESSAGE-----");
 		try {
-//			System.out.println("  MTI : " + msg.getMTI());
 			logger.info("  MTI : " + msg.getMTI());
 			for (int i = 1; i <= msg.getMaxField(); i++) {
 				if (msg.hasField(i)) {
-//					System.out.println("    Field-" + i + " : " + msg.getString(i));
 					logger.info("    Field-" + i + " : " + msg.getString(i));
 				}
 			}
 		} catch (ISOException e) {
 			e.printStackTrace();
 		} finally {
-//			System.out.println("--------------------");
 			logger.info("--------------------");
 		}
 	}
@@ -112,7 +108,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				tambah = 1;
 				String[] reversalMsg = reversalMessage[i].split("#");
 				jumlah = jumlah + reversalMsg.length;
-				
+
 				while (jumlah < 8) {
 					revelsalMsgStr += "," + reversalMessage[i + tambah];
 					reversalMsg = reversalMessage[i + tambah].split("#");
@@ -161,9 +157,9 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 						logger.info("request : " + new String(messageBody));
 						count = count + 1;
 						if (reply != null) {
-							
+
 							if (reply.getValue(39).equals("00")) {
-								logger.info("Link up response: "+reply.pack());
+								logger.info("Link up response: " + reply.pack());
 								replyStr = "success";
 							} else {
 								reply = sendMsg(msg);
@@ -172,23 +168,23 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 							System.out.println("masuk sini");
 							reply = sendMsg(msg);
 						}
-						if (count==4) {
+						if (count == 4) {
 
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
-							}else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
+							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
 							}
 						}
 					}
-					
+
 					if (reply != null) {
-						
+
 						if (reply.getValue(39).equals("00")) {
 
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
-							}else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
+							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
 							}
 						}

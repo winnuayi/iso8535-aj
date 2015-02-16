@@ -1,7 +1,5 @@
 package com.ciheul.database;
 
-//import org.apache.log4j.Logger;
-
 import org.apache.log4j.Logger;
 
 import redis.clients.jedis.Jedis;
@@ -19,24 +17,18 @@ public class RedisConnection {
 	private RedisConnection() {
 		logger.debug("Begin to create Jedis Pool Configuration");
 		JedisPoolConfig poolConfig = new JedisPoolConfig();
-		poolConfig
-				.setBlockWhenExhausted(poolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED);
+		poolConfig.setBlockWhenExhausted(poolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED);
 		poolConfig.setJmxEnabled(poolConfig.DEFAULT_JMX_ENABLE);
 		poolConfig.setMaxIdle(poolConfig.DEFAULT_MAX_IDLE);
 		poolConfig.setMaxTotal(poolConfig.DEFAULT_MAX_TOTAL);
 		poolConfig.setMaxWaitMillis(poolConfig.DEFAULT_MAX_WAIT_MILLIS);
-		poolConfig
-				.setMinEvictableIdleTimeMillis(poolConfig.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
+		poolConfig.setMinEvictableIdleTimeMillis(poolConfig.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
 		poolConfig.setMinIdle(poolConfig.DEFAULT_MIN_IDLE);
-		poolConfig
-				.setNumTestsPerEvictionRun(poolConfig.DEFAULT_NUM_TESTS_PER_EVICTION_RUN);
-		poolConfig
-				.setSoftMinEvictableIdleTimeMillis(poolConfig.DEFAULT_SOFT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
-		poolConfig
-				.setTimeBetweenEvictionRunsMillis(poolConfig.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS);
+		poolConfig.setNumTestsPerEvictionRun(poolConfig.DEFAULT_NUM_TESTS_PER_EVICTION_RUN);
+		poolConfig.setSoftMinEvictableIdleTimeMillis(poolConfig.DEFAULT_SOFT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
+		poolConfig.setTimeBetweenEvictionRunsMillis(poolConfig.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS);
 
-		_pool = new JedisPool(poolConfig, Context.REDIS_HOST,
-				Context.REDIS_PORT);
+		_pool = new JedisPool(poolConfig, Context.REDIS_HOST, Context.REDIS_PORT);
 		if (_pool != null) {
 			logger.debug("Succes to create Jedis Pool");
 		} else {
