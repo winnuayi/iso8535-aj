@@ -51,7 +51,7 @@ public class ClientRequestListener implements ISORequestListener {
 				
 			} else if (m.getMTI().equals("0410")) {
 
-			} else if (Integer.parseInt(m.getValue(4).toString()) > 0) {
+			} else if (Long.parseLong(m.getValue(4).toString()) > 0) {
 
 				if (m.getMTI().equals("0210")) {
 					if (m.getValue(48).toString().substring(0, 4).equals("2111")) {

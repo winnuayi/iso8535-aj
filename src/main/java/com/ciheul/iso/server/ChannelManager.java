@@ -235,7 +235,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		if (mux.isConnected() == false) {
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "404");
-			if (Integer.parseInt(m.getValue(4).toString()) > 0
+			if (Long.parseLong(m.getValue(4).toString()) > 0
 					&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 				sendLinkUp(m);
 			}
