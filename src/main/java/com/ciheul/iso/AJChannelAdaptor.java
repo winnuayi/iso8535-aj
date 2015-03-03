@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.SocketTimeoutException;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.jdom.Element;
 import org.jpos.core.ConfigurationException;
@@ -45,6 +47,8 @@ import org.jpos.space.SpaceUtil;
 import org.jpos.util.LogSource;
 import org.jpos.util.Loggeable;
 import org.jpos.util.NameRegistrar;
+
+import com.ciheul.database.DatabaseManager;
 
 /**
  * @author Alejandro Revilla
@@ -391,6 +395,7 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 			try {
 				channel.connect();
 			} catch (IOException e) {
+				DatabaseManager.setIsConnected("false");
 				getLog().warn("check-connection", e.getMessage());
 			}
 			if (!channel.isConnected())

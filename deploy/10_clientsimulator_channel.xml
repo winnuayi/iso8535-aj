@@ -19,7 +19,7 @@
  		<!-- <property name="host" value="118.97.191.109" /> -->
 		<property name="host" value="127.0.0.1" />
 		<property name="port" value="2231" />
-		<property name="timeout" value="330000" />
+		<property name="timeout" value="86400000" />
 		<property name="keep-alive" value="true" />
 	</channel>
 	<in>jpos-client-send</in>

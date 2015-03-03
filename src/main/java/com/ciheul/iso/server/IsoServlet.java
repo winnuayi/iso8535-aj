@@ -83,13 +83,32 @@ public class IsoServlet {
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
 				logger.info("response : ");
 				ChannelManager.logISOMsg(resp);
-				if (resp != null && !resp.getValue(39).toString().equals("68")) {
+				if (resp != null && !resp.getValue(39).toString().equals("68")
+						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000")) 
+						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000"))) {
 					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
 							+ resp.getValue(48);
 					logger.info("response : " + responseMsg);
 				} else {
-					responseMsg = "TIMEOUT";
-					logger.info("REQUEST TIMEOUT");
+					if (resp != null) {
+						switch (resp.getValue(39).toString()) {
+						case "68":
+							responseMsg = "TIMEOUT";
+							logger.info("REQUEST TIMEOUT");
+							break;
+						case "13":
+							responseMsg = "TIMEOUT13";
+							logger.info("REQUEST TIMEOUT");
+							break;
+						case "63":
+							responseMsg = "TIMEOUT63";
+							logger.info("REQUEST TIMEOUT");
+							break;
+
+						default:
+							break;
+						}
+					}
 				}
 			} catch (ISOException e) {
 				responseMsg = e.getMessage();
@@ -228,7 +247,7 @@ public class IsoServlet {
 		m.set(37, isoMsgSplit[11]);
 		m.set(42, isoMsgSplit[12]);
 		m.set(43, isoMsgSplit[13]);
-		m.set(48, isoMsgSplit[14]);
+		m.set(48, isoMsgSplit[14].replace("\\", ""));
 		m.set(49, isoMsgSplit[15]);
 		m.set(63, isoMsgSplit[16]);
 		m.setPackager(new ISO87APackager());

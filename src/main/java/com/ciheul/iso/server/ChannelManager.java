@@ -33,6 +33,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 	private LocalSpace sp;
 	private String in;
 	private String out;
+	IsoEchoTest echoTest = new IsoEchoTest();
 
 	private RedisConnection r = RedisConnection.getInstance();
 
@@ -51,7 +52,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			logger.info("--------------------");
 		}
 	}
-
+ 
 	@Override
 	protected void initService() throws ISOException {
 		logger.info("initializing ChannelManager Service");
@@ -71,18 +72,56 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		}
 	}
 
+	private void sendEchoTest(){
+		String stanId = "000001";
+		Map<String, String> date = getDate();
+		ISOMsg reply = null;
+		try {
+
+			ISOMsg msg = new ISOMsg();
+
+			msg.setMTI("0800");
+			System.out.println();
+			msg.set(7, date.get("bit7"));
+			msg.set(11, stanId);
+			msg.set(70, "301");
+			msg.setPackager(new ISO87APackager());
+
+			byte[] messageBody = msg.pack();
+			System.out.println("request : " + new String(messageBody));
+			logISOMsg(msg);
+			try {
+				sendMsg(msg);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("kirim echo test 2");
+		} catch (ISOException e) {
+			
+			logger.error(e.getMessage());
+		}
+	}
+	
 	protected void startService() throws ISOException {
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			public void run() {
-				// do your work
-				System.out.println(mux.isConnected());
-				Map<String, String> reversal = DatabaseManager.getReversal();
-				if (mux.isConnected() && !reversal.toString().equals("{}")) {
-					sendLinkUp(reversal);
+				if (mux.isConnected()) {
+		        	 sendEchoTest();
 				}
 			}
-		}, 0, Context.LINK_UP_THREAD_TIME);
+		}, 0, Context.ECHO_TEST_TIME);
+//		Timer timer = new Timer();
+//		timer.schedule(new TimerTask() {
+//			public void run() {
+//				// do your work
+//				System.out.println(mux.isConnected());
+//				Map<String, String> reversal = DatabaseManager.getReversal();
+//				if (mux.isConnected() && !reversal.toString().equals("{}")) {
+//					sendLinkUp(reversal);
+//				}
+//			}
+//		}, 0, Context.LINK_UP_THREAD_TIME);
 	}
 
 	/**
@@ -233,6 +272,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		// if connection is not established, LINK DOWN
 		if (mux.isConnected() == false) {
+			System.out.println("link down 1");
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "404");
 			if (Long.parseLong(m.getValue(4).toString()) > 0
@@ -251,12 +291,16 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		// Object obj = sp.in(in, timeout);
 
 		// success to receive response message from server
+		System.out.println("object : "+obj);
+		System.out.println("message : "+m);
+		System.out.println(timeout);
 		if (obj instanceof ISOMsg) {
 			resp = (ISOMsg) obj;
 			DatabaseManager.deleteStan(m.getValue(11).toString());
 			logISOMsg(resp);
 			// LINK DOWN
 			if (resp.getValue(39).toString().equals("404")) {
+				System.out.println("link down 2");
 
 				if (Long.parseLong(m.getValue(4).toString()) > 0
 						&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {

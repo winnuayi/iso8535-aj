@@ -22,6 +22,75 @@ public class DatabaseManager {
 	private static final Logger logger = Logger.getLogger(DatabaseManager.class);
 
 	/**
+	 * Set is Connected
+	 * 
+	 * @return isConnected
+	 */
+	public static void setIsConnected(String status) {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		long result = (long) 0;
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.get(Context.IS_CONNECTED_PLN))) {
+
+				logger.debug("IS_CONNECTED is not listed on Redis yet. Begin to initiate Is Connected.");
+
+				String isConnected = "";
+				jedis.set(Context.IS_CONNECTED_PLN, isConnected);
+
+			} else {
+
+				jedis.set(Context.IS_CONNECTED_PLN, status);
+			}
+
+		} catch (JedisConnectionException jce) {
+			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+	}
+
+	/**
+	 * Get is Connected
+	 * 
+	 * @return isConnected
+	 */
+	public static String getIsConnected() {
+		Jedis jedis = null;
+		RedisConnection rc = null;
+		String result = "";
+		try {
+			rc = RedisConnection.getInstance();
+			jedis = rc.getConnection();
+
+			if ((null == jedis.get(Context.IS_CONNECTED_PLN))) {
+
+				logger.debug("IS_CONNECTED is not listed on Redis yet. Begin to initiate Is Connected.");
+
+				String isConnected = "";
+				jedis.set(Context.IS_CONNECTED_PLN, isConnected);
+
+			}
+			result = jedis.get(Context.IS_CONNECTED_PLN);
+
+		} catch (JedisConnectionException jce) {
+			logger.error("Error on redis connection : " + jce.getMessage());
+			rc.closeBrokenConnection(jedis);
+		} catch (Exception e) {
+			logger.error("Error on redis connection : " + e.getMessage());
+		} finally {
+			rc.closeConnection(jedis);
+		}
+		return result;
+	}
+
+	/**
 	 * Set Reversal
 	 * 
 	 * @return reversalMessage
