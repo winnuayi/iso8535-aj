@@ -2,7 +2,7 @@ package com.ciheul.database;
 
 public class Context {
 
-	public static final int LINK_UP_THREAD_TIME = 60000;
+	public static final int LINK_UP_THREAD_TIME = 10000;
 	public static final int ECHO_TEST_TIME = 30000;
 	public static final int PENDING_STATUS = 2;
 	public static final int SUCCESS_STATUS = 3;

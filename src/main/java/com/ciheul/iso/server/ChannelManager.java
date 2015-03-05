@@ -111,17 +111,19 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				}
 			}
 		}, 0, Context.ECHO_TEST_TIME);
-//		Timer timer = new Timer();
-//		timer.schedule(new TimerTask() {
-//			public void run() {
-//				// do your work
-//				System.out.println(mux.isConnected());
-//				Map<String, String> reversal = DatabaseManager.getReversal();
-//				if (mux.isConnected() && !reversal.toString().equals("{}")) {
-//					sendLinkUp(reversal);
-//				}
-//			}
-//		}, 0, Context.LINK_UP_THREAD_TIME);
+		Timer timer2 = new Timer();
+		timer2.schedule(new TimerTask() {
+			public void run() {
+				// do your work
+				System.out.println(mux.isConnected());
+				Map<String, String> reversal = DatabaseManager.getReversal();
+				if (mux.isConnected() && !reversal.toString().equals("{}") && DatabaseManager.getIsConnected().equals("true")) {
+					sendLinkUp(reversal);
+				}else{
+					System.out.println("ga connect");
+				}
+			}
+		}, 0, Context.LINK_UP_THREAD_TIME);
 	}
 
 	/**
