@@ -50,7 +50,7 @@ public class ClientRequestListener implements ISORequestListener {
 					sendSignOnRequest(source, m);	
 				}
 			} else if (m.getMTI().equals("0810")) {
-				if (m.getValue(70).equals("001")) {
+				if (m.getValue(70).equals("001") && m.getValue(39).equals("00")) {
 					DatabaseManager.setIsConnected("true");
 					System.out.println("send rev");
 //					Map<String, String> reversal = DatabaseManager.getReversal();

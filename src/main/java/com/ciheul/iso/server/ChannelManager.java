@@ -1,5 +1,6 @@
 package com.ciheul.iso.server;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,8 +11,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
+import org.jpos.iso.ISODate;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
+import org.jpos.iso.ISOSource;
 import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.q2.QBeanSupport;
 import org.jpos.space.LocalSpace;
@@ -101,13 +104,53 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			logger.error(e.getMessage());
 		}
 	}
-	
+
+	/**
+	 * Send sign-on response.
+	 * 
+	 * @param source
+	 *            (Artajasa) channel
+	 * @param m
+	 *            message from client
+	 */
+	private void sendSignOnRequest(ISOMsg m) {
+		ISOMsg reply = null;
+		try {
+			ISOMsg msg = (ISOMsg) m.clone();
+			msg.setMTI("0800");
+			msg.set(7, ISODate.getDateTime(new Date()));
+			msg.set(11, "000002");
+			msg.set(70, "001");
+			msg.setPackager(new ISO87APackager());
+			byte[] messageBody = msg.pack();
+
+			ChannelManager.logISOMsg(msg);
+			try {
+				reply = sendMsg(msg);
+				if (reply!=null) {
+					if (reply.getValue(39).equals("00")){
+						DatabaseManager.setIsConnected("true");
+					}
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (ISOException e) {
+			logger.error(e.getMessage());
+		}
+	}
+
 	protected void startService() throws ISOException {
+		final ISOMsg m = new ISOMsg();
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			public void run() {
 				if (mux.isConnected()) {
 		        	 sendEchoTest();
+		        	 if (!DatabaseManager.getIsConnected().equals("true")) {
+						sendSignOnRequest(m);	
+		        	 }
 				}
 			}
 		}, 0, Context.ECHO_TEST_TIME);
