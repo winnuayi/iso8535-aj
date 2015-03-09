@@ -318,9 +318,11 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		// if connection is not established, LINK DOWN
 		if (mux.isConnected() == false) {
 			System.out.println("link down 1");
+			System.out.println(m.getValue(4));
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "404");
-			if (Long.parseLong(m.getValue(4).toString()) > 0
+			if (Long.parseLong(m.getValue(4).toString()) > 0 
+					&& m.getMTI().equals("0400")
 					&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 				sendLinkUp(m);
 			}
@@ -346,8 +348,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			// LINK DOWN
 			if (resp.getValue(39).toString().equals("404")) {
 				System.out.println("link down 2");
+				System.out.println(m.getValue(4));
 
-				if (Long.parseLong(m.getValue(4).toString()) > 0
+				if (Long.parseLong(m.getValue(4).toString()) > 0 
+						&& m.getMTI().equals("0400")
 						&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 					sendLinkUp(m);
 				}
