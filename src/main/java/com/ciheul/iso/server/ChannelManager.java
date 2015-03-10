@@ -237,12 +237,12 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					int count = 0;
 					ISOMsg reply = null;
 					String replyStr = "";
-					while (count < 4 && (reply == null || replyStr.equals(""))) {
+					while (count < 3 && (reply == null || replyStr.equals(""))) {
 						logger.info("request : " + new String(messageBody));
 						count = count + 1;
 						if (reply != null) {
 
-							if (reply.getValue(39).equals("00")) {
+							if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94") || reply.getValue(39).equals("63")) {
 								logger.info("Link up response: " + reply.pack());
 								replyStr = "success";
 							} else {
@@ -252,7 +252,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 							System.out.println("masuk sini");
 							reply = sendMsg(msg);
 						}
-						if (count == 4) {
+						if (count == 3) {
 
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
@@ -264,7 +264,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 					if (reply != null) {
 
-						if (reply.getValue(39).equals("00")) {
+						if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94") 
+								|| reply.getValue(39).equals("63")) {
 
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
@@ -351,7 +352,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				System.out.println(m.getValue(4));
 
 				if (Long.parseLong(m.getValue(4).toString()) > 0 
-						&& m.getMTI().equals("0400")
+//						&& m.getMTI().equals("0400")
 						&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 					sendLinkUp(m);
 				}
