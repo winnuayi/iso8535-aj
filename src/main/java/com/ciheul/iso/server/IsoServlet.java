@@ -83,13 +83,15 @@ public class IsoServlet {
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
 				logger.info("response : ");
 				ChannelManager.logISOMsg(resp);
-				if (resp != null && !resp.getValue(39).toString().equals("68")
+				if (resp != null && !(resp.getValue(39).toString().equals("68") &&  resp.getMTI().equals("0200"))
 						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000")) 
 						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000"))) {
 					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
 							+ resp.getValue(48);
+					System.out.println("masuk A");
 					logger.info("response : " + responseMsg);
 				} else {
+					System.out.println("masuk B");
 					if (resp != null) {
 						switch (resp.getValue(39).toString()) {
 						case "68":
