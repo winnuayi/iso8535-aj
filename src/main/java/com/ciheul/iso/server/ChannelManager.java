@@ -160,6 +160,9 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				// do your work
 				System.out.println(mux.isConnected());
 				Map<String, String> reversal = DatabaseManager.getReversal();
+				System.out.println("db isconnected :"+DatabaseManager.getIsConnected());
+				System.out.println("reversal :"+reversal.toString());
+				System.out.println("mux :"+mux.isConnected());
 				if (mux.isConnected() && !reversal.toString().equals("{}") && DatabaseManager.getIsConnected().equals("true")) {
 					sendLinkUp(reversal);
 				}else{

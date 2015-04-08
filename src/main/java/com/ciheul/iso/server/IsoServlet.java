@@ -5,6 +5,8 @@
 
 package com.ciheul.iso.server;
 
+import java.text.SimpleDateFormat;
+
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -34,6 +36,12 @@ public class IsoServlet {
 	@Path("/send")
 	@Produces(MediaType.APPLICATION_JSON)
 	public IsoMessageResponse send(IsoMessageRequest msg) {
+		
+		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		java.util.Date now2 = new java.util.Date();
+	    String strDate2 = sdf2.format(now2);
+		logger.error("cek time q2 send : "+strDate2);
+		
 		logger.info("incoming from PGW :" + msg);
 		String responseMsg = "";
 		ISOMsg resp = null;
@@ -82,6 +90,12 @@ public class IsoServlet {
 			try {
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
 				logger.info("response : ");
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+				java.util.Date now = new java.util.Date();
+			    String strDate = sdf.format(now);
+				logger.error("cek time q2 receive : "+strDate);
+				
 				ChannelManager.logISOMsg(resp);
 				if (resp != null && !(resp.getValue(39).toString().equals("68") &&  resp.getMTI().equals("0200"))
 						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000")) 
@@ -93,6 +107,7 @@ public class IsoServlet {
 				} else {
 					System.out.println("masuk B");
 					if (resp != null) {
+						System.out.println("message from AJ : "+resp.getValue(39).toString());
 						switch (resp.getValue(39).toString()) {
 						case "68":
 							responseMsg = "TIMEOUT";
