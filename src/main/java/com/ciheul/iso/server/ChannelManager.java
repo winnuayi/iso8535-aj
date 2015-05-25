@@ -367,7 +367,6 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		// timeout
 		if (obj == null) {
-			System.out.println("TIMEOUT BRO");
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "68");
 			return resp;

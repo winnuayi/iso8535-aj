@@ -249,6 +249,7 @@ public class IsoServlet {
 	 */
 	private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
 		String[] isoMsgSplit = isoMsgSend.split("#");
+		logger.info("bit48 : "+isoMsgSplit[14]);
 		ISOMsg m = new ISOMsg();
 		m.setMTI(isoMsgSplit[0]);
 		m.set(2, isoMsgSplit[1]);
@@ -264,7 +265,8 @@ public class IsoServlet {
 		m.set(37, isoMsgSplit[11]);
 		m.set(42, isoMsgSplit[12]);
 		m.set(43, isoMsgSplit[13]);
-		m.set(48, isoMsgSplit[14].replace("\\", ""));
+//		m.set(48, isoMsgSplit[14].replace("\\\\", "#:|:#").replace("\\", "").replace("#:|:#", "\\"));
+		m.set(48, isoMsgSplit[14]);
 		m.set(49, isoMsgSplit[15]);
 		m.set(63, isoMsgSplit[16]);
 		m.setPackager(new ISO87APackager());
