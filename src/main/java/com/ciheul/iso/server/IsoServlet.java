@@ -88,6 +88,13 @@ public class IsoServlet {
 		//Send MTI 0200
 		case "0200":
 			try {
+				System.out.println("message request : "+isoMsgSend);
+				boolean isAdvice = false;
+				if (isoMsgSplit.length>13) {
+					if (isoMsgSplit[14].substring(isoMsgSplit[14].length()-1).equals("A")) {
+						isAdvice=true;
+					}
+				}
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
 				logger.info("response : ");
 				
@@ -98,9 +105,13 @@ public class IsoServlet {
 				
 				ChannelManager.logISOMsg(resp);
 				if (resp != null && !(resp.getValue(39).toString().equals("68") &&  resp.getMTI().equals("0200"))
-						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000")) 
-						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000"))) {
-					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
+						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000") && isAdvice) 
+						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000") && isAdvice)) {
+					String bit39 = resp.getValue(39).toString();
+					if (resp.getValue(39).toString().equals("13") || resp.getValue(39).toString().equals("63")) {
+						bit39 = bit39 + "2";
+					}
+					responseMsg = resp.getValue(4).toString() + "#" + bit39 + "#"
 							+ resp.getValue(48);
 					System.out.println("masuk A");
 					logger.info("response : " + responseMsg);

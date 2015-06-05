@@ -321,6 +321,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		// if connection is not established, LINK DOWN
 		if (mux.isConnected() == false) {
+			System.out.println("mux connecting is "+mux.isConnected());
 			System.out.println("link down 1");
 			System.out.println(m.getValue(4));
 			resp = (ISOMsg) m.clone();
