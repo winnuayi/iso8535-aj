@@ -393,7 +393,7 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 		while (running() && !channel.isConnected()) {
 			SpaceUtil.wipe(sp, ready);
 			try {
-				System.out.println("first connection");
+				// System.out.println("first connection");
 				DatabaseManager.setIsConnected("false");
 				channel.connect();
 			} catch (IOException e) {

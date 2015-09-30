@@ -1,6 +1,5 @@
 package com.ciheul.iso.server;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.jpos.iso.ISODate;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
-import org.jpos.iso.ISOSource;
 import org.jpos.iso.packager.ISO87APackager;
 import org.jpos.q2.QBeanSupport;
 import org.jpos.space.LocalSpace;
@@ -55,7 +53,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			logger.info("--------------------");
 		}
 	}
- 
+
 	@Override
 	protected void initService() throws ISOException {
 		logger.info("initializing ChannelManager Service");
@@ -65,17 +63,29 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			in = mux.getInQueue();
 			out = mux.getOutQueue();
 
+			System.out.println("cfg: " + cfg.get("mux"));
+			System.out.println("mux: " + mux.toString());
+			System.out.println("in : " + in);
+			System.out.println("out: " + out);
+
 			sp = (LocalSpace) mux.getSpace();
 			sp.addListener(in, this);
 
 			MAX_TIME_OUT = cfg.getLong("timeout");
-			NameRegistrar.register("manager", this);
+			
+			// TODO BAD PRACTICE!!!
+			if (cfg.get("mux").equals("jpos-client-mux")) {
+				NameRegistrar.register("manager", this);
+			} else {
+				NameRegistrar.register("aj-postpaid-ntl-manager", this);
+			}
+			
 		} catch (NameRegistrar.NotFoundException e) {
 			logger.error("Error in initializing service :" + e.getMessage());
 		}
 	}
 
-	private void sendEchoTest(){
+	private void sendEchoTest() {
 		String stanId = "000001";
 		Map<String, String> date = getDate();
 		ISOMsg reply = null;
@@ -84,23 +94,23 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			ISOMsg msg = new ISOMsg();
 
 			msg.setMTI("0800");
-			System.out.println();
+			// System.out.println();
 			msg.set(7, date.get("bit7"));
 			msg.set(11, stanId);
 			msg.set(70, "301");
 			msg.setPackager(new ISO87APackager());
 
 			byte[] messageBody = msg.pack();
-			System.out.println("request : " + new String(messageBody));
+			// System.out.println("request : " + new String(messageBody));
 			logISOMsg(msg);
 			try {
 				sendMsg(msg);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("kirim echo test 2");
+			// System.out.println("kirim echo test 2");
 		} catch (ISOException e) {
-			
+
 			logger.error(e.getMessage());
 		}
 	}
@@ -127,8 +137,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			ChannelManager.logISOMsg(msg);
 			try {
 				reply = sendMsg(msg);
-				if (reply!=null) {
-					if (reply.getValue(39).equals("00")){
+				if (reply != null) {
+					if (reply.getValue(39).equals("00")) {
 						DatabaseManager.setIsConnected("true");
 					}
 				}
@@ -147,10 +157,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				if (mux.isConnected()) {
-		        	 sendEchoTest();
-		        	 if (!DatabaseManager.getIsConnected().equals("true")) {
-						sendSignOnRequest(m);	
-		        	 }
+					sendEchoTest();
+					if (!DatabaseManager.getIsConnected().equals("true")) {
+						sendSignOnRequest(m);
+					}
 				}
 			}
 		}, 0, Context.ECHO_TEST_TIME);
@@ -158,15 +168,18 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		timer2.schedule(new TimerTask() {
 			public void run() {
 				// do your work
-				System.out.println(mux.isConnected());
+				// System.out.println(mux.isConnected());
 				Map<String, String> reversal = DatabaseManager.getReversal();
-				System.out.println("db isconnected :"+DatabaseManager.getIsConnected());
-				System.out.println("reversal :"+reversal.toString());
-				System.out.println("mux :"+mux.isConnected());
-				if (mux.isConnected() && !reversal.toString().equals("{}") && DatabaseManager.getIsConnected().equals("true")) {
+
+				// System.out.println("db isconnected :" + DatabaseManager.getIsConnected());
+				// System.out.println("reversal :" + reversal.toString());
+				// System.out.println("mux :" + mux.isConnected());
+
+				if (mux.isConnected() && !reversal.toString().equals("{}")
+						&& DatabaseManager.getIsConnected().equals("true")) {
 					sendLinkUp(reversal);
-				}else{
-					System.out.println("ga connect");
+				} else {
+					// System.out.println("ga connect");
 				}
 			}
 		}, 0, Context.LINK_UP_THREAD_TIME);
@@ -204,13 +217,13 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					tambah++;
 				}
 				String[] reversalMsgSent = revelsalMsgStr.split("#");
-				System.out.println("\nsendLinkUp");
+				// System.out.println("\nsendLinkUp");
 				try {
 					Map<String, String> date = getDate();
 					ISOMsg msg = new ISOMsg();
 
 					msg.setMTI("0400");
-					System.out.println();
+					// System.out.println();
 					// msg.set(1, "723A400128618002");
 					msg.set(2, Context.ISO_BIT2);
 					msg.set(3, Context.ISO_BIT3_PAY);
@@ -234,7 +247,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					msg.setPackager(new ISO87APackager());
 
 					byte[] messageBody = msg.pack();
-					System.out.println("request : " + new String(messageBody));
+					// System.out.println("request : " + new String(messageBody));
 					ChannelManager.logISOMsg(msg);
 
 					int count = 0;
@@ -245,7 +258,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 						count = count + 1;
 						if (reply != null) {
 
-							if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94") || reply.getValue(39).equals("63")) {
+							if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94")
+									|| reply.getValue(39).equals("63")) {
 								logger.info("Link up response: " + reply.pack());
 								replyStr = "success";
 							} else {
@@ -267,7 +281,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 					if (reply != null) {
 
-						if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94") 
+						if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94")
 								|| reply.getValue(39).equals("63")) {
 
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
@@ -314,19 +328,18 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 	}
 
 	private ISOMsg sendMsg(ISOMsg m, AJMUX mux, long timeout) throws Exception {
-		System.out.println("mux sending message...");
+		// System.out.println("mux sending message...");
 		long start = System.currentTimeMillis();
 
 		ISOMsg resp = null;
 
 		// if connection is not established, LINK DOWN
 		if (mux.isConnected() == false) {
-			System.out.println("link down 1");
-			System.out.println(m.getValue(4));
+			// System.out.println("link down 1");
+			// System.out.println(m.getValue(4));
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "404");
-			if (Long.parseLong(m.getValue(4).toString()) > 0 
-					&& m.getMTI().equals("0400")
+			if (Long.parseLong(m.getValue(4).toString()) > 0 && m.getMTI().equals("0400")
 					&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 				sendLinkUp(m);
 			}
@@ -342,20 +355,20 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		// Object obj = sp.in(in, timeout);
 
 		// success to receive response message from server
-		System.out.println("object : "+obj);
-		System.out.println("message : "+m);
-		System.out.println(timeout);
+		// System.out.println("object : " + obj);
+		// System.out.println("message : " + m);
+		// System.out.println(timeout);
 		if (obj instanceof ISOMsg) {
 			resp = (ISOMsg) obj;
 			DatabaseManager.deleteStan(m.getValue(11).toString());
 			logISOMsg(resp);
 			// LINK DOWN
 			if (resp.getValue(39).toString().equals("404")) {
-				System.out.println("link down 2");
-				System.out.println(m.getValue(4));
+				// System.out.println("link down 2");
+				// System.out.println(m.getValue(4));
 
-				if (Long.parseLong(m.getValue(4).toString()) > 0 
-//						&& m.getMTI().equals("0400")
+				if (Long.parseLong(m.getValue(4).toString()) > 0
+				// && m.getMTI().equals("0400")
 						&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 					sendLinkUp(m);
 				}
@@ -367,7 +380,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		// timeout
 		if (obj == null) {
-			System.out.println("TIMEOUT BRO");
+			// System.out.println("TIMEOUT BRO");
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "68");
 			return resp;
@@ -375,6 +388,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		long duration = System.currentTimeMillis() - start;
 		log.info("Response time (ms):" + duration);
+
 		return resp;
 	}
 
@@ -393,7 +407,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					+ m.getValue(11).toString() + "#" + m.getValue(37).toString() + "#" + m.getValue(42).toString()
 					+ "#" + m.getValue(48).toString() + "#" + "0200" + m.getValue(11).toString()
 					+ m.getValue(7).toString() + m.getValue(32).toString() + "00000000000" + "#" + billNumber;
-			System.out.println("masuk :" + reversalMessage);
+			// System.out.println("masuk :" + reversalMessage);
 			DatabaseManager.setReversal(billNumber, reversalMessage);
 		} catch (NumberFormatException | ISOException e) {
 			// TODO Auto-generated catch block
@@ -403,9 +417,9 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 	public static ChannelManager getInstance() {
 		if (_cMSingleTon == null) {
-			System.out.println("*************");
-			System.out.println("channel manager is null");
-			System.out.println("*************");
+			// System.out.println("*************");
+			// System.out.println("channel manager is null");
+			// System.out.println("*************");
 			// _cMSingleTon = new ChannelManager();
 			try {
 				_cMSingleTon = ((ChannelManager) NameRegistrar.get("manager"));
@@ -413,17 +427,17 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("*************");
-			System.out.println("channel manager is not null");
-			System.out.println("*************");
+			// System.out.println("*************");
+			// System.out.println("channel manager is not null");
+			// System.out.println("*************");
 		}
 		return _cMSingleTon;
 	}
 
 	@Override
 	public void notify(Object key, Object value) {
-		System.out.println("*************");
-		System.out.println("channelmanager.notify()");
-		System.out.println("*************");
+		// System.out.println("*************");
+		// System.out.println("channelmanager.notify()");
+		// System.out.println("*************");
 	}
 }

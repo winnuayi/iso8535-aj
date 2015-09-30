@@ -1,9 +1,11 @@
-.settings/
-target/
-.classpath
-src/main/resources
-src/main/java/com/ciheul/iso/Legacy.java
 *.BAD
 *.log
 *.rdb
+*.class
 dependency-reduced-pom.xml
+.classpath
+.settings/
+bin/
+target/
+src/main/resources
+src/main/java/com/ciheul/iso/Legacy.java

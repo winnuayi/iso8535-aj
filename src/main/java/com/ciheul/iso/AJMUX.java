@@ -134,8 +134,8 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 	 */
 	public ISOMsg request(ISOMsg m, long timeout) throws ISOException {
 		String key = getKey(m);
-		System.out.println("AJMUX.request");
-		System.out.println(key);
+		// System.out.println("AJMUX.request");
+		// System.out.println(key);
 		String req = key + ".req";
 		if (isp.rdp(req) != null)
 			throw new ISOException("Duplicate key '" + req + "' detected");
@@ -194,7 +194,7 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 				if (DatabaseManager.isEmptyStan() == false) {
 					List<String> stans = DatabaseManager.getAllStan();
 					for (String stan : stans) {
-						System.out.println(stan);
+						// System.out.println(stan);
 
 						ISOMsg linkDown = new ISOMsg();
 						try {

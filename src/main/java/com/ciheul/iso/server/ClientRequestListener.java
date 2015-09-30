@@ -42,25 +42,25 @@ public class ClientRequestListener implements ISORequestListener {
 		}
 		channelManager.logISOMsg(m);
 		channelManager = ChannelManager.getInstance();
-		System.out.println("process start");
+		// System.out.println("process start");
 		try {
 			if (m.getMTI().equals("0800")) {
 				sendEchoTestResponse(source, m);
 				if (!DatabaseManager.getIsConnected().equals("true")) {
-					sendSignOnRequest(source, m);	
+					sendSignOnRequest(source, m);
 				}
 			} else if (m.getMTI().equals("0810")) {
 				if (m.getValue(70).equals("001") && m.getValue(39).equals("00")) {
 					DatabaseManager.setIsConnected("true");
 					System.out.println("send rev");
-//					Map<String, String> reversal = DatabaseManager.getReversal();
-//					if (!reversal.toString().equals("{}")) {
-//						sendLinkUp(reversal);
-//					}
+					// Map<String, String> reversal = DatabaseManager.getReversal();
+					// if (!reversal.toString().equals("{}")) {
+					// sendLinkUp(reversal);
+					// }
 				}
 			} else if (m.getMTI().equals("0410")) {
 
-				System.out.println("0400");
+				// System.out.println("0400");
 			} else if (Long.parseLong(m.getValue(4).toString()) > 0) {
 
 				if (m.getMTI().equals("0210")) {
@@ -73,7 +73,8 @@ public class ClientRequestListener implements ISORequestListener {
 						}
 						if ((adviceMessage1 == null || adviceMessage2 == null)) {
 							String msgBytes = m.getValue(4).toString() + "#" + rc + "#" + m.getValue(48).toString();
-							DatabaseManager.setAdviceSuccess("" + Integer.parseInt(m.getValue(37).toString()), msgBytes);
+							DatabaseManager
+									.setAdviceSuccess("" + Integer.parseInt(m.getValue(37).toString()), msgBytes);
 						} else {
 							DatabaseManager.updateBit48(m.getValue(48).toString().substring(4, 15), m.getValue(48)
 									.toString().substring(15, 27), "" + Integer.parseInt(m.getValue(37).toString()), m
@@ -100,7 +101,6 @@ public class ClientRequestListener implements ISORequestListener {
 		}
 		return false;
 	}
-	
 
 	private void sendLinkUp(Map<String, String> reversal) {
 		String reversalString = reversal.values().toString();
@@ -126,18 +126,18 @@ public class ClientRequestListener implements ISORequestListener {
 					tambah++;
 				}
 				String[] reversalMsgSent = revelsalMsgStr.split("#");
-				System.out.println("\nsendLinkUp");
+				// System.out.println("\nsendLinkUp");
 				try {
 					Map<String, String> date = getDate();
 					ISOMsg msg = new ISOMsg();
 
 					msg.setMTI("0400");
-					System.out.println();
+					// System.out.println();
 					msg.set(2, Context.ISO_BIT2);
 					msg.set(3, Context.ISO_BIT3_PAY);
 					msg.set(4, reversalMsgSent[0]);
 					msg.set(7, reversalMsgSent[1]);
-					msg.set(11, reversalMsgSent[2]); 
+					msg.set(11, reversalMsgSent[2]);
 					msg.set(12, date.get("bit12"));
 					msg.set(13, date.get("bit13"));
 					msg.set(15, date.get("bit15"));
@@ -154,7 +154,7 @@ public class ClientRequestListener implements ISORequestListener {
 					msg.setPackager(new ISO87APackager());
 
 					byte[] messageBody = msg.pack();
-					System.out.println("request : " + new String(messageBody));
+					// System.out.println("request : " + new String(messageBody));
 					ChannelManager.logISOMsg(msg);
 
 					int count = 0;
@@ -172,7 +172,7 @@ public class ClientRequestListener implements ISORequestListener {
 								reply = channelManager.sendMsg(msg);
 							}
 						} else {
-							System.out.println("masuk sini");
+							// System.out.println("masuk sini");
 							reply = channelManager.sendMsg(msg);
 						}
 						if (count == 4) {
@@ -216,7 +216,7 @@ public class ClientRequestListener implements ISORequestListener {
 			msg.setMTI("0810");
 			msg.set(39, "00");
 			byte[] messageBody = msg.pack();
-			
+
 			ChannelManager.logISOMsg(msg);
 			msg.setPackager(new ISO87APackager());
 			source.send(msg);
@@ -255,8 +255,8 @@ public class ClientRequestListener implements ISORequestListener {
 	}
 
 	/**
-	 * Send late payment response.
-	 * Send auto reversal
+	 * Send late payment response. Send auto reversal
+	 * 
 	 * @param source
 	 *            (Artajasa) channel
 	 * @param m
@@ -284,7 +284,7 @@ public class ClientRequestListener implements ISORequestListener {
 		m.set(90, "0200" + lateResponse.getValue(11).toString() + "" + lateResponse.getValue(7).toString() + "00000"
 				+ lateResponse.getValue(32).toString() + "00000000000");
 		m.setPackager(new ISO87APackager());
-		
+
 		ChannelManager.logISOMsg(m);
 		return m;
 	}

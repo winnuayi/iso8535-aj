@@ -11,12 +11,12 @@
 	have received a copy of the GNU Affero General Public License ~ along with 
 	this program. If not, see <http://www.gnu.org/licenses/>. -->
 
-<mux class="org.jpos.q2.iso.QMUX" logger="Q2" name="jpos-client-mux">
-	<in>jpos-client-receive</in>
-	<out>jpos-client-send</out>
-	<unhandled>jpos-client-unhandled</unhandled>
-	<request-listener class="com.ciheul.iso.client.q2.ClientRequestListener"
-		logger="Q2" realm="jpos-client-simulator">
+<mux class="com.ciheul.iso.AJMUX" logger="Q2" name="aj-postpaid-ntl-mux">
+	<in>aj-postpaid-ntl-receive</in>
+	<out>aj-postpaid-ntl-send</out>
+	<ready>aj-postpaid-ntl-adaptor.ready</ready><!-- channel-adaptor's name + ".ready" -->
+	<unhandled>aj-postpaid-ntl-unhandled</unhandled><!-- handled by ISORequestListener -->
+	<request-listener class="com.ciheul.iso.server.ClientRequestListener"
+		logger="Q2" realm="aj-postpaid-ntl-simulator">
 	</request-listener>
 </mux>
-

@@ -159,7 +159,7 @@ public class DatabaseManager {
 	 * @return reversalMessage
 	 */
 	public static void DelReversal(String user) {
-		System.out.println(user);
+		// System.out.println(user);
 		Jedis jedis = null;
 		RedisConnection rc = null;
 		try {
@@ -173,7 +173,7 @@ public class DatabaseManager {
 				jedis.hset(Context.REVERSAL_MESSAGE, "", "");
 			}
 			// result = jedis.incr(Context.IS_CONNECTED);
-			System.out.println(Context.REVERSAL_MESSAGE + user);
+			// System.out.println(Context.REVERSAL_MESSAGE + user);
 			jedis.hdel(Context.REVERSAL_MESSAGE, user);
 
 		} catch (JedisConnectionException jce) {

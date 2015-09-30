@@ -22,11 +22,14 @@ import org.jpos.util.NameRegistrar.NotFoundException;
 public class IsoServlet {
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(IsoServlet.class);
 	ChannelManager channelManager = null;
+	ChannelManager channelManagerPrepaid = null;
+	ChannelManager channelManagerPostpaidNTL = null;
 
 	public IsoServlet() {
-		channelManager = ChannelManager.getInstance();
+		// channelManager = ChannelManager.getInstance();
 		try {
-			channelManager = ((ChannelManager) NameRegistrar.get("manager"));
+			channelManagerPrepaid = ((ChannelManager) NameRegistrar.get("manager"));
+			channelManagerPostpaidNTL = ((ChannelManager) NameRegistrar.get("aj-postpaid-ntl-manager"));
 		} catch (NotFoundException e) {
 			e.printStackTrace();
 		}
@@ -36,20 +39,31 @@ public class IsoServlet {
 	@Path("/send")
 	@Produces(MediaType.APPLICATION_JSON)
 	public IsoMessageResponse send(IsoMessageRequest msg) {
-		
+
 		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		java.util.Date now2 = new java.util.Date();
-	    String strDate2 = sdf2.format(now2);
-		logger.error("cek time q2 send : "+strDate2);
-		
+		String strDate2 = sdf2.format(now2);
+
+		logger.info("cek time q2 send : " + strDate2);
 		logger.info("incoming from PGW :" + msg);
+
 		String responseMsg = "";
 		ISOMsg resp = null;
 		String[] isoMsgSplit = msg.getMessage().split("#");
 		String isoMsgSend = msg.getMessage();
+
+		// System.out.println("**************bit: " + isoMsgSplit[14].substring(0, 4));
+		// System.out.println("**************isoMsgSend: " + isoMsgSend);
 		
+		// now, AJ has two servers. one for prepaid (2111) and another one for postpaid (2112) + NTL (2114)
+		if (isoMsgSplit[14].substring(0, 4).equals("2111")) {
+			channelManager = channelManagerPrepaid;
+		} else {
+			channelManager = channelManagerPostpaidNTL;
+		}		
+
 		switch (isoMsgSplit[0]) {
-		//Send MTI 0800
+		// Send MTI 0800
 		case "0800":
 			try {
 				resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
@@ -67,7 +81,7 @@ public class IsoServlet {
 			}
 			break;
 
-		//Send MTI 0810
+		// Send MTI 0810
 		case "0810":
 			try {
 				resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
@@ -85,37 +99,42 @@ public class IsoServlet {
 			}
 			break;
 
-		//Send MTI 0200
+		// Send MTI 0200
 		case "0200":
 			try {
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
 				logger.info("response : ");
-				
+
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 				java.util.Date now = new java.util.Date();
-			    String strDate = sdf.format(now);
-				logger.error("cek time q2 receive : "+strDate);
-				
+				String strDate = sdf.format(now);
+				logger.error("cek time q2 receive : " + strDate);
+
 				ChannelManager.logISOMsg(resp);
-				if (resp != null && !(resp.getValue(39).toString().equals("68") &&  resp.getMTI().equals("0200"))
-						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000")) 
+
+				if (resp != null && !(resp.getValue(39).toString().equals("68") && resp.getMTI().equals("0200"))
+						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000"))
 						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000"))) {
 					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
 							+ resp.getValue(48);
-					System.out.println("masuk A");
+
+					// System.out.println("masuk A");
 					logger.info("response : " + responseMsg);
 				} else {
-					System.out.println("masuk B");
+					// System.out.println("masuk B");
 					if (resp != null) {
-						System.out.println("message from AJ : "+resp.getValue(39).toString());
+						System.out.println("message from AJ : " + resp.getValue(39).toString());
 						switch (resp.getValue(39).toString()) {
 						case "68":
 							responseMsg = "TIMEOUT";
 							logger.info("REQUEST TIMEOUT");
 							break;
 						case "13":
-							responseMsg = "TIMEOUT13";
-							logger.info("REQUEST TIMEOUT");
+							responseMsg = "NOMINAL PEMBELIAN TIDAK TERDAFTAR";
+							logger.info("NOMINAL PEMBELIAN TIDAK TERDAFTAR");
+
+							// responseMsg = "TIMEOUT13";
+							// logger.info("REQUEST TIMEOUT");
 							break;
 						case "63":
 							responseMsg = "TIMEOUT63";
@@ -136,11 +155,11 @@ public class IsoServlet {
 			}
 			break;
 
-		//Send MTI 0210
+		// Send MTI 0210
 		case "0210":
 			break;
 
-		//Send MTI 0400
+		// Send MTI 0400
 		case "0400":
 			try {
 				resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
@@ -163,7 +182,7 @@ public class IsoServlet {
 			}
 			break;
 
-		//Send MTI 0410
+		// Send MTI 0410
 		case "0410":
 			break;
 
@@ -177,8 +196,7 @@ public class IsoServlet {
 	}
 
 	/**
-	 * Setting Iso Message for sending to Artajasa
-	 * Request from PGW when sending 0800 message
+	 * Setting Iso Message for sending to Artajasa Request from PGW when sending 0800 message
 	 */
 	private ISOMsg createHandshakeISOMsg(String isoMsgSend) throws ISOException {
 		String[] isoMsgSplit = isoMsgSend.split("#");
@@ -188,14 +206,13 @@ public class IsoServlet {
 		m.set(11, isoMsgSplit[2]);
 		m.set(70, isoMsgSplit[3]);
 		m.setPackager(new ISO87APackager());
-		
+
 		ChannelManager.logISOMsg(m);
 		return m;
 	}
 
 	/**
-	 * Setting Iso Message for sending to Artajasa
-	 * Request from PGW when sending 0810 message
+	 * Setting Iso Message for sending to Artajasa Request from PGW when sending 0810 message
 	 */
 	private ISOMsg createHandshakeISOMsg2(String isoMsgSend) throws ISOException {
 		String[] isoMsgSplit = isoMsgSend.split("#");
@@ -206,14 +223,13 @@ public class IsoServlet {
 		m.set(39, isoMsgSplit[3]);
 		m.set(70, isoMsgSplit[4]);
 		m.setPackager(new ISO87APackager());
-		
+
 		ChannelManager.logISOMsg(m);
 		return m;
 	}
 
 	/**
-	 * Setting Iso Message for sending to Artajasa
-	 * Request from PGW when sending 0400 message
+	 * Setting Iso Message for sending to Artajasa Request from PGW when sending 0400 message
 	 */
 	private ISOMsg createSendReversalISOMsg(String isoMsgSend) throws ISOException {
 		String[] isoMsgSplit = isoMsgSend.split("#");
@@ -237,15 +253,14 @@ public class IsoServlet {
 		m.set(63, isoMsgSplit[16]);
 		m.set(90, "0200" + isoMsgSplit[5] + isoMsgSplit[4] + isoMsgSplit[10] + "00000");
 		m.setPackager(new ISO87APackager());
-		
+
 		ChannelManager.logISOMsg(m);
 		return m;
 	}
 
 	/**
-	 * Setting Iso Message for sending to Artajasa
-	 * Request from PGW when sending 0200 message
-	 * Request for inquiry and payment
+	 * Setting Iso Message for sending to Artajasa Request from PGW when sending 0200 message Request for inquiry and
+	 * payment
 	 */
 	private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
 		String[] isoMsgSplit = isoMsgSend.split("#");
@@ -268,7 +283,7 @@ public class IsoServlet {
 		m.set(49, isoMsgSplit[15]);
 		m.set(63, isoMsgSplit[16]);
 		m.setPackager(new ISO87APackager());
-		
+
 		ChannelManager.logISOMsg(m);
 		return m;
 	}
