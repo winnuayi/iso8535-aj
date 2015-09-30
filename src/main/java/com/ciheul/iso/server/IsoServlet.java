@@ -102,6 +102,13 @@ public class IsoServlet {
 		// Send MTI 0200
 		case "0200":
 			try {
+				System.out.println("message request : "+isoMsgSend);
+				boolean isAdvice = false;
+				if (isoMsgSplit.length>13) {
+					if (isoMsgSplit[14].substring(isoMsgSplit[14].length()-1).equals("A")) {
+						isAdvice=true;
+					}
+				}
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
 				logger.info("response : ");
 
@@ -111,12 +118,22 @@ public class IsoServlet {
 				logger.error("cek time q2 receive : " + strDate);
 
 				ChannelManager.logISOMsg(resp);
+//<<<<<<< HEAD
 
 				if (resp != null && !(resp.getValue(39).toString().equals("68") && resp.getMTI().equals("0200"))
 						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000"))
 						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000"))) {
-					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
-							+ resp.getValue(48);
+					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#" + resp.getValue(48);
+//=======
+//				if (resp != null && !(resp.getValue(39).toString().equals("68") &&  resp.getMTI().equals("0200"))
+//						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000") && isAdvice) 
+//						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000") && isAdvice)) {
+//					String bit39 = resp.getValue(39).toString();
+//					if (resp.getValue(39).toString().equals("13") || resp.getValue(39).toString().equals("63")) {
+//						bit39 = bit39 + "2";
+//					}
+//					responseMsg = resp.getValue(4).toString() + "#" + bit39 + "#" + resp.getValue(48);
+//>>>>>>> 5aaa8be5d937dadca883331170cf6a8bec760bb4
 
 					// System.out.println("masuk A");
 					logger.info("response : " + responseMsg);
@@ -264,6 +281,7 @@ public class IsoServlet {
 	 */
 	private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
 		String[] isoMsgSplit = isoMsgSend.split("#");
+		logger.info("bit48 : "+isoMsgSplit[14]);
 		ISOMsg m = new ISOMsg();
 		m.setMTI(isoMsgSplit[0]);
 		m.set(2, isoMsgSplit[1]);
@@ -279,7 +297,8 @@ public class IsoServlet {
 		m.set(37, isoMsgSplit[11]);
 		m.set(42, isoMsgSplit[12]);
 		m.set(43, isoMsgSplit[13]);
-		m.set(48, isoMsgSplit[14].replace("\\", ""));
+//		m.set(48, isoMsgSplit[14].replace("\\\\", "#:|:#").replace("\\", "").replace("#:|:#", "\\"));
+		m.set(48, isoMsgSplit[14]);
 		m.set(49, isoMsgSplit[15]);
 		m.set(63, isoMsgSplit[16]);
 		m.setPackager(new ISO87APackager());

@@ -335,8 +335,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		// if connection is not established, LINK DOWN
 		if (mux.isConnected() == false) {
-			// System.out.println("link down 1");
-			// System.out.println(m.getValue(4));
+
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "404");
 			if (Long.parseLong(m.getValue(4).toString()) > 0 && m.getMTI().equals("0400")
@@ -380,7 +379,6 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 		// timeout
 		if (obj == null) {
-			// System.out.println("TIMEOUT BRO");
 			resp = (ISOMsg) m.clone();
 			resp.set(39, "68");
 			return resp;

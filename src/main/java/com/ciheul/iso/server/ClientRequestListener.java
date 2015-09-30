@@ -40,6 +40,7 @@ public class ClientRequestListener implements ISORequestListener {
 			// TODO Auto-generated catch block
 			logger.error(e1.getMessage());
 		}
+		logger.info(m);
 		channelManager.logISOMsg(m);
 		channelManager = ChannelManager.getInstance();
 		// System.out.println("process start");

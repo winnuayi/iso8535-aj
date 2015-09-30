@@ -11,7 +11,7 @@ public class Context {
 	// POOL DATABASE CONFIGURATION
 	public static final String DB_USERNAME = "ciheul";
 	public static final String DB_PASSWORD = "";
-	public static final String DB_NAME = "axes-clone-live";
+	public static final String DB_NAME = "axes-live";
 	public static final String DB_HOSTNAME = "";
 	public static final String DB_URL = "jdbc:postgresql://";
 	public static final String DB_DRIVER = "org.postgresql.Driver";
