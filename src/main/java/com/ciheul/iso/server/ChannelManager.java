@@ -63,10 +63,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			in = mux.getInQueue();
 			out = mux.getOutQueue();
 
-			System.out.println("cfg: " + cfg.get("mux"));
-			System.out.println("mux: " + mux.toString());
-			System.out.println("in : " + in);
-			System.out.println("out: " + out);
+			// System.out.println("cfg: " + cfg.get("mux"));
+			// System.out.println("mux: " + mux.toString());
+			// System.out.println("in : " + in);
+			// System.out.println("out: " + out);
 
 			sp = (LocalSpace) mux.getSpace();
 			sp.addListener(in, this);

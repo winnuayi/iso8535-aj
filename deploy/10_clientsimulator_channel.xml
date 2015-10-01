@@ -21,12 +21,12 @@
 			value="2231" /> -->
 
 		<!-- PREPAID PRODUCTION SERVER -->
-		<property name="host" value="114.6.68.174" />
-		<property name="port" value="21735" />
+		<!-- <property name="host" value="114.6.68.174" />
+		<property name="port" value="21735" />-->
 
 		<!-- LOCAL DEVELOPMENT SERVER -->
-		<!-- <property name="host" value="127.0.0.1" /> -->
-		<!-- <property name="port" value="2231" /> -->
+		<property name="host" value="127.0.0.1" />
+		<property name="port" value="2231" />
 
 		<property name="timeout" value="86400000" />
 		<property name="keep-alive" value="true" />

@@ -1,8 +1,0 @@
-11:31:43.224:qtp178815868-20-selector-ServerConnectorManager@aac567f/0 OPENED HttpConnection@7dd55003{IDLE}
-11:31:43.248:qtp178815868-23 - /api/send:http://127.0.0.1:9092/api/send REQUEST 127.0.0.1 POST null; Jersey/2.15 (HttpUrlConnection 1.7.0_71)
-11:31:44.761:qtp178815868-23 - /api/send:http://127.0.0.1:9092/api/send RESPONSE 200 application/json
-11:31:49.811:qtp178815868-24 CLOSED HttpConnection@7dd55003{FILLING}
-11:50:50.930:qtp965421722-20-selector-ServerConnectorManager@23341000/0 OPENED HttpConnection@6327c59f{IDLE}
-11:50:50.992:qtp965421722-23 - /api/send:http://127.0.0.1:9092/api/send REQUEST 127.0.0.1 POST null; Jersey/2.15 (HttpUrlConnection 1.7.0_71)
-11:50:52.426:qtp965421722-23 - /api/send:http://127.0.0.1:9092/api/send RESPONSE 200 application/json
-11:51:02.451:qtp965421722-24 CLOSED HttpConnection@6327c59f{FILLING}

@@ -139,6 +139,11 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 		String req = key + ".req";
 		if (isp.rdp(req) != null)
 			throw new ISOException("Duplicate key '" + req + "' detected");
+		
+		if (isp.rdp(key) != null) {
+			isp.inp(key);
+		}
+		
 		isp.out(req, m);
 		m.setDirection(0);
 		if (timeout > 0)
