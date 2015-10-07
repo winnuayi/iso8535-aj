@@ -37,42 +37,59 @@ public class ClientRequestListener implements ISORequestListener {
 		try {
 			logger.info("incoming ISOMSG : " + m.getMTI());
 		} catch (ISOException e1) {
-			// TODO Auto-generated catch block
 			logger.error(e1.getMessage());
 		}
+
 		logger.info(m);
+
 		channelManager.logISOMsg(m);
 		channelManager = ChannelManager.getInstance();
-		// System.out.println("process start");
+
 		try {
+			// Q2 receives echo request message from switching server
 			if (m.getMTI().equals("0800")) {
+				// Q2 sends echo response message back to tell that is alive
 				sendEchoTestResponse(source, m);
+
+				// if this is the first time Q2 receives echo request message from switching server
+				// as it indicates there is no information in redis, then send sign on request message
 				if (!DatabaseManager.getIsConnected().equals("true")) {
 					sendSignOnRequest(source, m);
 				}
 			} else if (m.getMTI().equals("0810")) {
+				// Q2 receives sign on response message (bit39==00 and bit70==001) from switching server
 				if (m.getValue(70).equals("001") && m.getValue(39).equals("00")) {
+					// set state in redis that Q2 has logged in and connected to switching server
 					DatabaseManager.setIsConnected("true");
-					System.out.println("send rev");
-					// Map<String, String> reversal = DatabaseManager.getReversal();
-					// if (!reversal.toString().equals("{}")) {
-					// sendLinkUp(reversal);
-					// }
 				}
 			} else if (m.getMTI().equals("0410")) {
-
-				// System.out.println("0400");
+				// Q2 receives reversal response and does nothing
+				System.out.println("0400");
 			} else if (Long.parseLong(m.getValue(4).toString()) > 0) {
+				// Q2 receives payment response as bit4 (amount) has value (more than 0)
+				// when payment response comes to ClientRequestListener, it means something wrong happens
+				// if prepaid => advice; if postpaid/NTL => send reversal
 
 				if (m.getMTI().equals("0210")) {
+					// prepaid
 					if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
-						String adviceMessage1 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(15, 27));
-						String adviceMessage2 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(4, 15));
 						String rc = m.getValue(39).toString();
+
+						// for prepaid and request timeout, result code is 682
 						if (m.getValue(39).toString().equals("68")) {
 							rc = rc + "2";
 						}
+
+						// get advice from redis using device number and customer id
+						String adviceMessage1 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(15, 27));
+						String adviceMessage2 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(4, 15));
+
+						// ============ START OF CONFUSION ============
+						// TODO I do not understand the following block code. how does it work?
+
+						// advice message is not in redis
 						if ((adviceMessage1 == null || adviceMessage2 == null)) {
+
 							String msgBytes = m.getValue(4).toString() + "#" + rc + "#" + m.getValue(48).toString();
 							DatabaseManager
 									.setAdviceSuccess("" + Integer.parseInt(m.getValue(37).toString()), msgBytes);
@@ -80,6 +97,7 @@ public class ClientRequestListener implements ISORequestListener {
 							DatabaseManager.updateBit48(m.getValue(48).toString().substring(4, 15), m.getValue(48)
 									.toString().substring(15, 27), "" + Integer.parseInt(m.getValue(37).toString()), m
 									.getValue(48).toString(), Context.PENDING_STATUS);
+
 							if (m.getValue(39).toString().equals("00")) {
 								DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.SUCCESS_STATUS, m
 										.getValue(39).toString(), "Approved");
@@ -87,10 +105,14 @@ public class ClientRequestListener implements ISORequestListener {
 								DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.FAIL_STATUS, rc,
 										"Transaction Fail");
 							}
+
 							DatabaseManager.delAdvice(m.getValue(48).toString().substring(15, 27));
 							DatabaseManager.delAdvice(m.getValue(48).toString().substring(4, 15));
 						}
+
+						// ============ END OF CONFUSION ============
 					} else {
+						// Q2 receives postpaid/NTL payment response
 						channelManager.sendMsg(createReversalISOMsg(m));
 					}
 				}
@@ -110,9 +132,9 @@ public class ClientRequestListener implements ISORequestListener {
 		int jumlah = 0;
 		int tambah = 1;
 		String revelsalMsgStr = "";
-		int reversalSize = reversalMessage.length;
-		for (int i = 0; i < reversalMessage.length; i += tambah) {
+		// int reversalSize = reversalMessage.length;
 
+		for (int i = 0; i < reversalMessage.length; i += tambah) {
 			revelsalMsgStr = reversalMessage[i];
 			if (!revelsalMsgStr.equals("")) {
 				tambah = 1;
@@ -126,14 +148,14 @@ public class ClientRequestListener implements ISORequestListener {
 					jumlah = jumlah + reversalMsg.length - 1;
 					tambah++;
 				}
+
 				String[] reversalMsgSent = revelsalMsgStr.split("#");
-				// System.out.println("\nsendLinkUp");
+
 				try {
 					Map<String, String> date = getDate();
 					ISOMsg msg = new ISOMsg();
 
 					msg.setMTI("0400");
-					// System.out.println();
 					msg.set(2, Context.ISO_BIT2);
 					msg.set(3, Context.ISO_BIT3_PAY);
 					msg.set(4, reversalMsgSent[0]);
@@ -176,8 +198,8 @@ public class ClientRequestListener implements ISORequestListener {
 							// System.out.println("masuk sini");
 							reply = channelManager.sendMsg(msg);
 						}
-						if (count == 4) {
 
+						if (count == 4) {
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
 							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
@@ -187,9 +209,7 @@ public class ClientRequestListener implements ISORequestListener {
 					}
 
 					if (reply != null) {
-
 						if (reply.getValue(39).equals("00")) {
-
 							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
 								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
 							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
@@ -216,7 +236,8 @@ public class ClientRequestListener implements ISORequestListener {
 			ISOMsg msg = (ISOMsg) m.clone();
 			msg.setMTI("0810");
 			msg.set(39, "00");
-			byte[] messageBody = msg.pack();
+
+			// byte[] messageBody = msg.pack(); // never used locally
 
 			ChannelManager.logISOMsg(msg);
 			msg.setPackager(new ISO87APackager());
@@ -244,7 +265,7 @@ public class ClientRequestListener implements ISORequestListener {
 			msg.set(11, "000002");
 			msg.set(70, "001");
 			msg.setPackager(new ISO87APackager());
-			byte[] messageBody = msg.pack();
+			// byte[] messageBody = msg.pack(); // never used locally
 
 			ChannelManager.logISOMsg(msg);
 			source.send(msg);
@@ -287,6 +308,7 @@ public class ClientRequestListener implements ISORequestListener {
 		m.setPackager(new ISO87APackager());
 
 		ChannelManager.logISOMsg(m);
+
 		return m;
 	}
 

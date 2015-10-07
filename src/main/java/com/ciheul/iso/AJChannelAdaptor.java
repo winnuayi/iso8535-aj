@@ -309,6 +309,11 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 					if (!running())
 						break;
 					Object o = sp.in(in, delay);
+					
+					System.out.println("================");
+					System.out.println("AJChannelAdaptor.Sender.run; o: " + o);
+					System.out.println("================");
+					
 					if (o instanceof ISOMsg) {
 						channel.send((ISOMsg) o);
 						tx++;
@@ -342,10 +347,18 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 			Thread.currentThread().setName("channel-receiver-" + out);
 			while (running()) {
 				try {
+					// it looks like r is a Date object
+					// r == Wed Sep 16 14:04:35 WIB 2015
 					Object r = sp.rd(ready, 5000L);
 					if (r == null)
 						continue;
+					
 					ISOMsg m = channel.receive();
+					
+					System.out.println("================");
+					System.out.println("m in Receiver: " + m);
+					System.out.println("================");
+					
 					rx++;
 					lastTxn = System.currentTimeMillis();
 					if (timeout > 0)
@@ -360,6 +373,11 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 							disconnect();
 							sp.out(in, Boolean.TRUE); // wake-up Sender
 						}
+						
+						System.out.println("================");
+						System.out.println("Receiver ISOException");
+						System.out.println("================");
+						
 						sp.out(out, "LINK DOWN");
 						ISOUtil.sleep(1000);
 					}
@@ -369,6 +387,11 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 						sp.out(reconnect, Boolean.TRUE, delay);
 						disconnect();
 						sp.out(in, Boolean.TRUE); // wake-up Sender
+						
+						System.out.println("================");
+						System.out.println("Receiver SocketTimeoutException");
+						System.out.println("================");
+						
 						sp.out(out, "LINK DOWN");
 						ISOUtil.sleep(1000);
 					}
@@ -378,6 +401,11 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 						sp.out(reconnect, Boolean.TRUE, delay);
 						disconnect();
 						sp.out(in, Boolean.TRUE); // wake-up Sender
+						
+						System.out.println("================");
+						System.out.println("Receiver Exception");
+						System.out.println("================");
+						
 						sp.out(out, "LINK DOWN");
 						ISOUtil.sleep(1000);
 					}

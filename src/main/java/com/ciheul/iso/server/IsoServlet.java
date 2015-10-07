@@ -44,16 +44,12 @@ public class IsoServlet {
 		java.util.Date now2 = new java.util.Date();
 		String strDate2 = sdf2.format(now2);
 
-		logger.info("cek time q2 send : " + strDate2);
 		logger.info("incoming from PGW :" + msg);
 
 		String responseMsg = "";
 		ISOMsg resp = null;
 		String[] isoMsgSplit = msg.getMessage().split("#");
 		String isoMsgSend = msg.getMessage();
-
-		// System.out.println("**************bit: " + isoMsgSplit[14].substring(0, 4));
-		// System.out.println("**************isoMsgSend: " + isoMsgSend);
 
 		// now, AJ has two servers. one for prepaid (2111) and another one for postpaid (2112) + NTL (2114)
 		if (isoMsgSplit[14].substring(0, 4).equals("2111")) {
@@ -63,20 +59,25 @@ public class IsoServlet {
 		}
 
 		switch (isoMsgSplit[0]) {
+
 		// Send MTI 0800
 		case "0800":
 			try {
 				resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
+
 				logger.info("response : ");
 				ChannelManager.logISOMsg(resp);
+
 				if (resp != null) {
 					responseMsg = resp.getValue(39).toString();
 				}
 			} catch (ISOException e) {
 				responseMsg = e.getMessage();
+
 				logger.error(responseMsg);
 			} catch (Exception e) {
 				responseMsg = e.getMessage();
+
 				logger.error(responseMsg);
 			}
 			break;
@@ -85,8 +86,10 @@ public class IsoServlet {
 		case "0810":
 			try {
 				resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
+
 				logger.info("response : ");
 				ChannelManager.logISOMsg(resp);
+
 				if (resp != null) {
 					responseMsg = resp.getValue(39).toString();
 				}
@@ -103,18 +106,21 @@ public class IsoServlet {
 		case "0200":
 			try {
 				System.out.println("message request : " + isoMsgSend);
+
 				boolean isAdvice = false;
 				if (isoMsgSplit.length > 13) {
 					if (isoMsgSplit[14].substring(isoMsgSplit[14].length() - 1).equals("A")) {
 						isAdvice = true;
 					}
 				}
+
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
 				logger.info("response : ");
 
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 				java.util.Date now = new java.util.Date();
 				String strDate = sdf.format(now);
+
 				logger.error("cek time q2 receive : " + strDate);
 
 				ChannelManager.logISOMsg(resp);
@@ -143,6 +149,34 @@ public class IsoServlet {
 					// System.out.println("masuk B");
 					if (resp != null) {
 						System.out.println("message from AJ : " + resp.getValue(39).toString());
+						// =======
+						//
+						// logger.error("cek time q2 receive : " + strDate);
+						//
+						// ChannelManager.logISOMsg(resp);
+						// if (resp != null
+						// && !(resp.getValue(39).toString().equals("68") && resp.getMTI().equals("0200"))
+						// && !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000") &&
+						// isAdvice)
+						// && !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000") &&
+						// isAdvice)) {
+						// String bit39 = resp.getValue(39).toString();
+						//
+						// if (resp.getValue(39).toString().equals("13") || resp.getValue(39).toString().equals("63")) {
+						// bit39 = bit39 + "2";
+						// }
+						//
+						// responseMsg = resp.getValue(4).toString() + "#" + bit39 + "#" + resp.getValue(48);
+						//
+						// System.out.println("masuk A");
+						// logger.info("response : " + responseMsg);
+						// } else {
+						// System.out.println("masuk B");
+						//
+						// if (resp != null) {
+						// System.out.println("message from AJ : " + resp.getValue(39).toString());
+						//
+						// >>>>>>> support-#5
 						switch (resp.getValue(39).toString()) {
 						case "68":
 							responseMsg = "TIMEOUT";
@@ -159,7 +193,6 @@ public class IsoServlet {
 							responseMsg = "TIMEOUT63";
 							logger.info("REQUEST TIMEOUT");
 							break;
-
 						default:
 							break;
 						}
@@ -182,7 +215,9 @@ public class IsoServlet {
 		case "0400":
 			try {
 				resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
+
 				logger.info("response : ");
+
 				ChannelManager.logISOMsg(resp);
 				if (resp != null && !resp.getValue(39).toString().equals("68")) {
 					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
@@ -208,9 +243,12 @@ public class IsoServlet {
 		default:
 			break;
 		}
+
 		IsoMessageResponse response = new IsoMessageResponse();
 		response.setMessage(responseMsg);
+
 		logger.info("response for PGW :" + response.getMessage());
+
 		return response;
 	}
 
@@ -227,6 +265,7 @@ public class IsoServlet {
 		m.setPackager(new ISO87APackager());
 
 		ChannelManager.logISOMsg(m);
+
 		return m;
 	}
 
@@ -244,6 +283,7 @@ public class IsoServlet {
 		m.setPackager(new ISO87APackager());
 
 		ChannelManager.logISOMsg(m);
+
 		return m;
 	}
 
@@ -274,6 +314,7 @@ public class IsoServlet {
 		m.setPackager(new ISO87APackager());
 
 		ChannelManager.logISOMsg(m);
+
 		return m;
 	}
 
@@ -306,6 +347,7 @@ public class IsoServlet {
 		m.setPackager(new ISO87APackager());
 
 		ChannelManager.logISOMsg(m);
+
 		return m;
 	}
 

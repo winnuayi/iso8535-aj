@@ -133,19 +133,60 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 	 * @return response or null
 	 */
 	public ISOMsg request(ISOMsg m, long timeout) throws ISOException {
+		// key is a combination of queue send, mti, and stan.
+		// ex: key = "jpos-client-send" + "." + "0200" + "00037"
+		// key = "jpos-client-send.020000037"
 		String key = getKey(m);
-		// System.out.println("AJMUX.request");
-		// System.out.println(key);
+
+		// System.out.println("================");
+		// System.out.println("AJMUX.request; key: " + key);
+		// System.out.println("================");
+
+		// this is how key format used in Q2
 		String req = key + ".req";
+
+		// ensure that the built key above does not have another duplicate key in the isp space
 		if (isp.rdp(req) != null)
 			throw new ISOException("Duplicate key '" + req + "' detected");
-		
+
+		// CR#3
 		if (isp.rdp(key) != null) {
 			isp.inp(key);
 		}
-		
+
 		isp.out(req, m);
+
+		// ///////////////////////////////////////////////
+		// to check space. DO NOT REMOVE!
+		//
+		// for (int i = 0; i < 50; i++) {
+		// String key2 = "jpos-client-send" + "." + "0200" + String.format("%05d", i);
+		// System.out.println("ChannelManager.startService; key2: " + key2);
+		// Object o2 = isp.rd(key2, 100);
+		// System.out.println(o2);
+		//
+		// String req2 = "jpos-client-send" + "." + "0200" + String.format("%05d", i) + ".req";
+		// System.out.println("ChannelManager.startService; req2: " + req2);
+		//
+		// Object o3 = isp.rd(req2, 100);
+		// if (o3 == null) {
+		// System.out.println(o3);
+		// } else {
+		// ISOMsg mmm = (ISOMsg) o3;
+		//
+		// if (mmm.getMTI().equals("0200")) {
+		// System.out.println(o3 + " | rc: nope");
+		// }
+		//
+		// if (mmm.getMTI().equals("0210")) {
+		// System.out.println(o3 + " | rc: " + mmm.getValue(39).toString());
+		// }
+		// }
+		// }
+		// ///////////////////////////////////////////////
+
 		m.setDirection(0);
+
 		if (timeout > 0)
 			sp.out(out, m, timeout);
 		else
@@ -166,7 +207,15 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 				resp = (ISOMsg) isp.rd(key, timeout);
 				if (shouldIgnore(resp))
 					continue;
-				isp.inp(key);
+				// isp.inp(key); // ==> original
+
+				Object o = isp.inp(key);
+				ISOMsg mmmm = (ISOMsg) o;
+				System.out.println("================");
+				System.out.println("this key has taken out: " + key);
+				System.out.println("Object o              : " + o + " | rc: " + mmmm.getValue(39).toString());
+				System.out.println("Object o (second time): " + isp.inp(key));
+				System.out.println("================");
 				break;
 			}
 			if (resp == null && isp.inp(req) == null) {
@@ -191,15 +240,32 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 		return resp;
 	}
 
+	/**
+	 * @param k
+	 *            queue name for receiver (ex: channel-receiver-jpos-client-receive)
+	 */
 	public void notify(Object k, Object value) {
 		Object obj = sp.inp(k);
 
+		System.out.println("================");
+		System.out.println("AJMUX.notify; k    : " + k);
+		System.out.println("AJMUX.notify; value: " + value);
+		System.out.println("AJMUX.notify; obj  : " + obj);
+		System.out.println("================");
+
 		if (value instanceof String && (String) value == "LINK DOWN") {
 			synchronized (this) {
+				// when link down occurs, all running transaction will be canceled
+				// and Q2 (not switching server) will send response message with RC 404
+				// all STAN in redis will be removed
 				if (DatabaseManager.isEmptyStan() == false) {
 					List<String> stans = DatabaseManager.getAllStan();
 					for (String stan : stans) {
-						// System.out.println(stan);
+
+//						System.out.println("================");
+//						System.out.println("AJMUX.notify; stan " + stan);
+//						System.out.println("================");
+
 
 						ISOMsg linkDown = new ISOMsg();
 						try {
@@ -210,7 +276,6 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 
 							String key = getKey(linkDown);
 							isp.out(key, linkDown);
-
 						} catch (ISOException e) {
 							e.printStackTrace();
 						}
