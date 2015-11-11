@@ -15,7 +15,7 @@ public class RedisConnection {
 
 	/** A private Constructor prevents any other class from instantiating. */
 	private RedisConnection() {
-		logger.debug("Begin to create Jedis Pool Configuration");
+//		logger.debug("Begin to create Jedis Pool Configuration");
 		JedisPoolConfig poolConfig = new JedisPoolConfig();
 		poolConfig.setBlockWhenExhausted(poolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED);
 		poolConfig.setJmxEnabled(poolConfig.DEFAULT_JMX_ENABLE);
@@ -30,9 +30,9 @@ public class RedisConnection {
 
 		_pool = new JedisPool(poolConfig, Context.REDIS_HOST, Context.REDIS_PORT);
 		if (_pool != null) {
-			logger.debug("Succes to create Jedis Pool");
+//			logger.debug("Succes to create Jedis Pool");
 		} else {
-			logger.error("Failed to create Jedis Pool");
+//			logger.error("Failed to create Jedis Pool");
 		}
 	}
 

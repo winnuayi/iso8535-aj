@@ -2,10 +2,8 @@ package com.ciheul.iso.server;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.Timer;
@@ -41,25 +39,30 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 	private RedisConnection r = RedisConnection.getInstance();
 
 	public static void logISOMsg(ISOMsg msg) {
-		logger.info("----ISO MESSAGE-----");
+		// logger.info("----ISO MESSAGE-----");
 
 		try {
-			logger.info("  MTI : " + msg.getMTI());
+			String mti = String.format("[0:%s]", msg.getMTI());
+			StringBuilder isoMsg = new StringBuilder(mti);
+			// logger.info(" MTI : " + msg.getMTI());
 			for (int i = 1; i <= msg.getMaxField(); i++) {
 				if (msg.hasField(i)) {
-					logger.info("    Field-" + i + " : " + msg.getString(i));
+					// logger.info(" Field-" + i + " : " + msg.getString(i));
+					String field = String.format("[%d:%s]", i, msg.getString(i));
+					isoMsg.append(field);
 				}
 			}
+			logger.info(isoMsg);
 		} catch (ISOException e) {
 			e.printStackTrace();
 		} finally {
-			logger.info("--------------------");
+			// logger.info("--------------------");
 		}
 	}
 
 	@Override
 	protected void initService() throws ISOException {
-		logger.info("initializing ChannelManager Service");
+//		logger.info("initializing ChannelManager Service");
 		try {
 			mux = (AJMUX) NameRegistrar.get("mux." + cfg.get("mux"));
 
@@ -75,14 +78,14 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			sp.addListener(in, this);
 
 			MAX_TIME_OUT = cfg.getLong("timeout");
-			
+
 			// TODO BAD PRACTICE!!!
 			if (cfg.get("mux").equals("jpos-client-mux")) {
 				NameRegistrar.register("manager", this);
 			} else {
 				NameRegistrar.register("aj-postpaid-ntl-manager", this);
 			}
-			
+
 		} catch (NameRegistrar.NotFoundException e) {
 			logger.error("Error in initializing service :" + e.getMessage());
 		}
@@ -175,29 +178,28 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			public void run() {
 				Map<String, String> reversal = DatabaseManager.getReversal();
 
-//				for (int i = 0; i < 100; i++) {
-//					String key = "jpos-client-send" + "." + "0200" + String.format("%05d", i);
-//					System.out.println("ChannelManager.startService; key: " + key);
-//					Object o = sp.rd(key, 100);
-//					System.out.println(o);
-//					
-//					String key2 = "jpos-client-receive" + "." + "0200" + String.format("%05d", i);
-//					System.out.println("ChannelManager.startService; key2: " + key2);
-//					Object o2 = sp.rd(key2, 100);
-//					System.out.println(o2);
-//				}
+				// for (int i = 0; i < 100; i++) {
+				// String key = "jpos-client-send" + "." + "0200" + String.format("%05d", i);
+				// System.out.println("ChannelManager.startService; key: " + key);
+				// Object o = sp.rd(key, 100);
+				// System.out.println(o);
+				//
+				// String key2 = "jpos-client-receive" + "." + "0200" + String.format("%05d", i);
+				// System.out.println("ChannelManager.startService; key2: " + key2);
+				// Object o2 = sp.rd(key2, 100);
+				// System.out.println(o2);
+				// }
 
-//				System.out.println("================");
-//				System.out.println("DB isconnected  : " + DatabaseManager.getIsConnected());
-//				System.out.println("MUX isConnected : " + mux.isConnected());
-//				System.out.println("Reversal SAF    : " + reversal.toString());
-
+				// System.out.println("================");
+				// System.out.println("DB isconnected : " + DatabaseManager.getIsConnected());
+				// System.out.println("MUX isConnected : " + mux.isConnected());
+				// System.out.println("Reversal SAF : " + reversal.toString());
 
 				if (mux.isConnected() && !reversal.toString().equals("{}")
 						&& DatabaseManager.getIsConnected().equals("true")) {
 					sendLinkUp(reversal);
 				} else {
-//					System.out.println("No Reversal in SAF");
+					// System.out.println("No Reversal in SAF");
 
 				}
 			}
@@ -383,7 +385,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		DatabaseManager.setStan(m.getValue(11).toString());
 
 		System.out.println("======== BEFORE SENDING =======");
-		logISOMsg(m);
+		// logISOMsg(m);
 		// HERE YOU GO, LADS! send request message to switching server
 		Object obj = mux.request(m, timeout);
 
@@ -408,7 +410,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			DatabaseManager.deleteStan(m.getValue(11).toString());
 
 			System.out.println("======== AFTER RECEIVING =======");
-			logISOMsg(resp);
+//			logISOMsg(resp);
 
 			// LINK DOWN
 			if (resp.getValue(39).toString().equals("404")) {
@@ -417,7 +419,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				// for postpaid or NTL, when link down,
 				// store reversal message to redis (later, when it is linked up, send reversal automatically)
 				if (Long.parseLong(m.getValue(4).toString()) > 0
-				// && m.getMTI().equals("0400")
+						// && m.getMTI().equals("0400")
 						&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
 					sendLinkUp(m);
 				}
@@ -440,7 +442,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		return resp;
 	}
 
-	private static HashMap<String, String> getDate() {			
+	private static HashMap<String, String> getDate() {
 		DateFormat dateFormat1 = new SimpleDateFormat("MMdd");
 		DateFormat dateFormat2Bit7 = new SimpleDateFormat("HH");
 		DateFormat dateFormat2Bit12 = new SimpleDateFormat("HH");
