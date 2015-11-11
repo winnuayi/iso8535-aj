@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jpos.core.ConfigurationException;
 import org.jpos.iso.BaseChannel;
@@ -49,12 +50,16 @@ import org.jpos.util.Loggeable;
 import org.jpos.util.NameRegistrar;
 
 import com.ciheul.database.DatabaseManager;
+import com.ciheul.iso.server.ChannelManager;
 
 /**
  * @author Alejandro Revilla
  */
 @SuppressWarnings("unchecked")
 public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBean, Channel, Loggeable {
+	
+	private static final Logger logger = Logger.getLogger(AJChannelAdaptor.class);
+	
 	Space sp;
 	private ISOChannel channel;
 	String in, out, ready, reconnect;
@@ -310,9 +315,9 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 						break;
 					Object o = sp.in(in, delay);
 					
-					System.out.println("================");
-					System.out.println("AJChannelAdaptor.Sender.run; o: " + o);
-					System.out.println("================");
+					// System.out.println("================");
+					// System.out.println("AJChannelAdaptor.Sender.run; o: " + o);
+					// System.out.println("================");
 					
 					if (o instanceof ISOMsg) {
 						channel.send((ISOMsg) o);
@@ -416,6 +421,7 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 
 	protected void checkConnection() {
 		while (running() && sp.rdp(reconnect) != null) {
+			logger.debug("Running");
 			ISOUtil.sleep(1000);
 		}
 		while (running() && !channel.isConnected()) {
@@ -427,6 +433,7 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 			} catch (IOException e) {
 				DatabaseManager.setIsConnected("false");
 				getLog().warn("check-connection", e.getMessage());
+				logger.debug("Reconnect failed");
 			}
 			if (!channel.isConnected())
 				ISOUtil.sleep(delay);
@@ -435,6 +442,8 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 		}
 		if (running() && (sp.rdp(ready) == null))
 			sp.out(ready, new Date());
+		
+		logger.debug("Connected");
 	}
 
 	protected void disconnect() {
@@ -444,6 +453,7 @@ public class AJChannelAdaptor extends QBeanSupport implements ChannelAdaptorMBea
 			try {
 				SpaceUtil.wipe(sp, ready);
 				channel.disconnect();
+				logger.debug("Disconnected");
 			} catch (IOException e) {
 				getLog().warn("disconnect", e);
 			}

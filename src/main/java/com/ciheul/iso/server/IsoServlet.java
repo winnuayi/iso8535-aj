@@ -44,7 +44,7 @@ public class IsoServlet {
 		java.util.Date now2 = new java.util.Date();
 		String strDate2 = sdf2.format(now2);
 
-		logger.info("incoming from PGW :" + msg);
+//		logger.info("incoming from PGW :" + msg);
 
 		String responseMsg = "";
 		ISOMsg resp = null;
@@ -65,7 +65,7 @@ public class IsoServlet {
 			try {
 				resp = channelManager.sendMsg(createHandshakeISOMsg(isoMsgSend));
 
-				logger.info("response : ");
+//				logger.info("response : ");
 				ChannelManager.logISOMsg(resp);
 
 				if (resp != null) {
@@ -87,7 +87,7 @@ public class IsoServlet {
 			try {
 				resp = channelManager.sendMsg(createHandshakeISOMsg2(isoMsgSend));
 
-				logger.info("response : ");
+//				logger.info("response : ");
 				ChannelManager.logISOMsg(resp);
 
 				if (resp != null) {
@@ -115,69 +115,33 @@ public class IsoServlet {
 				}
 
 				resp = channelManager.sendMsg(createSendInquiryISOMsg(isoMsgSend));
-				logger.info("response : ");
+//				logger.info("response : ");
 
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 				java.util.Date now = new java.util.Date();
 				String strDate = sdf.format(now);
 
-				logger.error("cek time q2 receive : " + strDate);
+//				logger.error("cek time q2 receive : " + strDate);
 
 				ChannelManager.logISOMsg(resp);
 				// <<<<<<< HEAD
 
-				if (resp != null && !(resp.getValue(39).toString().equals("68") && resp.getMTI().equals("0200"))
+				if (resp != null 
+						&& !(resp.getValue(39).toString().equals("404") && resp.getMTI().equals("0200"))
+						&& !(resp.getValue(39).toString().equals("68") && resp.getMTI().equals("0200"))
 						&& !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000"))
 						&& !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000"))) {
 					responseMsg = resp.getValue(4).toString() + "#" + resp.getValue(39).toString() + "#"
-							+ resp.getValue(48);
-					// =======
-					// if (resp != null && !(resp.getValue(39).toString().equals("68") && resp.getMTI().equals("0200"))
-					// && !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000") && isAdvice)
-					// && !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000") && isAdvice))
-					// {
-					// String bit39 = resp.getValue(39).toString();
-					// if (resp.getValue(39).toString().equals("13") || resp.getValue(39).toString().equals("63")) {
-					// bit39 = bit39 + "2";
-					// }
-					// responseMsg = resp.getValue(4).toString() + "#" + bit39 + "#" + resp.getValue(48);
-					// >>>>>>> 5aaa8be5d937dadca883331170cf6a8bec760bb4
-
-					// System.out.println("masuk A");
-					logger.info("response : " + responseMsg);
+							+ resp.getValue(48);					
 				} else {
-					// System.out.println("masuk B");
 					if (resp != null) {
-						System.out.println("message from AJ : " + resp.getValue(39).toString());
-						// =======
-						//
-						// logger.error("cek time q2 receive : " + strDate);
-						//
-						// ChannelManager.logISOMsg(resp);
-						// if (resp != null
-						// && !(resp.getValue(39).toString().equals("68") && resp.getMTI().equals("0200"))
-						// && !(resp.getValue(39).toString().equals("13") && resp.getValue(3).equals("180000") &&
-						// isAdvice)
-						// && !(resp.getValue(39).toString().equals("63") && resp.getValue(3).equals("180000") &&
-						// isAdvice)) {
-						// String bit39 = resp.getValue(39).toString();
-						//
-						// if (resp.getValue(39).toString().equals("13") || resp.getValue(39).toString().equals("63")) {
-						// bit39 = bit39 + "2";
-						// }
-						//
-						// responseMsg = resp.getValue(4).toString() + "#" + bit39 + "#" + resp.getValue(48);
-						//
-						// System.out.println("masuk A");
-						// logger.info("response : " + responseMsg);
-						// } else {
-						// System.out.println("masuk B");
-						//
-						// if (resp != null) {
-						// System.out.println("message from AJ : " + resp.getValue(39).toString());
-						//
+						System.out.println("message from AJ : " + resp.getValue(39).toString());						
 						// >>>>>>> support-#5
 						switch (resp.getValue(39).toString()) {
+						case "404":
+							responseMsg = "TIMEOUT";
+							logger.info("LINK DOWN");
+							break;
 						case "68":
 							responseMsg = "TIMEOUT";
 							logger.info("REQUEST TIMEOUT");
@@ -247,7 +211,7 @@ public class IsoServlet {
 		IsoMessageResponse response = new IsoMessageResponse();
 		response.setMessage(responseMsg);
 
-		logger.info("response for PGW :" + response.getMessage());
+//		logger.info("response for PGW :" + response.getMessage());
 
 		return response;
 	}
@@ -324,7 +288,7 @@ public class IsoServlet {
 	 */
 	private ISOMsg createSendInquiryISOMsg(String isoMsgSend) throws ISOException {
 		String[] isoMsgSplit = isoMsgSend.split("#");
-		logger.info("bit48 : " + isoMsgSplit[14]);
+//		logger.info("bit48 : " + isoMsgSplit[14]);
 		ISOMsg m = new ISOMsg();
 		m.setMTI(isoMsgSplit[0]);
 		m.set(2, isoMsgSplit[1]);
