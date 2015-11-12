@@ -178,6 +178,7 @@ public class IsoServlet {
 		// Send MTI 0400
 		case "0400":
 			try {
+				channelManager = channelManagerPostpaidNTL;
 				resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
 
 				logger.info("response : ");
