@@ -7,12 +7,21 @@ public class Context {
 	public static final int PENDING_STATUS = 2;
 	public static final int SUCCESS_STATUS = 3;
 	public static final int FAIL_STATUS = 1;
-	
+
 	// POOL DATABASE CONFIGURATION
-	public static final String DB_USERNAME = "ciheul";
-	public static final String DB_PASSWORD = "";
-	public static final String DB_NAME = "axes-live";
-	public static final String DB_HOSTNAME = "";
+
+	// LOCAL DEVELOPMENT
+	// public static final String DB_USERNAME = "ciheul";
+	// public static final String DB_PASSWORD = "";
+	// public static final String DB_NAME = "axes-live";
+	// public static final String DB_HOSTNAME = "";
+
+	// PRODUCTION SERVER
+	public static final String DB_USERNAME = "axes";
+	public static final String DB_PASSWORD = "axes2014";
+	public static final String DB_NAME = "axes";
+	public static final String DB_HOSTNAME = "192.168.1.2";
+
 	public static final String DB_URL = "jdbc:postgresql://";
 	public static final String DB_DRIVER = "org.postgresql.Driver";
 	public static final boolean DB_JMX_ENABLED = true;
@@ -31,7 +40,6 @@ public class Context {
 	public static final boolean DB_LOG_ABANDONED = true;
 	public static final boolean DB_REMOVE_ABANDONED = true;
 
-
 	// REDIS AND JEDIS CONFIGURATION
 	public static final String REDIS_HOST = "localhost";
 	public static final int REDIS_PORT = 6379;
@@ -45,9 +53,9 @@ public class Context {
 	public static final String REVERSAL_MESSAGE = "reversalMessage";
 	public static final String TYPE_EXCLUDED = "EX";
 	public static final String TYPE_INCLUDED = "IN";
-    public static final String STAN = "stan";
-    
-    // ISO BIT VARIABLE
+	public static final String STAN = "stan";
+
+	// ISO BIT VARIABLE
 	public static final String ISO_BIT18 = "6021";
 	public static final String ISO_BIT42 = "AXS9999        ";
 	public static final String ISO_BIT49 = "360";

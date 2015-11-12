@@ -62,7 +62,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 	@Override
 	protected void initService() throws ISOException {
-//		logger.info("initializing ChannelManager Service");
+		// logger.info("initializing ChannelManager Service");
 		try {
 			mux = (AJMUX) NameRegistrar.get("mux." + cfg.get("mux"));
 
@@ -308,14 +308,14 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					String replyStr = "";
 
 					while (count < 3 && (reply == null || replyStr.equals(""))) {
-						logger.info("request : " + new String(messageBody));
+						// logger.info("request : " + new String(messageBody));
 
 						count = count + 1;
 
 						if (reply != null) {
 							if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94")
 									|| reply.getValue(39).equals("63")) {
-								logger.info("Link up response: " + reply.pack());
+								// logger.info("Link up response: " + reply.pack());
 								replyStr = "success";
 							} else {
 								reply = sendMsg(msg);
@@ -410,7 +410,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			DatabaseManager.deleteStan(m.getValue(11).toString());
 
 			System.out.println("======== AFTER RECEIVING =======");
-//			logISOMsg(resp);
+			// logISOMsg(resp);
 
 			// LINK DOWN
 			if (resp.getValue(39).toString().equals("404")) {
