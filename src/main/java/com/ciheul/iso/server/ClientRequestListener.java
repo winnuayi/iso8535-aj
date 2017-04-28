@@ -34,13 +34,13 @@ public class ClientRequestListener implements ISORequestListener {
 	 */
 	@Override
 	public boolean process(ISOSource source, ISOMsg m) {
-//		try {
-//			logger.info("incoming ISOMSG : " + m.getMTI());
-//		} catch (ISOException e1) {
-//			logger.error(e1.getMessage());
-//		}
+		//try {
+		//	logger.info("incoming ISOMSG : " + m.getMTI());
+		//} catch (ISOException e1) {
+		//	logger.error(e1.getMessage());
+		//}
 
-//		logger.info(m);
+		//logger.info(m);
 
 		channelManager.logISOMsg(m);
 		channelManager = ChannelManager.getInstance();

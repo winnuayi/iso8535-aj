@@ -213,7 +213,9 @@ public class AJMUX extends QBeanSupport implements SpaceListener, MUX, QMUXMBean
 				ISOMsg mmmm = (ISOMsg) o;
 				System.out.println("================");
 				System.out.println("this key has taken out: " + key);
-				System.out.println("Object o              : " + o + " | rc: " + mmmm.getValue(39).toString());
+                if (mmmm != null){
+				    System.out.println("Object o              : " + o + " | rc: " + mmmm.getValue(39).toString());
+                }
 				System.out.println("Object o (second time): " + isp.inp(key));
 				System.out.println("================");
 				break;
