@@ -48,7 +48,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			for (int i = 1; i <= msg.getMaxField(); i++) {
 				if (msg.hasField(i)) {
 					// logger.info(" Field-" + i + " : " + msg.getString(i));
-					String field = String.format("[%d:%s]", i, msg.getString(i));
+					String field = String
+							.format("[%d:%s]", i, msg.getString(i));
 					isoMsg.append(field);
 				}
 			}
@@ -62,7 +63,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 	@Override
 	protected void initService() throws ISOException {
-//		logger.info("initializing ChannelManager Service");
+		// logger.info("initializing ChannelManager Service");
 		try {
 			mux = (AJMUX) NameRegistrar.get("mux." + cfg.get("mux"));
 
@@ -78,13 +79,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			sp.addListener(in, this);
 
 			MAX_TIME_OUT = cfg.getLong("timeout");
+//			MAX_TIME_OUT = 10;
 
 			// TODO BAD PRACTICE!!!
-			if (cfg.get("mux").equals("jpos-client-mux")) {
-				NameRegistrar.register("manager", this);
-			} else {
-				NameRegistrar.register("aj-postpaid-ntl-manager", this);
-			}
+			NameRegistrar.register("telkomsel-manager", this);
 
 		} catch (NameRegistrar.NotFoundException e) {
 			logger.error("Error in initializing service :" + e.getMessage());
@@ -216,17 +214,18 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		String billNumber = "";
 		try {
 			// get bill number from bit 48, either postpaid or NTL
-			if (m.getValue(48).toString().substring(0, 4).equals("2112")) {
-				billNumber = m.getValue(48).toString().substring(4, 16);
-			} else if (m.getValue(48).toString().substring(0, 4).equals("2114")) {
-				billNumber = m.getValue(48).toString().substring(4, 17);
-			}
+			billNumber = m.getValue(48).toString().substring(7, 36);
 
 			// build reversal message
-			String reversalMessage = m.getValue(4).toString() + "#" + m.getValue(7).toString() + "#"
-					+ m.getValue(11).toString() + "#" + m.getValue(37).toString() + "#" + m.getValue(42).toString()
-					+ "#" + m.getValue(48).toString() + "#" + "0200" + m.getValue(11).toString()
-					+ m.getValue(7).toString() + m.getValue(32).toString() + "00000000000" + "#" + billNumber;
+			String reversalMessage = m.getValue(4).toString() + "#"
+					+ m.getValue(7).toString() + "#"
+					+ m.getValue(11).toString() + "#"
+					+ m.getValue(37).toString() + "#"
+					+ m.getValue(42).toString() + "#"
+					+ m.getValue(48).toString() + "#" + "0200"
+					+ m.getValue(11).toString() + m.getValue(7).toString()
+					+ m.getValue(32).toString() + "00000000000" + "#"
+					+ billNumber;
 
 			System.out.println("masuk :" + reversalMessage);
 
@@ -247,7 +246,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 	 */
 	private void sendLinkUp(Map<String, String> reversal) {
 		String reversalString = reversal.values().toString();
-		String[] reversalMessage = reversalString.substring(1, reversalString.length() - 1).split(",");
+		String[] reversalMessage = reversalString.substring(1,
+				reversalString.length() - 1).split(",");
 
 		int jumlah = 0;
 		int tambah = 1;
@@ -308,14 +308,15 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 					String replyStr = "";
 
 					while (count < 3 && (reply == null || replyStr.equals(""))) {
-						//logger.info("request : " + new String(messageBody));
+						// logger.info("request : " + new String(messageBody));
 
 						count = count + 1;
 
 						if (reply != null) {
-							if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94")
+							if (reply.getValue(39).equals("00")
+									|| reply.getValue(39).equals("94")
 									|| reply.getValue(39).equals("63")) {
-								//logger.info("Link up response: " + reply.pack());
+								// logger.info("Link up response: " + reply.pack());
 								replyStr = "success";
 							} else {
 								reply = sendMsg(msg);
@@ -326,24 +327,20 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 						}
 
 						if (count == 3) {
-							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
-							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
-							}
+
+							DatabaseManager.DelReversal(msg.getValue(48)
+									.toString().substring(7, 36));
 						}
 					}
 
 					// if there exists reply and rc is 00 (success), 63 (), or 94 ()
 					// remove reversal message from redis
 					if (reply != null) {
-						if (reply.getValue(39).equals("00") || reply.getValue(39).equals("94")
+						if (reply.getValue(39).equals("00")
+								|| reply.getValue(39).equals("94")
 								|| reply.getValue(39).equals("63")) {
-							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
-							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
-							}
+							DatabaseManager.DelReversal(msg.getValue(48)
+									.toString().substring(7, 36));
 						}
 					}
 				} catch (Exception e) {
@@ -370,8 +367,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 
 			// if m is a reversal message (and of course it must be postpaid or NTL),
 			// store reversal message to redis (later, when it is linked up, send reversal automatically)
-			if (Long.parseLong(m.getValue(4).toString()) > 0 && m.getMTI().equals("0400")
-					&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
+			if (Long.parseLong(m.getValue(4).toString()) > 0
+					&& m.getMTI().equals("0400")) {
 				sendLinkUp(m);
 			}
 
@@ -410,7 +407,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			DatabaseManager.deleteStan(m.getValue(11).toString());
 
 			System.out.println("======== AFTER RECEIVING =======");
-//			logISOMsg(resp);
+			// logISOMsg(resp);
 
 			// LINK DOWN
 			if (resp.getValue(39).toString().equals("404")) {
@@ -419,8 +416,8 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 				// for postpaid or NTL, when link down,
 				// store reversal message to redis (later, when it is linked up, send reversal automatically)
 				if (Long.parseLong(m.getValue(4).toString()) > 0
-						// && m.getMTI().equals("0400")
-						&& !m.getValue(48).toString().substring(0, 4).equals("2111")) {
+				// && m.getMTI().equals("0400")
+				) {
 					sendLinkUp(m);
 				}
 
@@ -457,8 +454,10 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 		dateFormat3.setTimeZone(timeZone);
 
 		Date newDate = new Date();
-		String bit7 = dateFormat1.format(newDate) + dateFormat2Bit7.format(newDate) + dateFormat3.format(newDate);
-		String bit12 = dateFormat2Bit12.format(newDate) + dateFormat3.format(newDate);
+		String bit7 = dateFormat1.format(newDate)
+				+ dateFormat2Bit7.format(newDate) + dateFormat3.format(newDate);
+		String bit12 = dateFormat2Bit12.format(newDate)
+				+ dateFormat3.format(newDate);
 		String bit13 = dateFormat1.format(newDate);
 		String bit15 = Integer.toString(Integer.parseInt(bit13) + 1);
 
@@ -480,7 +479,7 @@ public class ChannelManager extends QBeanSupport implements SpaceListener {
 			// _cMSingleTon = new ChannelManager();
 
 			try {
-				_cMSingleTon = ((ChannelManager) NameRegistrar.get("manager"));
+				_cMSingleTon = ((ChannelManager) NameRegistrar.get("telkomsel-manager"));
 			} catch (NotFoundException e) {
 				e.printStackTrace();
 			}

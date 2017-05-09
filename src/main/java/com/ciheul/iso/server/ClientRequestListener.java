@@ -20,7 +20,8 @@ import com.ciheul.database.DatabaseManager;
 
 public class ClientRequestListener implements ISORequestListener {
 
-	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ChannelManager.class);
+	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger
+			.getLogger(ChannelManager.class);
 	private int LOGGEDIN = 1;
 	private int NOT_LOGGEDIN = 0;
 	private ChannelManager channelManager;
@@ -34,18 +35,19 @@ public class ClientRequestListener implements ISORequestListener {
 	 */
 	@Override
 	public boolean process(ISOSource source, ISOMsg m) {
-		//try {
-		//	logger.info("incoming ISOMSG : " + m.getMTI());
-		//} catch (ISOException e1) {
-		//	logger.error(e1.getMessage());
-		//}
+		// try {
+		// logger.info("incoming ISOMSG : " + m.getMTI());
+		// } catch (ISOException e1) {
+		// logger.error(e1.getMessage());
+		// }
 
-		//logger.info(m);
-
+		// logger.info(m);
+		
 		channelManager.logISOMsg(m);
 		channelManager = ChannelManager.getInstance();
 
 		try {
+			System.err.println("bit 4 long : " + Long.parseLong(m.getValue(4).toString()));
 			// Q2 receives echo request message from switching server
 			if (m.getMTI().equals("0800")) {
 				// Q2 sends echo response message back to tell that is alive
@@ -71,50 +73,9 @@ public class ClientRequestListener implements ISORequestListener {
 				// if prepaid => advice; if postpaid/NTL => send reversal
 
 				if (m.getMTI().equals("0210")) {
-					// prepaid
-					if (m.getValue(48).toString().substring(0, 4).equals("2111")) {
-						String rc = m.getValue(39).toString();
-
-						// for prepaid and request timeout, result code is 682
-						if (m.getValue(39).toString().equals("68")) {
-							rc = rc + "2";
-						}
-
-						// get advice from redis using device number and customer id
-						String adviceMessage1 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(15, 27));
-						String adviceMessage2 = DatabaseManager.getAdvice(m.getValue(48).toString().substring(4, 15));
-
-						// ============ START OF CONFUSION ============
-						// TODO I do not understand the following block code. how does it work?
-
-						// advice message is not in redis
-						if ((adviceMessage1 == null || adviceMessage2 == null)) {
-
-							String msgBytes = m.getValue(4).toString() + "#" + rc + "#" + m.getValue(48).toString();
-							DatabaseManager
-									.setAdviceSuccess("" + Integer.parseInt(m.getValue(37).toString()), msgBytes);
-						} else {
-							DatabaseManager.updateBit48(m.getValue(48).toString().substring(4, 15), m.getValue(48)
-									.toString().substring(15, 27), "" + Integer.parseInt(m.getValue(37).toString()), m
-									.getValue(48).toString(), Context.PENDING_STATUS);
-
-							if (m.getValue(39).toString().equals("00")) {
-								DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.SUCCESS_STATUS, m
-										.getValue(39).toString(), "Approved");
-							} else {
-								DatabaseManager.updateStatusTransaction("" + m.getValue(37), Context.FAIL_STATUS, rc,
-										"Transaction Fail");
-							}
-
-							DatabaseManager.delAdvice(m.getValue(48).toString().substring(15, 27));
-							DatabaseManager.delAdvice(m.getValue(48).toString().substring(4, 15));
-						}
-
-						// ============ END OF CONFUSION ============
-					} else {
-						// Q2 receives postpaid/NTL payment response
-						channelManager.sendMsg(createReversalISOMsg(m));
-					}
+					// Q2 receives TELKOMSEL payment response
+					System.err.println("client request listener get data");
+					channelManager.sendMsg(createReversalISOMsg(m));
 				}
 			}
 		} catch (ISOException e) {
@@ -127,7 +88,8 @@ public class ClientRequestListener implements ISORequestListener {
 
 	private void sendLinkUp(Map<String, String> reversal) {
 		String reversalString = reversal.values().toString();
-		String[] reversalMessage = reversalString.substring(1, reversalString.length() - 1).split(",");
+		String[] reversalMessage = reversalString.substring(1,
+				reversalString.length() - 1).split(",");
 
 		int jumlah = 0;
 		int tambah = 1;
@@ -200,21 +162,15 @@ public class ClientRequestListener implements ISORequestListener {
 						}
 
 						if (count == 4) {
-							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
-							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
-							}
+							DatabaseManager.DelReversal(msg.getValue(48)
+									.toString().substring(7, 36));
 						}
 					}
 
 					if (reply != null) {
 						if (reply.getValue(39).equals("00")) {
-							if (msg.getValue(48).toString().substring(0, 4).equals("2112")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 16));
-							} else if (msg.getValue(48).toString().substring(0, 4).equals("2114")) {
-								DatabaseManager.DelReversal(msg.getValue(48).toString().substring(4, 17));
-							}
+							DatabaseManager.DelReversal(msg.getValue(48)
+									.toString().substring(7, 36));
 						}
 					}
 				} catch (Exception e) {
@@ -284,7 +240,8 @@ public class ClientRequestListener implements ISORequestListener {
 	 * @param m
 	 *            message from client
 	 */
-	private ISOMsg createReversalISOMsg(ISOMsg lateResponse) throws ISOException {
+	private ISOMsg createReversalISOMsg(ISOMsg lateResponse)
+			throws ISOException {
 		ISOMsg m = new ISOMsg();
 		m.setMTI("0400");
 		m.set(2, lateResponse.getValue(2).toString());
@@ -303,7 +260,8 @@ public class ClientRequestListener implements ISORequestListener {
 		m.set(48, lateResponse.getValue(48).toString());
 		m.set(49, lateResponse.getValue(49).toString());
 		m.set(63, lateResponse.getValue(63).toString());
-		m.set(90, "0200" + lateResponse.getValue(11).toString() + "" + lateResponse.getValue(7).toString() + "00000"
+		m.set(90, "0200" + lateResponse.getValue(11).toString() + ""
+				+ lateResponse.getValue(7).toString() + "00000"
 				+ lateResponse.getValue(32).toString() + "00000000000");
 		m.setPackager(new ISO87APackager());
 
@@ -328,8 +286,10 @@ public class ClientRequestListener implements ISORequestListener {
 		dateFormat3.setTimeZone(timeZone);
 
 		Date newDate = new Date();
-		String bit7 = dateFormat1.format(newDate) + dateFormat2.format(newDate) + dateFormat3.format(newDate);
-		String bit12 = dateFormat2.format(newDate) + dateFormat3.format(newDate);
+		String bit7 = dateFormat1.format(newDate) + dateFormat2.format(newDate)
+				+ dateFormat3.format(newDate);
+		String bit12 = dateFormat2.format(newDate)
+				+ dateFormat3.format(newDate);
 		String bit13 = dateFormat1.format(newDate);
 		String bit15 = Integer.toString(Integer.parseInt(bit13) + 1);
 

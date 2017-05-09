@@ -18,7 +18,8 @@
 
 		<!-- POSTPAID AND NTL / PRODUCTION SERVER -->
         <!--<property name="host" value="118.97.191.109" />-->
-		<property name="host" value="114.6.68.174" />
+		<!--<property name="host" value="114.6.68.174" />-->
+		<property name="host" value="127.0.0.1" />
 		<property name="port" value="18703" />
 
 		<!-- LOCAL DEVELOPMENT SERVER -->

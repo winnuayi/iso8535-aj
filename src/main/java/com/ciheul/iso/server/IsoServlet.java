@@ -22,14 +22,12 @@ import org.jpos.util.NameRegistrar.NotFoundException;
 public class IsoServlet {
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(IsoServlet.class);
 	ChannelManager channelManager = null;
-	ChannelManager channelManagerPrepaid = null;
-	ChannelManager channelManagerPostpaidNTL = null;
+	ChannelManager channelManagerTelkomsel = null;
 
 	public IsoServlet() {
 		// channelManager = ChannelManager.getInstance();
 		try {
-			channelManagerPrepaid = ((ChannelManager) NameRegistrar.get("manager"));
-			channelManagerPostpaidNTL = ((ChannelManager) NameRegistrar.get("aj-postpaid-ntl-manager"));
+			channelManagerTelkomsel = ((ChannelManager) NameRegistrar.get("telkomsel-manager"));
 		} catch (NotFoundException e) {
 			e.printStackTrace();
 		}
@@ -51,12 +49,8 @@ public class IsoServlet {
 		String[] isoMsgSplit = msg.getMessage().split("#");
 		String isoMsgSend = msg.getMessage();
 
-		// now, AJ has two servers. one for prepaid (2111) and another one for postpaid (2112) + NTL (2114)
-		if (isoMsgSplit[14].substring(0, 4).equals("2111")) {
-			channelManager = channelManagerPrepaid;
-		} else {
-			channelManager = channelManagerPostpaidNTL;
-		}
+		// set channel manager for Telkomsel
+		channelManager = channelManagerTelkomsel;
 
 		switch (isoMsgSplit[0]) {
 
@@ -178,7 +172,7 @@ public class IsoServlet {
 		// Send MTI 0400
 		case "0400":
 			try {
-			    channelManager = channelManagerPostpaidNTL;
+			    channelManager = channelManagerTelkomsel;
 				resp = channelManager.sendMsg(createSendReversalISOMsg(isoMsgSend));
 
 				logger.info("response : ");
